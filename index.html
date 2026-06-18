@@ -434,8 +434,8 @@ class Component extends DCLogic {
   state = { lang: 'ru', navOpen: false };
 
   renderVals() {
-    const phone = '87777777777';
-    const intl = '7' + phone.slice(1); // 77777777777
+    const phone = '87755557475';
+    const intl = '7' + phone.slice(1); // 77755557475
     const active = { background:'#16202c', color:'#fff', border:'none', padding:'7px 11px', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', fontWeight:600 };
     const idle   = { background:'#fff', color:'#7c8694', border:'none', padding:'7px 11px', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', fontWeight:600 };
     const hv = this.props.heroVariant ?? 'Раздельный';
@@ -448,7 +448,7 @@ class Component extends DCLogic {
     return {
       waLink: 'https://wa.me/' + intl,
       telLink: 'tel:+' + intl,
-      phoneDisplay: '+7 (777) 777-77-77',
+      phoneDisplay: '+7 (775) 555-74-75',
 
       ruBtnStyle: this.state.lang === 'ru' ? active : idle,
       kzBtnStyle: this.state.lang === 'kz' ? active : idle,
