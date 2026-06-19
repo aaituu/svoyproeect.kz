@@ -372,7 +372,7 @@
                     margin-top: 4px;
                     text-transform: uppercase;
                   "
-                  >Проектная компания</span
+                  >{{ brandSub }}</span
                 >
               </span>
             </a>
@@ -392,31 +392,31 @@
                 href="#objects"
                 style="transition: color 0.15s"
                 style-hover="color:#2f7fd1"
-                >Что проектируем</a
+                >{{ navObjects }}</a
               >
               <a
                 href="#process"
                 style="transition: color 0.15s"
                 style-hover="color:#2f7fd1"
-                >Этапы</a
+                >{{ navStages }}</a
               >
               <a
                 href="#licenses"
                 style="transition: color 0.15s"
                 style-hover="color:#2f7fd1"
-                >Лицензии</a
+                >{{ navLicenses }}</a
               >
               <a
                 href="#portfolio"
                 style="transition: color 0.15s"
                 style-hover="color:#2f7fd1"
-                >Проекты</a
+                >{{ navProjects }}</a
               >
               <a
                 href="#about"
                 style="transition: color 0.15s"
                 style-hover="color:#2f7fd1"
-                >О компании</a
+                >{{ navAbout }}</a
               >
             </nav>
 
@@ -459,7 +459,7 @@
                 "
                 style-hover="background:#1ebe5d"
               >
-                {{ waIcon }} Консультация
+                {{ waIcon }} {{ btnConsult }}
               </a>
             </div>
 
@@ -523,7 +523,7 @@
                   font-weight: 600;
                   border-bottom: 1px solid #f0f2f5;
                 "
-                >Что проектируем</a
+                >{{ navObjects }}</a
               >
               <a
                 href="#process"
@@ -534,7 +534,7 @@
                   font-weight: 600;
                   border-bottom: 1px solid #f0f2f5;
                 "
-                >Этапы работы</a
+                >{{ navStagesFull }}</a
               >
               <a
                 href="#licenses"
@@ -545,7 +545,7 @@
                   font-weight: 600;
                   border-bottom: 1px solid #f0f2f5;
                 "
-                >Лицензии</a
+                >{{ navLicenses }}</a
               >
               <a
                 href="#portfolio"
@@ -556,7 +556,7 @@
                   font-weight: 600;
                   border-bottom: 1px solid #f0f2f5;
                 "
-                >Проекты</a
+                >{{ navProjects }}</a
               >
               <a
                 href="#about"
@@ -567,7 +567,7 @@
                   font-weight: 600;
                   border-bottom: 1px solid #f0f2f5;
                 "
-                >О компании</a
+                >{{ navAbout }}</a
               >
               <a
                 href="{{ waLink }}"
@@ -584,7 +584,7 @@
                   border-radius: 9px;
                   font-weight: 600;
                 "
-                >{{ waIcon }} Написать в WhatsApp</a
+                >{{ waIcon }} {{ btnWriteWA }}</a
               >
             </div>
           </sc-if>
@@ -650,7 +650,7 @@
                     "
                     >●</span
                   >
-                  Проектирование под ключ — от эскиза до согласования
+                  {{ heroBadge }}
                 </div>
                 <h1
                   style="
@@ -662,8 +662,8 @@
                     text-wrap: balance;
                   "
                 >
-                  Проектирование жилых, коммерческих и
-                  <span class="accent-grad">промышленных объектов</span>
+                  {{ heroTitleA }}
+                  <span class="accent-grad">{{ heroTitleSpan }}</span>
                 </h1>
                 <p
                   style="
@@ -673,10 +673,7 @@
                     color: #56616f;
                     max-width: 520px;
                   "
-                >
-                  Проектируем под ключ — от эскизного проекта до согласования в
-                  экспертизе и ГУ «Управление архитектуры» г. Астаны.
-                </p>
+                >{{ heroSub }}</p>
                 <div style="margin-top: 22px; max-width: 520px">
                   <div
                     style="
@@ -688,7 +685,7 @@
                       margin-bottom: 13px;
                     "
                   >
-                    Разрабатываем
+                    {{ heroListTitle }}
                   </div>
                   <div style="display: flex; flex-direction: column; gap: 11px">
                     <div
@@ -718,7 +715,7 @@
                         "
                         >✓</span
                       >
-                      Эскизные проекты
+                      {{ heroList1 }}
                     </div>
                     <div
                       style="
@@ -747,7 +744,7 @@
                         "
                         >✓</span
                       >
-                      Рабочие проекты
+                      {{ heroList2 }}
                     </div>
                     <div
                       style="
@@ -776,7 +773,7 @@
                         "
                         >✓</span
                       >
-                      Наружные и внутренние инженерные сети любой сложности
+                      {{ heroList3 }}
                     </div>
                   </div>
                 </div>
@@ -807,7 +804,7 @@
                         box-shadow 0.15s;
                     "
                     style-hover="transform:translateY(-2px);box-shadow:0 18px 38px -10px rgba(47,127,209,.7)"
-                    >Получить консультацию</a
+                    >{{ btnGetConsult }}</a
                   >
                   <a
                     href="#portfolio"
@@ -827,7 +824,7 @@
                         background 0.15s;
                     "
                     style-hover="border-color:#16202c;background:#f7f9fb"
-                    >Смотреть проекты</a
+                    >{{ btnSeeProjects }}</a
                   >
                 </div>
                 <div
@@ -852,7 +849,7 @@
                     <div
                       style="font-size: 13px; color: #7c8694; margin-top: 3px"
                     >
-                      лет опыта работы
+                      {{ statExp }}
                     </div>
                   </div>
                   <div style="width: 1px; background: #dde3ec"></div>
@@ -870,7 +867,7 @@
                     <div
                       style="font-size: 13px; color: #7c8694; margin-top: 3px"
                     >
-                      сотрудников
+                      {{ statStaff }}
                     </div>
                   </div>
                   <div style="width: 1px; background: #dde3ec"></div>
@@ -888,7 +885,7 @@
                     <div
                       style="font-size: 13px; color: #7c8694; margin-top: 3px"
                     >
-                      выполненных объектов
+                      {{ statDone }}
                     </div>
                   </div>
                 </div>
@@ -929,7 +926,7 @@
                       margin-bottom: 8px;
                     "
                   >
-                    ЭКСПЕРТИЗА
+                    {{ cardExpTag }}
                   </div>
                   <div
                     style="
@@ -939,7 +936,7 @@
                       line-height: 1.35;
                     "
                   >
-                    Сопровождение в государственной или частной экспертизе
+                    {{ cardExpText }}
                   </div>
                 </div>
                 <div
@@ -963,7 +960,7 @@
                       color: #d7dde6;
                     "
                   >
-                    Разработка и согласование рабочих проектов
+                    {{ card2Text }}
                   </div>
                 </div>
               </div>
@@ -1034,7 +1031,7 @@
                     text-wrap: balance;
                   "
                 >
-                  Проектирование объектов под&nbsp;ключ
+                  {{ heroTitleImm }}
                 </h1>
                 <p
                   style="
@@ -1044,11 +1041,7 @@
                     color: #b8c2cf;
                     max-width: 560px;
                   "
-                >
-                  Эскизные и рабочие проекты, наружные инженерные сети,
-                  сопровождение экспертизы и согласований — от идеи до
-                  результата.
-                </p>
+                >{{ heroSubImm }}</p>
                 <div
                   style="
                     display: flex;
@@ -1071,7 +1064,7 @@
                       transition: transform 0.15s;
                     "
                     style-hover="transform:translateY(-2px)"
-                    >Получить консультацию</a
+                    >{{ btnGetConsult }}</a
                   >
                   <a
                     href="#portfolio"
@@ -1086,7 +1079,7 @@
                       transition: background 0.15s;
                     "
                     style-hover="background:rgba(255,255,255,.18)"
-                    >Смотреть проекты</a
+                    >{{ btnSeeProjects }}</a
                   >
                 </div>
                 <div
@@ -1104,7 +1097,7 @@
                     <div
                       style="font-size: 13px; color: #8e9aab; margin-top: 3px"
                     >
-                      лет опыта работы
+                      {{ statExp }}
                     </div>
                   </div>
                   <div>
@@ -1114,7 +1107,7 @@
                     <div
                       style="font-size: 13px; color: #8e9aab; margin-top: 3px"
                     >
-                      сотрудников
+                      {{ statStaff }}
                     </div>
                   </div>
                   <div>
@@ -1124,7 +1117,7 @@
                     <div
                       style="font-size: 13px; color: #8e9aab; margin-top: 3px"
                     >
-                      выполненных объектов
+                      {{ statDone }}
                     </div>
                   </div>
                 </div>
@@ -1153,7 +1146,7 @@
                 margin-bottom: 38px;
               "
             >
-              Что мы проектируем
+              {{ secObjects }}
             </h2>
             <div
               style="
@@ -1254,7 +1247,7 @@
                 margin-bottom: 46px;
               "
             >
-              Как мы работаем
+              {{ secProcess }}
             </h2>
             <div
               style="
@@ -1361,7 +1354,7 @@
                     line-height: 1.08;
                   "
                 >
-                  Наши объекты
+                  {{ portfolioH2 }}
                 </h2>
               </div>
               <p
@@ -1372,10 +1365,7 @@
                   line-height: 1.5;
                   font-style: italic;
                 "
-              >
-                Реализованные проекты: жилые комплексы, производственные базы,
-                коммерческие и промышленные объекты, наружные инженерные сети.
-              </p>
+              >{{ portfolioSub }}</p>
             </div>
 
             <div class="mosaic">
@@ -1482,7 +1472,7 @@
                 margin-bottom: 20px;
               "
             >
-              Проектное бюро полного цикла
+              {{ aboutH2 }}
             </h2>
             <p
               style="
@@ -1491,12 +1481,7 @@
                 line-height: 1.65;
                 margin-bottom: 16px;
               "
-            >
-              ТОО «СВОЙ ПРОЕКТ» разрабатывает эскизные и рабочие проекты, наружные
-              инженерные сети и сопровождает прохождение экспертизы и
-              согласований. Мы закрываем весь путь объекта — от первой идеи до
-              готового комплекта документации.
-            </p>
+            >{{ aboutP1 }}</p>
             <p
               style="
                 font-size: 16px;
@@ -1504,11 +1489,7 @@
                 line-height: 1.65;
                 margin-bottom: 28px;
               "
-            >
-              Работаем с жилыми, коммерческими и промышленными объектами.
-              Проектируем по действующим нормам и требованиям, отвечаем за
-              качество и сроки и ведём понятную коммуникацию на каждом этапе.
-            </p>
+            >{{ aboutP2 }}</p>
             <div
               style="
                 display: grid;
@@ -1526,10 +1507,10 @@
                     margin-bottom: 3px;
                   "
                 >
-                  Комплексный подход
+                  {{ aboutC1t }}
                 </div>
                 <div style="font-size: 13px; color: #7c8694; line-height: 1.45">
-                  все разделы в одном бюро
+                  {{ aboutC1d }}
                 </div>
               </div>
               <div style="border-left: 2px solid #2f7fd1; padding-left: 16px">
@@ -1541,10 +1522,10 @@
                     margin-bottom: 3px;
                   "
                 >
-                  До результата
+                  {{ aboutC2t }}
                 </div>
                 <div style="font-size: 13px; color: #7c8694; line-height: 1.45">
-                  сопровождение до заключения
+                  {{ aboutC2d }}
                 </div>
               </div>
               <div style="border-left: 2px solid #2f7fd1; padding-left: 16px">
@@ -1556,10 +1537,10 @@
                     margin-bottom: 3px;
                   "
                 >
-                  По нормам
+                  {{ aboutC3t }}
                 </div>
                 <div style="font-size: 13px; color: #7c8694; line-height: 1.45">
-                  соответствие требованиям
+                  {{ aboutC3d }}
                 </div>
               </div>
               <div style="border-left: 2px solid #2f7fd1; padding-left: 16px">
@@ -1571,10 +1552,10 @@
                     margin-bottom: 3px;
                   "
                 >
-                  Ответственно
+                  {{ aboutC4t }}
                 </div>
                 <div style="font-size: 13px; color: #7c8694; line-height: 1.45">
-                  за качество и сроки
+                  {{ aboutC4d }}
                 </div>
               </div>
             </div>
@@ -1610,10 +1591,10 @@
                   letter-spacing: -0.02em;
                 "
               >
-                Под ключ
+                {{ aboutBadge1 }}
               </div>
               <div style="font-size: 13px; color: #9fabb9; margin-top: 3px">
-                от идеи до согласования
+                {{ aboutBadge2 }}
               </div>
             </div>
           </div>
@@ -1644,7 +1625,7 @@
                   line-height: 1.08;
                 "
               >
-                Лицензии и допуски
+                {{ licH2 }}
               </h2>
               <p
                 style="
@@ -1654,10 +1635,7 @@
                   line-height: 1.55;
                   margin-top: 14px;
                 "
-              >
-                Работаем на основании государственных лицензий и допусков. Здесь
-                разместим реальные сканы документов.
-              </p>
+              >{{ licSub }}</p>
             </div>
             <div style="display: flex; gap: 10px">
               <button
@@ -1877,7 +1855,7 @@
                     margin-bottom: 16px;
                   "
                 >
-                  Обсудим ваш проект
+                  {{ ctaH2 }}
                 </h2>
                 <p
                   style="
@@ -1886,11 +1864,7 @@
                     line-height: 1.6;
                     max-width: 480px;
                   "
-                >
-                  Напишите нам в WhatsApp — поможем подобрать оптимальное
-                  проектное решение, расскажем по срокам, этапам и
-                  согласованиям.
-                </p>
+                >{{ ctaP }}</p>
                 <div
                   style="
                     display: flex;
@@ -1917,7 +1891,7 @@
                     "
                     style-hover="transform:translateY(-2px)"
                   >
-                    {{ waIcon }} Написать в WhatsApp
+                    {{ waIcon }} {{ btnWriteWA }}
                   </a>
                   <a
                     href="{{ telLink }}"
@@ -1999,10 +1973,10 @@
                         margin-bottom: 5px;
                       "
                     >
-                      РЕЖИМ РАБОТЫ
+                      {{ lblHours }}
                     </div>
                     <div style="font-size: 16px; font-weight: 600; color: #fff">
-                      Пн — Пт · 09:00 — 18:00
+                      {{ hours }}
                     </div>
                   </div>
                 </div>
@@ -2077,7 +2051,7 @@
                   max-width: 300px;
                 "
               >
-                Проектная организация с лицензией первой категории
+                {{ footDesc }}
               </p>
               <div
                 style="
@@ -2105,7 +2079,7 @@
                   letter-spacing: 0.08em;
                 "
               >
-                НАВИГАЦИЯ
+                {{ footNav }}
               </div>
               <div
                 style="
@@ -2120,25 +2094,25 @@
                   href="#objects"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Что проектируем</a
+                  >{{ navObjects }}</a
                 >
                 <a
                   href="#process"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Этапы работы</a
+                  >{{ navStagesFull }}</a
                 >
                 <a
                   href="#licenses"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Лицензии</a
+                  >{{ navLicenses }}</a
                 >
                 <a
                   href="#portfolio"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Проекты</a
+                  >{{ navProjects }}</a
                 >
               </div>
             </div>
@@ -2153,7 +2127,7 @@
                   letter-spacing: 0.08em;
                 "
               >
-                КОМПАНИЯ
+                {{ footCompany }}
               </div>
               <div
                 style="
@@ -2168,19 +2142,19 @@
                   href="#portfolio"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Проекты</a
+                  >{{ navProjects }}</a
                 >
                 <a
                   href="#about"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >О компании</a
+                  >{{ navAbout }}</a
                 >
                 <a
                   href="#contacts"
                   style="transition: color 0.15s"
                   style-hover="color:#fff"
-                  >Контакты</a
+                  >{{ navContacts }}</a
                 >
               </div>
             </div>
@@ -2195,7 +2169,7 @@
                   letter-spacing: 0.08em;
                 "
               >
-                КОНТАКТЫ
+                {{ footContacts }}
               </div>
               <div
                 style="
@@ -2212,7 +2186,7 @@
                   >{{ phoneDisplay }}</a
                 >
                 <span>make6265@gmail.com</span>
-                <span>Пн — Пт · 09:00 — 18:00</span>
+                <span>{{ hours }}</span>
                 <a
                   href="{{ waLink }}"
                   target="_blank"
@@ -2250,11 +2224,10 @@
               "
             >
               <span
-                >© 2026 ТОО «СВОЙ ПРОЕКТ». Проектирование объектов под
-                ключ.</span
+                >{{ copyright }}</span
               >
               <span style="font-family: &quot;JetBrains Mono&quot;, monospace"
-                >Эскиз · Рабочий проект · Экспертиза · Согласование</span
+                >{{ footTagline }}</span
               >
             </div>
           </div>
@@ -2281,7 +2254,16 @@
           if (!this.licRef) this.licRef = React.createRef();
           if (!this.waIcon) this.waIcon = React.createElement('svg', { viewBox:'0 0 24 24', width:18, height:18, fill:'currentColor', style:{flex:'none'} }, React.createElement('path', { d:'M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z' }));
 
+          const lang = this.state.lang;
+          const I18N = { ru: { brandSub: 'Проектная компания', navObjects: 'Что проектируем', navStages: 'Этапы', navStagesFull: 'Этапы работы', navLicenses: 'Лицензии', navProjects: 'Проекты', navAbout: 'О компании', navContacts: 'Контакты', btnConsult: 'Консультация', btnGetConsult: 'Получить консультацию', btnSeeProjects: 'Смотреть проекты', btnWriteWA: 'Написать в WhatsApp', heroBadge: 'Проектирование под ключ — от эскиза до согласования', heroTitleA: 'Проектирование жилых, коммерческих и', heroTitleSpan: 'промышленных объектов', heroSub: 'Проектируем под ключ — от эскизного проекта до согласования в экспертизе и ГУ «Управление архитектуры» г. Астаны.', heroListTitle: 'Разрабатываем', heroList1: 'Эскизные проекты', heroList2: 'Рабочие проекты', heroList3: 'Наружные и внутренние инженерные сети любой сложности', statExp: 'лет опыта работы', statStaff: 'сотрудников', statDone: 'выполненных объектов', cardExpTag: 'ЭКСПЕРТИЗА', cardExpText: 'Сопровождение в государственной или частной экспертизе', card2Text: 'Разработка и согласование рабочих проектов', heroTitleImm: 'Проектирование объектов под ключ', heroSubImm: 'Эскизные и рабочие проекты, наружные инженерные сети, сопровождение экспертизы и согласований — от идеи до результата.', secObjects: 'Что мы проектируем', secProcess: 'Как мы работаем', portfolioH2: 'Наши объекты', portfolioSub: 'Реализованные проекты: жилые комплексы, производственные базы, коммерческие и промышленные объекты, наружные инженерные сети.', aboutH2: 'Проектное бюро полного цикла', aboutP1: 'ТОО «СВОЙ ПРОЕКТ» разрабатывает эскизные и рабочие проекты, наружные инженерные сети и сопровождает прохождение экспертизы и согласований. Мы закрываем весь путь объекта — от первой идеи до готового комплекта документации.', aboutP2: 'Работаем с жилыми, коммерческими и промышленными объектами. Проектируем по действующим нормам и требованиям, отвечаем за качество и сроки и ведём понятную коммуникацию на каждом этапе.', aboutC1t: 'Комплексный подход', aboutC1d: 'все разделы в одном бюро', aboutC2t: 'До результата', aboutC2d: 'сопровождение до заключения', aboutC3t: 'По нормам', aboutC3d: 'соответствие требованиям', aboutC4t: 'Ответственно', aboutC4d: 'за качество и сроки', aboutBadge1: 'Под ключ', aboutBadge2: 'от идеи до согласования', licH2: 'Лицензии и допуски', licSub: 'Работаем на основании государственной лицензии и допусков. Здесь представлены сканы документов.', ctaH2: 'Обсудим ваш проект', ctaP: 'Напишите нам в WhatsApp — поможем подобрать оптимальное проектное решение, расскажем по срокам, этапам и согласованиям.', lblHours: 'РЕЖИМ РАБОТЫ', hours: 'Пн — Пт · 09:00 — 18:00', footDesc: 'Проектная организация с лицензией первой категории', footNav: 'НАВИГАЦИЯ', footCompany: 'КОМПАНИЯ', footContacts: 'КОНТАКТЫ', footTagline: 'Эскиз · Рабочий проект · Экспертиза · Согласование', copyright: '© 2026 ТОО «СВОЙ ПРОЕКТ». Проектирование объектов под ключ.' }, kz: { brandSub: 'Жобалау компаниясы', navObjects: 'Нені жобалаймыз', navStages: 'Кезеңдер', navStagesFull: 'Жұмыс кезеңдері', navLicenses: 'Лицензиялар', navProjects: 'Жобалар', navAbout: 'Компания туралы', navContacts: 'Байланыс', btnConsult: 'Кеңес алу', btnGetConsult: 'Кеңес алу', btnSeeProjects: 'Жобаларды көру', btnWriteWA: 'WhatsApp-қа жазу', heroBadge: 'Кілтпен жобалау — эскизден келісімге дейін', heroTitleA: 'Тұрғын, коммерциялық және', heroTitleSpan: 'өнеркәсіптік нысандарды жобалау', heroSub: 'Кілтпен жобалаймыз — эскиздік жобадан бастап сараптамада және Астана қаласының «Сәулет басқармасы» ММ-де келісуге дейін.', heroListTitle: 'Әзірлейміз', heroList1: 'Эскиздік жобалар', heroList2: 'Жұмыс жобалары', heroList3: 'Кез келген күрделіктегі сыртқы және ішкі инженерлік желілер', statExp: 'жыл тәжірибе', statStaff: 'қызметкер', statDone: 'орындалған нысан', cardExpTag: 'САРАПТАМА', cardExpText: 'Мемлекеттік немесе жеке сараптамада сүйемелдеу', card2Text: 'Жұмыс жобаларын әзірлеу және келісу', heroTitleImm: 'Нысандарды кілтпен жобалау', heroSubImm: 'Эскиздік және жұмыс жобалары, сыртқы инженерлік желілер, сараптама мен келісуді сүйемелдеу — идеядан нәтижеге дейін.', secObjects: 'Біз нені жобалаймыз', secProcess: 'Біз қалай жұмыс істейміз', portfolioH2: 'Біздің нысандар', portfolioSub: 'Іске асырылған жобалар: тұрғын кешендер, өндірістік базалар, коммерциялық және өнеркәсіптік нысандар, сыртқы инженерлік желілер.', aboutH2: 'Толық циклді жобалау бюросы', aboutP1: 'ТОО «СВОЙ ПРОЕКТ» эскиздік және жұмыс жобаларын, сыртқы инженерлік желілерді әзірлейді әрі сараптама мен келісуден өтуді сүйемелдейді. Біз нысанның бүкіл жолын жабамыз — алғашқы идеядан дайын құжаттама жинағына дейін.', aboutP2: 'Тұрғын, коммерциялық және өнеркәсіптік нысандармен жұмыс істейміз. Қолданыстағы нормалар мен талаптарға сай жобалаймыз, сапа мен мерзімге жауап береміз және әр кезеңде түсінікті байланыс жүргіземіз.', aboutC1t: 'Кешенді тәсіл', aboutC1d: 'барлық бөлімдер бір бюрода', aboutC2t: 'Нәтижеге дейін', aboutC2d: 'қорытындыға дейін сүйемелдеу', aboutC3t: 'Нормаларға сай', aboutC3d: 'талаптарға сәйкестік', aboutC4t: 'Жауапкершілікпен', aboutC4d: 'сапа мен мерзім үшін', aboutBadge1: 'Кілтпен', aboutBadge2: 'идеядан келісуге дейін', licH2: 'Лицензиялар мен рұқсаттар', licSub: 'Мемлекеттік лицензия мен рұқсаттар негізінде жұмыс істейміз. Төменде құжаттардың сканерленген көшірмелері берілген.', ctaH2: 'Жобаңызды талқылайық', ctaP: 'WhatsApp-қа жазыңыз — оңтайлы жобалық шешімді таңдауға көмектесеміз, мерзімдер, кезеңдер мен келісулер туралы айтып береміз.', lblHours: 'ЖҰМЫС УАҚЫТЫ', hours: 'Дс — Жм · 09:00 — 18:00', footDesc: 'Бірінші санатты лицензиясы бар жобалау ұйымы', footNav: 'МӘЗІР', footCompany: 'КОМПАНИЯ', footContacts: 'БАЙЛАНЫС', footTagline: 'Эскиз · Жұмыс жобасы · Сараптама · Келісу', copyright: '© 2026 ТОО «СВОЙ ПРОЕКТ». Нысандарды кілтпен жобалау.' } };
+          const L = I18N[lang] || I18N.ru;
+          const objects   = lang === 'kz' ? [{ title: 'Жеке үйлер', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70' }, { title: 'Тұрғын үйлер', img: './assets/projects/jk-day.jpg' }, { title: 'Тұрғын кешендер', img: './assets/projects/jk-orchid.jpg' }, { title: 'Қоймалар', img: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=70' }, { title: 'Өндірістік базалар', img: './assets/projects/prombaza.jpg' }, { title: 'Өнеркәсіптік нысандар', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=70' }, { title: 'Коммерциялық нысандар', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70' }, { title: 'Базалар мен логистика', img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=70' }] : [{ title: 'Частные дома', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70' }, { title: 'Жилые дома', img: './assets/projects/jk-day.jpg' }, { title: 'Жилые комплексы', img: './assets/projects/jk-orchid.jpg' }, { title: 'Склады', img: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=70' }, { title: 'Производственные базы', img: './assets/projects/prombaza.jpg' }, { title: 'Промышленные объекты', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=70' }, { title: 'Коммерческие объекты', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70' }, { title: 'Базы и логистика', img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=70' }];
+          const steps     = lang === 'kz' ? [{ n: '1', title: 'Өтінімді қабылдаймыз', text: 'Тапсырма мен нысан түрін нақтылаймыз.' }, { n: '2', title: 'Нысанды зерттейміз', text: 'Учаске мен бастапқы деректерді талдаймыз.' }, { n: '3', title: 'Техникалық шешім', text: 'Оңтайлы нұсқаны қалыптастырамыз.' }, { n: '4', title: 'Жобаны әзірлейміз', text: 'Құжаттаманың барлық бөлімін дайындаймыз.' }, { n: '5', title: 'Сараптаманы сүйемелдейміз', text: 'Ескертулерді пысықтаймыз.' }, { n: '6', title: 'Келісуге көмектесеміз', text: 'Инстанциялар бойынша жүргіземіз.' }, { n: '7', title: 'Жинақты тапсырамыз', text: 'Дайын құжаттама қолыңызда.' }] : [{ n: '1', title: 'Получаем заявку', text: 'Уточняем задачу и тип объекта.' }, { n: '2', title: 'Изучаем объект', text: 'Анализируем участок и исходные данные.' }, { n: '3', title: 'Техническое решение', text: 'Формируем оптимальный вариант.' }, { n: '4', title: 'Разрабатываем проект', text: 'Готовим все разделы документации.' }, { n: '5', title: 'Сопровождаем экспертизу', text: 'Отрабатываем замечания.' }, { n: '6', title: 'Помогаем с согласованиями', text: 'Ведём по инстанциям.' }, { n: '7', title: 'Передаём комплект', text: 'Готовая документация на руках.' }];
+          const licenses  = lang === 'kz' ? [{ tag: 'ЛИЦЕНЗИЯ', cat: 'I санат', title: 'Мемлекеттік лицензия', no: 'Жобалау қызметі · мерзімсіз', img: './assets/licenses/license-1.jpg' }, { tag: 'ҚОСЫМША', cat: 'Түр тармақтары', title: 'Жұмыс түрлерінің тізбесі', no: 'Лицензияға қосымша', img: './assets/licenses/license-2.jpg' }, { tag: 'ҚОСЫМША', cat: 'Түр тармақтары', title: 'Жұмыс түрлерінің тізбесі', no: 'Лицензияға қосымша', img: './assets/licenses/license-3.jpg' }, { tag: 'ҚОСЫМША', cat: 'Түр тармақтары', title: 'Жұмыс түрлерінің тізбесі', no: 'Лицензияға қосымша', img: './assets/licenses/license-4.jpg' }, { tag: 'ҚОСЫМША', cat: 'I санат', title: 'Өндірістік база', no: '№ 001 қосымша', img: './assets/licenses/license-5.jpg' }] : [{ tag: 'ЛИЦЕНЗИЯ', cat: 'I категория', title: 'Государственная лицензия', no: 'Проектная деятельность · бессрочно', img: './assets/licenses/license-1.jpg' }, { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-2.jpg' }, { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-3.jpg' }, { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-4.jpg' }, { tag: 'ПРИЛОЖЕНИЕ', cat: 'I категория', title: 'Производственная база', no: 'Приложение № 001', img: './assets/licenses/license-5.jpg' }];
+          const portfolio = lang === 'kz' ? [{ type: 'Тұрғын кешен', loc: 'Астана қ., су жағасында', name: 'Премиум-класс тұрғын кешені', img: './assets/projects/jk-lake.jpg' }, { type: 'Әкімшілік ғимарат', loc: 'KazProfits, Астана қ.', name: '«KazProfits» бизнес-орталығы', img: './assets/projects/kazprofits-day.jpg' }, { type: 'Өндірістік база', loc: 'Астана қ., Байқоңыр ауд.', name: 'Өндірістік база (С-352 көш.)', img: './assets/projects/base-baikonyr.jpg' }, { type: 'Тұрғын кешен', loc: 'Астана қ.', name: '«Orchid» ТК — биік мұнаралар', img: './assets/projects/jk-orchid.jpg' }, { type: 'Жол бойындағы сервис', loc: 'Cafe · Restaurant · Market', name: 'Сервистік ХАБ', img: './assets/projects/servicehub.jpg' }, { type: 'Өнеркәсіптік нысан', loc: 'Астана қ.', name: 'Өндірістік цех', img: './assets/projects/ceh-astana.jpg' }, { type: 'Тұрғын кешен', loc: 'жағалау', name: '«Park City» тұрғын кешені', img: './assets/projects/jk-satns.jpg' }, { type: 'Автоорталық', loc: 'CAR CITY', name: '«CAR CITY» автоорталығы', img: './assets/projects/carcity.jpg' }, { type: 'Өндірістік база', loc: 'өнеркәсіп аймағы', name: 'Кірпіш зауыты', img: './assets/projects/prombaza.jpg' }, { type: 'Тұрғын кешен', loc: 'Астана қ., Есіл ауд.', name: 'Аз қабатты тұрғын үйлер кешені', img: './assets/projects/villa.jpg' }, { type: 'Тұрғын кешен', loc: 'Астана қ.', name: 'Көпфункциялы тұрғын квартал', img: './assets/projects/jk-sunset.jpg' }, { type: 'Сыртқы желілер', loc: 'Электрмен жабдықтау, 26-учаске', name: 'Сыртқы электрмен жабдықтау желілері', img: './assets/projects/seti-es.jpg' }] : [{ type: 'Жилой комплекс', loc: 'г. Астана, у воды', name: 'Жилой комплекс премиум-класса', img: './assets/projects/jk-lake.jpg' }, { type: 'Административное здание', loc: 'KazProfits, г. Астана', name: 'Бизнес-центр «KazProfits»', img: './assets/projects/kazprofits-day.jpg' }, { type: 'Производственная база', loc: 'г. Астана, р-н Байконыр', name: 'Производственная база (ул. С-352)', img: './assets/projects/base-baikonyr.jpg' }, { type: 'Жилой комплекс', loc: 'г. Астана', name: 'ЖК «Orchid» — высотные башни', img: './assets/projects/jk-orchid.jpg' }, { type: 'Придорожный сервис', loc: 'Cafe · Restaurant · Market', name: 'Сервисный ХАБ', img: './assets/projects/servicehub.jpg' }, { type: 'Промышленный объект', loc: 'г. Астана', name: 'Производственный цех', img: './assets/projects/ceh-astana.jpg' }, { type: 'Жилой комплекс', loc: 'набережная', name: 'Жилой комплекс «Park City»', img: './assets/projects/jk-satns.jpg' }, { type: 'Автоцентр', loc: 'CAR CITY', name: 'Автоцентр «CAR CITY»', img: './assets/projects/carcity.jpg' }, { type: 'Производственная база', loc: 'промзона', name: 'Кирпичный завод', img: './assets/projects/prombaza.jpg' }, { type: 'Жилой комплекс', loc: 'г. Астана, р-н Есиль', name: 'Комплекс малоэтажных жилых домов', img: './assets/projects/villa.jpg' }, { type: 'Жилой комплекс', loc: 'г. Астана', name: 'Многофункциональный жилой квартал', img: './assets/projects/jk-sunset.jpg' }, { type: 'Наружные сети', loc: 'Электроснабжение, участок 26', name: 'Наружные сети электроснабжения', img: './assets/projects/seti-es.jpg' }];
+
           return {
+            ...L,
             waLink: 'https://wa.me/' + intl,
             telLink: 'tel:+' + intl,
             phoneDisplay: '+7 (775) 555-74-75',
@@ -2309,26 +2291,9 @@
             licLeft: () => { const e = this.licRef && this.licRef.current; if (e) e.scrollBy({ left: -300, behavior: 'smooth' }); },
             licRight: () => { const e = this.licRef && this.licRef.current; if (e) e.scrollBy({ left: 300, behavior: 'smooth' }); },
 
-            objects: [
-              { title: 'Частные дома', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70' },
-              { title: 'Жилые дома', img: './assets/projects/jk-day.jpg' },
-              { title: 'Жилые комплексы', img: './assets/projects/jk-orchid.jpg' },
-              { title: 'Склады', img: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=70' },
-              { title: 'Производственные базы', img: './assets/projects/prombaza.jpg' },
-              { title: 'Промышленные объекты', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=70' },
-              { title: 'Коммерческие объекты', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70' },
-              { title: 'Базы и логистика', img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=70' },
-            ],
+            objects,
 
-            steps: [
-              { n: '1', title: 'Получаем заявку', text: 'Уточняем задачу и тип объекта.' },
-              { n: '2', title: 'Изучаем объект', text: 'Анализируем участок и исходные данные.' },
-              { n: '3', title: 'Техническое решение', text: 'Формируем оптимальный вариант.' },
-              { n: '4', title: 'Разрабатываем проект', text: 'Готовим все разделы документации.' },
-              { n: '5', title: 'Сопровождаем экспертизу', text: 'Отрабатываем замечания.' },
-              { n: '6', title: 'Помогаем с согласованиями', text: 'Ведём по инстанциям.' },
-              { n: '7', title: 'Передаём комплект', text: 'Готовая документация на руках.' },
-            ],
+            steps,
 
             trust: [
               { code: '01', title: 'Комплексное проектирование', text: 'Все разделы объекта в одном бюро — единое решение и ответственность.' },
@@ -2340,28 +2305,9 @@
             ],
 
 
-            licenses: [
-              { tag: 'ЛИЦЕНЗИЯ', cat: 'I категория', title: 'Государственная лицензия', no: 'Проектная деятельность · бессрочно', img: './assets/licenses/license-1.jpg' },
-              { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-2.jpg' },
-              { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-3.jpg' },
-              { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-4.jpg' },
-              { tag: 'ПРИЛОЖЕНИЕ', cat: 'I категория', title: 'Производственная база', no: 'Приложение № 001', img: './assets/licenses/license-5.jpg' },
-            ],
+            licenses,
 
-            portfolio: [
-              { type: 'Жилой комплекс', loc: 'г. Астана, у воды', name: 'Жилой комплекс премиум-класса', img: './assets/projects/jk-lake.jpg' },
-              { type: 'Административное здание', loc: 'KazProfits, г. Астана', name: 'Бизнес-центр «KazProfits»', img: './assets/projects/kazprofits-day.jpg' },
-              { type: 'Производственная база', loc: 'г. Астана, р-н Байконыр', name: 'Производственная база (ул. С-352)', img: './assets/projects/base-baikonyr.jpg' },
-              { type: 'Жилой комплекс', loc: 'г. Астана', name: 'ЖК «Orchid» — высотные башни', img: './assets/projects/jk-orchid.jpg' },
-              { type: 'Придорожный сервис', loc: 'Cafe · Restaurant · Market', name: 'Сервисный ХАБ', img: './assets/projects/servicehub.jpg' },
-              { type: 'Промышленный объект', loc: 'г. Астана', name: 'Производственный цех', img: './assets/projects/ceh-astana.jpg' },
-              { type: 'Жилой комплекс', loc: 'набережная', name: 'Жилой комплекс «Park City»', img: './assets/projects/jk-satns.jpg' },
-              { type: 'Автоцентр', loc: 'CAR CITY', name: 'Автоцентр «CAR CITY»', img: './assets/projects/carcity.jpg' },
-              { type: 'Производственная база', loc: 'промзона', name: 'Кирпичный завод', img: './assets/projects/prombaza.jpg' },
-              { type: 'Жилой комплекс', loc: 'г. Астана, р-н Есиль', name: 'Комплекс малоэтажных жилых домов', img: './assets/projects/villa.jpg' },
-              { type: 'Жилой комплекс', loc: 'г. Астана', name: 'Многофункциональный жилой квартал', img: './assets/projects/jk-sunset.jpg' },
-              { type: 'Наружные сети', loc: 'Электроснабжение, участок 26', name: 'Наружные сети электроснабжения', img: './assets/projects/seti-es.jpg' },
-            ],
+            portfolio,
           };
         }
       }
