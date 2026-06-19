@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<title>СВОЙ ПРОЕКТ — проектная компания</title>
+<link rel="icon" type="image/svg+xml" href="./assets/favicon.svg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=JetBrains+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{font-family:'Manrope',system-ui,sans-serif;color:#11161d;background:#fff;-webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility}
+  h1,h2{font-family:'Fraunces','Manrope',Georgia,serif;font-optical-sizing:auto}
+  .accent-grad{background:linear-gradient(95deg,#2f7fd1 0%,#5aa6e8 55%,#e0934a 130%);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent;color:transparent}
+  a{color:inherit;text-decoration:none}
+  ::selection{background:#2f7fd1;color:#fff}
+  ::-webkit-scrollbar{width:11px;height:11px}
+  ::-webkit-scrollbar-thumb{background:#c7cdd6;border-radius:8px;border:3px solid #fff}
+  @media(max-width:1080px){
+    .desk-nav{display:none!important}
+    .sec-grid{grid-template-columns:repeat(3,1fr)!important}
+    .proc-grid{grid-template-columns:repeat(2,1fr)!important;gap:28px 0!important}
+    .proc-line{display:none!important}
+    .obj-grid{grid-template-columns:repeat(3,1fr)!important}
+  }
+  @media(max-width:860px){
+    .desk-actions{display:none!important}
+    .burger{display:flex!important}
+    .hero-grid{grid-template-columns:1fr!important;gap:40px!important;padding-top:56px!important;padding-bottom:56px!important}
+    .adv-grid{grid-template-columns:repeat(2,1fr)!important}
+    .svc-grid{grid-template-columns:repeat(2,1fr)!important}
+    .obj-grid{grid-template-columns:repeat(2,1fr)!important}
+    .sec-grid{grid-template-columns:repeat(2,1fr)!important}
+    .trust-grid{grid-template-columns:1fr!important}
+    .port-grid{grid-template-columns:repeat(2,1fr)!important}
+    .exp-grid{grid-template-columns:1fr!important;gap:32px!important}
+    .cta-grid{grid-template-columns:1fr!important;gap:32px!important}
+    .about-grid{grid-template-columns:1fr!important;gap:40px!important}
+    .foot-grid{grid-template-columns:1fr 1fr!important;gap:32px!important}
+    .port-row{grid-template-columns:1fr!important}
+  }
+  @media(max-width:600px){
+    .adv-grid{grid-template-columns:1fr!important}
+    .svc-grid{grid-template-columns:1fr!important}
+    .obj-grid{grid-template-columns:1fr 1fr!important}
+    .proc-grid{grid-template-columns:1fr!important}
+    .port-grid{grid-template-columns:1fr!important}
+    .foot-grid{grid-template-columns:1fr!important}
+    h1{font-size:38px!important}
+    h2{font-size:30px!important}
+  }
+  .mosaic{display:grid;grid-template-columns:repeat(4,1fr);grid-auto-rows:152px;gap:16px;grid-auto-flow:dense}
+  .mosaic>div{grid-column:span 1;grid-row:span 1}
+  .mosaic>div:nth-child(6n+1){grid-column:span 2;grid-row:span 2}
+  .mosaic>div:nth-child(6n+2){grid-column:span 2}
+  .mosaic>div:nth-child(6n+4){grid-row:span 2}
+  .mosaic>div:nth-child(6n+6){grid-column:span 2}
+  .lic-track::-webkit-scrollbar{display:none}
+  @media(max-width:860px){
+    .sec-reg{grid-template-columns:1fr!important}
+    .mosaic{grid-template-columns:repeat(2,1fr)!important;grid-auto-rows:158px!important}
+    .mosaic>div{grid-column:span 1!important;grid-row:span 1!important}
+    .mosaic>div:nth-child(6n+1){grid-column:span 2!important;grid-row:span 2!important}
+    .mosaic>div:nth-child(6n+4){grid-row:span 2!important}
+  }
+  @media(max-width:600px){
+    .mosaic{grid-template-columns:1fr!important;grid-auto-rows:200px!important}
+    .mosaic>div,.mosaic>div:nth-child(6n+1),.mosaic>div:nth-child(6n+4){grid-column:span 1!important;grid-row:span 1!important}
+    .sec-comp>div{flex:1 1 100%!important}
+  }
+</style>
+</helmet>
+
+<div style="background:#fff;overflow-x:hidden">
+
+  <!-- ============ HEADER ============ -->
+  <header style="position:sticky;top:0;z-index:60;background:rgba(255,255,255,.86);backdrop-filter:blur(14px);border-bottom:1px solid #e8ebf0">
+    <div style="max-width:1280px;margin:0 auto;padding:0 32px;height:74px;display:flex;align-items:center;justify-content:space-between;gap:24px">
+      <a href="#top" style="display:flex;align-items:center;gap:11px">
+        <img src="./assets/logo.png" alt="СВОЙ ПРОЕКТ — проектная компания" style="height:54px;width:auto;flex:none;display:block">
+        <span style="display:flex;flex-direction:column;line-height:1">
+          <span style="font-weight:800;font-size:18px;letter-spacing:.02em;color:#26303c">СВОЙ ПРОЕКТ</span>
+          <span style="font-family:'JetBrains Mono',monospace;font-size:9px;letter-spacing:.2em;color:#8c5e2a;margin-top:4px;text-transform:uppercase">Проектная компания</span>
+        </span>
+      </a>
+
+      <nav style="display:flex;align-items:center;gap:26px;font-size:14.5px;font-weight:500;color:#3a4453" class="desk-nav">
+        <a href="#objects" style="transition:color .15s" style-hover="color:#2f7fd1">Что проектируем</a>
+        <a href="#process" style="transition:color .15s" style-hover="color:#2f7fd1">Этапы</a>
+        <a href="#licenses" style="transition:color .15s" style-hover="color:#2f7fd1">Лицензии</a>
+        <a href="#portfolio" style="transition:color .15s" style-hover="color:#2f7fd1">Проекты</a>
+        <a href="#about" style="transition:color .15s" style-hover="color:#2f7fd1">О компании</a>
+      </nav>
+
+      <div style="display:flex;align-items:center;gap:14px" class="desk-actions">
+        <div style="display:flex;border:1px solid #d9dee6;border-radius:8px;overflow:hidden;font-family:'JetBrains Mono',monospace;font-size:11px;font-weight:600">
+          <button onClick="{{ setRu }}" style="{{ ruBtnStyle }}">RU</button>
+          <button onClick="{{ setKz }}" style="{{ kzBtnStyle }}">ҚАЗ</button>
+        </div>
+        <a href="{{ waLink }}" target="_blank" style="display:flex;align-items:center;gap:8px;background:#25d366;color:#fff;padding:11px 18px;border-radius:9px;font-size:14px;font-weight:600;transition:background .18s" style-hover="background:#1ebe5d">
+          {{ waIcon }}
+          Консультация
+        </a>
+      </div>
+
+      <button onClick="{{ toggleNav }}" class="burger" style="display:none;flex-direction:column;gap:5px;padding:8px;background:none;border:none;cursor:pointer">
+        <span style="width:24px;height:2px;background:#16202c;border-radius:2px"></span>
+        <span style="width:24px;height:2px;background:#16202c;border-radius:2px"></span>
+        <span style="width:24px;height:2px;background:#16202c;border-radius:2px"></span>
+      </button>
+    </div>
+
+    <sc-if value="{{ navOpen }}" hint-placeholder-val="{{ false }}">
+      <div style="border-top:1px solid #e8ebf0;background:#fff;padding:16px 32px 24px;display:flex;flex-direction:column;gap:4px">
+        <a href="#objects" onClick="{{ closeNav }}" style="padding:12px 4px;font-size:16px;font-weight:600;border-bottom:1px solid #f0f2f5">Что проектируем</a>
+        <a href="#process" onClick="{{ closeNav }}" style="padding:12px 4px;font-size:16px;font-weight:600;border-bottom:1px solid #f0f2f5">Этапы работы</a>
+        <a href="#licenses" onClick="{{ closeNav }}" style="padding:12px 4px;font-size:16px;font-weight:600;border-bottom:1px solid #f0f2f5">Лицензии</a>
+        <a href="#portfolio" onClick="{{ closeNav }}" style="padding:12px 4px;font-size:16px;font-weight:600;border-bottom:1px solid #f0f2f5">Проекты</a>
+        <a href="#about" onClick="{{ closeNav }}" style="padding:12px 4px;font-size:16px;font-weight:600;border-bottom:1px solid #f0f2f5">О компании</a>
+        <a href="{{ waLink }}" target="_blank" style="margin-top:12px;display:flex;align-items:center;justify-content:center;gap:8px;background:#25d366;color:#fff;padding:14px;border-radius:9px;font-weight:600">{{ waIcon }} Написать в WhatsApp</a>
+      </div>
+    </sc-if>
+  </header>
+
+  <div id="top"></div>
+
+  <!-- ============ HERO ============ -->
+  <!-- variant: split (default) -->
+  <sc-if value="{{ heroSplit }}" hint-placeholder-val="{{ true }}">
+  <section style="position:relative;background:linear-gradient(180deg,#fbfcfd 0%,#f1f4f8 100%);border-bottom:1px solid #e8ebf0;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(#dde3ec 1px,transparent 1px);background-size:26px 26px;opacity:.55;pointer-events:none"></div>
+    <div style="position:relative;max-width:1280px;margin:0 auto;padding:84px 32px 88px;display:grid;grid-template-columns:1.05fr .95fr;gap:60px;align-items:center" class="hero-grid">
+      <div>
+        <div style="display:inline-flex;align-items:center;gap:9px;background:#fff;border:1px solid #dde3ec;border-radius:30px;padding:7px 15px;font-size:12.5px;font-weight:600;color:#3a4453;margin-bottom:26px">
+          <span style="font-family:'JetBrains Mono',monospace;color:#2f7fd1;letter-spacing:.05em">●</span>
+          Проектирование под ключ — от эскиза до согласования
+        </div>
+        <h1 style="font-size:56px;line-height:1.08;letter-spacing:-.015em;font-weight:600;color:#11161d;text-wrap:balance">Проектирование жилых, коммерческих и <span class="accent-grad">промышленных объектов</span></h1>
+        <p style="margin-top:24px;font-size:18px;line-height:1.6;color:#56616f;max-width:520px">Разрабатываем эскизные и рабочие проекты, инженерные сети, сопровождаем экспертизу и согласование проекта — до результата.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:34px">
+          <a href="{{ waLink }}" target="_blank" style="display:flex;align-items:center;gap:9px;background:#2f7fd1;color:#fff;padding:16px 26px;border-radius:11px;font-size:16px;font-weight:700;box-shadow:0 12px 30px -10px rgba(47,127,209,.6);transition:transform .15s,box-shadow .15s" style-hover="transform:translateY(-2px);box-shadow:0 18px 38px -10px rgba(47,127,209,.7)">Получить консультацию</a>
+          <a href="#portfolio" style="display:flex;align-items:center;gap:9px;background:#fff;color:#16202c;padding:16px 26px;border-radius:11px;font-size:16px;font-weight:600;border:1px solid #d9dee6;transition:border-color .15s,background .15s" style-hover="border-color:#16202c;background:#f7f9fb">Смотреть проекты</a>
+        </div>
+        <div style="display:flex;gap:34px;margin-top:46px;flex-wrap:wrap">
+          <div><div style="font-size:28px;font-weight:800;color:#16202c;letter-spacing:-.02em">10+</div><div style="font-size:13px;color:#7c8694;margin-top:3px">инженерных разделов</div></div>
+          <div style="width:1px;background:#dde3ec"></div>
+          <div><div style="font-size:28px;font-weight:800;color:#16202c;letter-spacing:-.02em">8</div><div style="font-size:13px;color:#7c8694;margin-top:3px">типов объектов</div></div>
+          <div style="width:1px;background:#dde3ec"></div>
+          <div><div style="font-size:28px;font-weight:800;color:#16202c;letter-spacing:-.02em">Под&nbsp;ключ</div><div style="font-size:13px;color:#7c8694;margin-top:3px">от идеи до экспертизы</div></div>
+        </div>
+      </div>
+
+      <div style="position:relative">
+        <div style="position:relative;border-radius:18px;overflow:hidden;box-shadow:0 40px 80px -30px rgba(17,22,29,.45);aspect-ratio:4/4.4;background:#1e252e url('./assets/projects/jk-lake.jpg') center/cover"></div>
+        <div style="position:absolute;left:-26px;bottom:34px;background:#fff;border-radius:14px;padding:18px 20px;box-shadow:0 24px 50px -18px rgba(17,22,29,.3);border:1px solid #eef1f5;width:230px">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.14em;color:#2f7fd1;margin-bottom:8px">ЭКСПЕРТИЗА</div>
+          <div style="font-size:14px;font-weight:700;color:#16202c;line-height:1.35">Сопровождение в государственной или частной экспертизе</div>
+        </div>
+        <div style="position:absolute;right:-18px;top:28px;background:#16202c;color:#fff;border-radius:13px;padding:15px 18px;box-shadow:0 20px 44px -16px rgba(17,22,29,.5);width:170px">
+          <div style="font-size:13px;font-weight:600;line-height:1.4;color:#d7dde6">Разработка и согласование рабочих проектов</div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- variant: immersive -->
+  <sc-if value="{{ heroImmersive }}" hint-placeholder-val="{{ false }}">
+  <section style="position:relative;min-height:640px;display:flex;align-items:center;background:#0e151d url('./assets/projects/jk-sunset.jpg') center/cover">
+    <div style="position:absolute;inset:0;background:linear-gradient(100deg,rgba(11,17,24,.95) 0%,rgba(11,17,24,.78) 46%,rgba(11,17,24,.32) 100%)"></div>
+    <div style="position:relative;max-width:1280px;margin:0 auto;padding:96px 32px;width:100%">
+      <div style="max-width:680px">
+        <div style="display:inline-flex;align-items:center;gap:9px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.18);border-radius:30px;padding:7px 15px;font-size:12.5px;font-weight:600;color:#cfd8e2;margin-bottom:28px;backdrop-filter:blur(6px)">
+          <span style="color:#5aa6e8">●</span> Проектирование под ключ — от эскиза до согласования
+        </div>
+        <h1 style="font-size:60px;line-height:1.06;letter-spacing:-.015em;font-weight:600;color:#fff;text-wrap:balance">Проектирование объектов под&nbsp;ключ</h1>
+        <p style="margin-top:24px;font-size:19px;line-height:1.6;color:#b8c2cf;max-width:560px">Эскизные и рабочие проекты, наружные инженерные сети, сопровождение экспертизы и согласований — от идеи до результата.</p>
+        <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:36px">
+          <a href="{{ waLink }}" target="_blank" style="background:#2f7fd1;color:#fff;padding:16px 26px;border-radius:11px;font-size:16px;font-weight:700;box-shadow:0 14px 32px -10px rgba(47,127,209,.7);transition:transform .15s" style-hover="transform:translateY(-2px)">Получить консультацию</a>
+          <a href="#portfolio" style="background:rgba(255,255,255,.1);color:#fff;padding:16px 26px;border-radius:11px;font-size:16px;font-weight:600;border:1px solid rgba(255,255,255,.22);transition:background .15s" style-hover="background:rgba(255,255,255,.18)">Смотреть проекты</a>
+        </div>
+        <div style="display:flex;gap:32px;margin-top:50px;flex-wrap:wrap">
+          <div><div style="font-size:30px;font-weight:800;color:#fff">10+</div><div style="font-size:13px;color:#8e9aab;margin-top:3px">инженерных разделов</div></div>
+          <div><div style="font-size:30px;font-weight:800;color:#fff">8</div><div style="font-size:13px;color:#8e9aab;margin-top:3px">типов объектов</div></div>
+          <div><div style="font-size:30px;font-weight:800;color:#fff">Под ключ</div><div style="font-size:13px;color:#8e9aab;margin-top:3px">от идеи до экспертизы</div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+  </sc-if>
+
+  <!-- ============ WHAT WE DESIGN ============ -->
+  <section id="objects" style="background:#f6f8fa;border-top:1px solid #eaeef3;border-bottom:1px solid #eaeef3">
+    <div style="max-width:1280px;margin:0 auto;padding:80px 32px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#2f7fd1;text-transform:uppercase;margin-bottom:14px">01 — Объекты</div>
+      <h2 style="font-size:38px;font-weight:800;letter-spacing:-.025em;color:#11161d;line-height:1.08;margin-bottom:38px">Что мы проектируем</h2>
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:18px" class="obj-grid">
+        <sc-for list="{{ objects }}" as="o" hint-placeholder-count="8">
+          <div style="position:relative;border-radius:15px;overflow:hidden;aspect-ratio:1/1.04;background:#1e252e;box-shadow:0 10px 30px -16px rgba(17,22,29,.3)">
+            <div style="position:absolute;inset:0;background-image:url({{ o.img }});background-size:cover;background-position:center;transition:transform .4s" style-hover="transform:scale(1.06)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,21,29,.05) 30%,rgba(14,21,29,.86) 100%)"></div>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:18px">
+              <div style="font-size:16.5px;font-weight:700;color:#fff;line-height:1.25">{{ o.title }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PROCESS ============ -->
+  <section id="process" style="background:#0e151d;color:#fff;position:relative;overflow:hidden">
+    <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.05) 1px,transparent 1px);background-size:30px 30px;pointer-events:none"></div>
+    <div style="position:relative;max-width:1280px;margin:0 auto;padding:84px 32px">
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#5aa6e8;text-transform:uppercase;margin-bottom:14px">02 — Процесс</div>
+      <h2 style="font-size:38px;font-weight:800;letter-spacing:-.025em;line-height:1.08;margin-bottom:46px">Как мы работаем</h2>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:0" class="proc-grid">
+        <sc-for list="{{ steps }}" as="st" hint-placeholder-count="7">
+          <div style="position:relative;padding:0 16px 0 0">
+            <div style="display:flex;align-items:center;margin-bottom:18px">
+              <div style="flex:none;width:42px;height:42px;border-radius:50%;background:#2f7fd1;display:flex;align-items:center;justify-content:center;font-family:'JetBrains Mono',monospace;font-weight:600;font-size:16px;z-index:2">{{ st.n }}</div>
+              <div style="flex:1;height:2px;background:linear-gradient(90deg,#2f7fd1,rgba(47,127,209,.15))" class="proc-line"></div>
+            </div>
+            <div style="font-size:15px;font-weight:700;line-height:1.3;margin-bottom:7px;padding-right:6px">{{ st.title }}</div>
+            <div style="font-size:13px;color:#8e9aab;line-height:1.45;padding-right:10px">{{ st.text }}</div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ LICENSES ============ -->
+  <section id="licenses" style="max-width:1280px;margin:0 auto;padding:84px 32px">
+    <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:36px;flex-wrap:wrap">
+      <div>
+        <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#2f7fd1;text-transform:uppercase;margin-bottom:14px">03 — Лицензии</div>
+        <h2 style="font-size:38px;font-weight:800;letter-spacing:-.025em;color:#11161d;line-height:1.08">Лицензии и допуски</h2>
+        <p style="font-size:15px;color:#67717f;max-width:480px;line-height:1.55;margin-top:14px">Работаем на основании государственных лицензий и допусков. Здесь разместим реальные сканы документов.</p>
+      </div>
+      <div style="display:flex;gap:10px">
+        <button onClick="{{ licLeft }}" aria-label="Назад" style="width:48px;height:48px;border-radius:50%;border:1px solid #d9dee6;background:#fff;cursor:pointer;font-size:19px;color:#16202c;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s" style-hover="border-color:#2f7fd1;background:#f7f9fb">←</button>
+        <button onClick="{{ licRight }}" aria-label="Вперёд" style="width:48px;height:48px;border-radius:50%;border:1px solid #d9dee6;background:#fff;cursor:pointer;font-size:19px;color:#16202c;display:flex;align-items:center;justify-content:center;transition:border-color .15s,background .15s" style-hover="border-color:#2f7fd1;background:#f7f9fb">→</button>
+      </div>
+    </div>
+    <div ref="{{ licRef }}" class="lic-track" style="display:flex;gap:18px;overflow-x:auto;scroll-snap-type:x mandatory;padding:6px 2px 16px;scrollbar-width:none">
+      <sc-for list="{{ licenses }}" as="l" hint-placeholder-count="5">
+        <a href="{{ l.img }}" target="_blank" style="flex:none;width:300px;scroll-snap-align:start;display:block;background:#fff;border:1px solid #e8ebf0;border-radius:16px;overflow:hidden;box-shadow:0 16px 38px -26px rgba(17,22,29,.35);transition:transform .18s,box-shadow .18s,border-color .18s" style-hover="transform:translateY(-5px);box-shadow:0 28px 56px -28px rgba(17,22,29,.5);border-color:#2f7fd1">
+          <div style="position:relative;aspect-ratio:3/3.9;background:#f4f7fb url({{ l.img }}) top center/cover;border-bottom:1px solid #eef1f5">
+            <span style="position:absolute;top:12px;left:12px;font-family:'JetBrains Mono',monospace;font-size:10px;letter-spacing:.12em;font-weight:600;color:#2f7fd1;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);padding:5px 10px;border-radius:20px">{{ l.tag }}</span>
+            <span style="position:absolute;top:12px;right:12px;font-size:10px;font-weight:600;color:#16202c;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);border:1px solid #e0e5ec;padding:4px 9px;border-radius:20px">{{ l.cat }}</span>
+          </div>
+          <div style="padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px">
+            <div style="min-width:0">
+              <div style="font-size:14px;font-weight:700;color:#16202c;line-height:1.32;margin-bottom:4px">{{ l.title }}</div>
+              <div style="font-family:'JetBrains Mono',monospace;font-size:11px;color:#aab3c0">{{ l.no }}</div>
+            </div>
+            <span style="flex:none;width:34px;height:34px;border-radius:9px;background:#eef4fb;display:flex;align-items:center;justify-content:center;color:#2f7fd1;font-size:15px">↗</span>
+          </div>
+        </a>
+      </sc-for>
+    </div>
+  </section>
+
+  <!-- ============ EXPERTISE / APPROVALS ============ -->
+  <section style="max-width:1280px;margin:0 auto;padding:0 32px 84px">
+    <div style="position:relative;border-radius:22px;overflow:hidden;background:#13202e">
+      <div style="position:absolute;inset:0;background:#13202e url('https://images.unsplash.com/photo-1487958449943-2429e8be8625?auto=format&fit=crop&w=1600&q=70') center/cover;opacity:.22"></div>
+      <div style="position:absolute;inset:0;background:linear-gradient(110deg,#0f1a26 0%,rgba(15,26,38,.86) 60%,rgba(15,26,38,.6) 100%)"></div>
+      <div style="position:relative;padding:54px 48px;display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center" class="exp-grid">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#5aa6e8;text-transform:uppercase;margin-bottom:14px">04 — Согласования</div>
+          <h2 style="font-size:34px;font-weight:800;letter-spacing:-.025em;color:#fff;line-height:1.1;margin-bottom:16px">Прохождение экспертизы и согласований</h2>
+          <p style="font-size:15.5px;color:#aeb9c7;line-height:1.6;max-width:440px">Берём на себя бюрократию: подаём проект, отрабатываем замечания и сопровождаем объект до положительного заключения и разрешения на строительство.</p>
+          <a href="{{ waLink }}" target="_blank" style="display:inline-flex;margin-top:28px;background:#2f7fd1;color:#fff;padding:15px 26px;border-radius:11px;font-weight:700;font-size:15px;transition:transform .15s" style-hover="transform:translateY(-2px)">Обсудить согласования</a>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <sc-for list="{{ approvals }}" as="ap" hint-placeholder-count="6">
+            <div style="background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:18px 18px;backdrop-filter:blur(4px)">
+              <div style="font-size:14.5px;font-weight:700;color:#fff;line-height:1.3;margin-bottom:5px">{{ ap.title }}</div>
+              <div style="font-size:12.5px;color:#93a0b1;line-height:1.4">{{ ap.text }}</div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ PORTFOLIO ============ -->
+  <section id="portfolio" style="background:#f6f8fa;border-top:1px solid #eaeef3;border-bottom:1px solid #eaeef3">
+    <div style="max-width:1280px;margin:0 auto;padding:80px 32px">
+      <div style="display:flex;align-items:flex-end;justify-content:space-between;gap:24px;margin-bottom:40px;flex-wrap:wrap">
+        <div>
+          <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#2f7fd1;text-transform:uppercase;margin-bottom:14px">05 — Проекты</div>
+          <h2 style="font-size:38px;font-weight:800;letter-spacing:-.025em;color:#11161d;line-height:1.08">Примеры объектов</h2>
+        </div>
+        <p style="font-size:14px;color:#8a93a1;max-width:360px;line-height:1.5;font-style:italic">Реализованные проекты: жилые комплексы, производственные базы, коммерческие и промышленные объекты, наружные инженерные сети.</p>
+      </div>
+
+      <div class="mosaic">
+        <sc-for list="{{ portfolio }}" as="p" hint-placeholder-count="12">
+          <div style="position:relative;border-radius:16px;overflow:hidden;background:#1e252e;box-shadow:0 16px 38px -24px rgba(17,22,29,.45)">
+            <div style="position:absolute;inset:0;background-image:url({{ p.img }});background-size:cover;background-position:center;transition:transform .5s" style-hover="transform:scale(1.06)"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(14,21,29,0) 36%,rgba(14,21,29,.92) 100%)"></div>
+            <span style="position:absolute;top:14px;left:14px;background:rgba(255,255,255,.92);backdrop-filter:blur(4px);color:#16202c;font-size:11px;font-weight:600;padding:5px 11px;border-radius:20px">{{ p.type }}</span>
+            <div style="position:absolute;left:0;right:0;bottom:0;padding:18px">
+              <div style="font-size:17px;font-weight:700;color:#fff;line-height:1.28">{{ p.name }}</div>
+              <div style="display:flex;align-items:center;gap:6px;margin-top:5px;font-size:12.5px;color:#c4d2e2"><span style="color:#7fb3ec">◦</span>{{ p.loc }}</div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ ABOUT ============ -->
+  <section id="about" style="max-width:1280px;margin:0 auto;padding:84px 32px;display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center" class="about-grid">
+    <div>
+      <div style="font-family:'JetBrains Mono',monospace;font-size:12px;letter-spacing:.16em;color:#2f7fd1;text-transform:uppercase;margin-bottom:14px">06 — О компании</div>
+      <h2 style="font-size:38px;font-weight:800;letter-spacing:-.025em;color:#11161d;line-height:1.1;margin-bottom:20px">Проектное бюро полного цикла</h2>
+      <p style="font-size:16px;color:#56616f;line-height:1.65;margin-bottom:16px">Svoyproect разрабатывает эскизные и рабочие проекты, наружные инженерные сети и сопровождает прохождение экспертизы и согласований. Мы закрываем весь путь объекта — от первой идеи до готового комплекта документации.</p>
+      <p style="font-size:16px;color:#56616f;line-height:1.65;margin-bottom:28px">Работаем с жилыми, коммерческими и промышленными объектами. Проектируем по действующим нормам и требованиям, отвечаем за качество и сроки и ведём понятную коммуникацию на каждом этапе.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;max-width:440px">
+        <div style="border-left:2px solid #2f7fd1;padding-left:16px"><div style="font-size:14.5px;font-weight:700;color:#16202c;margin-bottom:3px">Комплексный подход</div><div style="font-size:13px;color:#7c8694;line-height:1.45">все разделы в одном бюро</div></div>
+        <div style="border-left:2px solid #2f7fd1;padding-left:16px"><div style="font-size:14.5px;font-weight:700;color:#16202c;margin-bottom:3px">До результата</div><div style="font-size:13px;color:#7c8694;line-height:1.45">сопровождение до заключения</div></div>
+        <div style="border-left:2px solid #2f7fd1;padding-left:16px"><div style="font-size:14.5px;font-weight:700;color:#16202c;margin-bottom:3px">По нормам</div><div style="font-size:13px;color:#7c8694;line-height:1.45">соответствие требованиям</div></div>
+        <div style="border-left:2px solid #2f7fd1;padding-left:16px"><div style="font-size:14.5px;font-weight:700;color:#16202c;margin-bottom:3px">Ответственно</div><div style="font-size:13px;color:#7c8694;line-height:1.45">за качество и сроки</div></div>
+      </div>
+    </div>
+    <div style="position:relative">
+      <div style="border-radius:18px;overflow:hidden;aspect-ratio:4/3.4;background:#1e252e url('https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1100&q=70') center/cover;box-shadow:0 36px 70px -32px rgba(17,22,29,.4)"></div>
+      <div style="position:absolute;right:-14px;bottom:-14px;background:#16202c;color:#fff;border-radius:14px;padding:20px 24px;box-shadow:0 20px 44px -16px rgba(17,22,29,.5)">
+        <div style="font-size:30px;font-weight:800;letter-spacing:-.02em">Под ключ</div>
+        <div style="font-size:13px;color:#9fabb9;margin-top:3px">от идеи до согласования</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ CTA WHATSAPP ============ -->
+  <section id="contacts" style="max-width:1280px;margin:0 auto;padding:0 32px 84px">
+    <div style="position:relative;border-radius:24px;overflow:hidden;background:linear-gradient(120deg,#2f7fd1 0%,#1f5fa8 100%)">
+      <div style="position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 1px,transparent 1px);background-size:24px 24px;pointer-events:none"></div>
+      <div style="position:relative;padding:64px 48px;display:grid;grid-template-columns:1.1fr .9fr;gap:48px;align-items:center" class="cta-grid">
+        <div>
+          <h2 style="font-size:40px;font-weight:800;letter-spacing:-.025em;color:#fff;line-height:1.08;margin-bottom:16px">Обсудим ваш проект</h2>
+          <p style="font-size:17px;color:#dbe8f6;line-height:1.6;max-width:480px">Напишите нам в WhatsApp — поможем подобрать оптимальное проектное решение, расскажем по срокам, этапам и согласованиям.</p>
+          <div style="display:flex;flex-wrap:wrap;gap:14px;margin-top:32px">
+            <a href="{{ waLink }}" target="_blank" style="display:flex;align-items:center;gap:10px;background:#25d366;color:#fff;padding:17px 28px;border-radius:12px;font-size:16px;font-weight:700;box-shadow:0 16px 34px -12px rgba(20,83,45,.45);transition:transform .15s" style-hover="transform:translateY(-2px)">
+              {{ waIcon }}
+              Написать в WhatsApp
+            </a>
+            <a href="{{ telLink }}" style="display:flex;align-items:center;gap:10px;background:rgba(255,255,255,.14);color:#fff;padding:17px 28px;border-radius:12px;font-size:16px;font-weight:600;border:1px solid rgba(255,255,255,.3);transition:background .15s" style-hover="background:rgba(255,255,255,.24)">{{ phoneDisplay }}</a>
+          </div>
+        </div>
+        <div style="background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:18px;padding:30px;backdrop-filter:blur(6px)">
+          <div style="display:flex;flex-direction:column;gap:18px">
+            <div><div style="font-size:12px;color:#bcd4ee;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;margin-bottom:5px">ТЕЛЕФОН / WHATSAPP</div><a href="{{ telLink }}" style="font-size:21px;font-weight:700;color:#fff">{{ phoneDisplay }}</a></div>
+            <div style="height:1px;background:rgba(255,255,255,.18)"></div>
+            <div><div style="font-size:12px;color:#bcd4ee;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;margin-bottom:5px">EMAIL</div><div style="font-size:16px;font-weight:600;color:#fff">info@svoyproect.kz</div></div>
+            <div style="height:1px;background:rgba(255,255,255,.18)"></div>
+            <div><div style="font-size:12px;color:#bcd4ee;font-family:'JetBrains Mono',monospace;letter-spacing:.1em;margin-bottom:5px">РЕЖИМ РАБОТЫ</div><div style="font-size:16px;font-weight:600;color:#fff">Пн — Пт · 09:00 — 18:00</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ FOOTER ============ -->
+  <footer style="background:#0e151d;color:#fff">
+    <div style="max-width:1280px;margin:0 auto;padding:62px 32px 36px;display:grid;grid-template-columns:1.5fr 1fr 1fr 1.2fr;gap:40px" class="foot-grid">
+      <div>
+        <div style="display:flex;align-items:center;gap:11px;margin-bottom:18px">
+          <svg width="38" height="30" viewBox="0 0 64 48" fill="none" style="flex:none">
+            <g stroke="#c79a5e" stroke-width="3" stroke-linejoin="round" stroke-linecap="round">
+              <path d="M6 34 L26 14 L46 34"/>
+              <path d="M22 34 L44 8 L60 34"/>
+              <path d="M51 21 L51 13 L55 13 L55 27"/>
+            </g>
+            <rect x="6" y="38" width="54" height="3" rx="1.5" fill="#c79a5e"/>
+          </svg>
+          <span style="font-weight:800;font-size:18px;letter-spacing:.02em;color:#fff">СВОЙ ПРОЕКТ</span>
+        </div>
+        <p style="font-size:14px;color:#8e9aab;line-height:1.6;max-width:300px">Проектная организация с государственной лицензией и опытом более 10 лет. Эскизные и рабочие проекты, инженерные сети, экспертиза и согласования — под ключ.</p>
+        <div style="margin-top:18px;font-size:12.5px;color:#6b7686;line-height:1.7">
+          <div style="color:#9fabb9;font-weight:600">ТОО «СВОЙ ПРОЕКТ»</div>
+          <div>БИН 081240001226</div>
+          <div>г. Астана, р-н Алматы, пр. Тәуелсіздік, 22А</div>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em">НАВИГАЦИЯ</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;color:#9fabb9">
+          <a href="#objects" style="transition:color .15s" style-hover="color:#fff">Что проектируем</a>
+          <a href="#process" style="transition:color .15s" style-hover="color:#fff">Этапы работы</a>
+          <a href="#licenses" style="transition:color .15s" style-hover="color:#fff">Лицензии</a>
+          <a href="#portfolio" style="transition:color .15s" style-hover="color:#fff">Проекты</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em">КОМПАНИЯ</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;color:#9fabb9">
+          <a href="#portfolio" style="transition:color .15s" style-hover="color:#fff">Проекты</a>
+          <a href="#about" style="transition:color .15s" style-hover="color:#fff">О компании</a>
+          <a href="#contacts" style="transition:color .15s" style-hover="color:#fff">Контакты</a>
+        </div>
+      </div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#fff;margin-bottom:16px;font-family:'JetBrains Mono',monospace;letter-spacing:.08em">КОНТАКТЫ</div>
+        <div style="display:flex;flex-direction:column;gap:11px;font-size:14px;color:#9fabb9">
+          <a href="{{ telLink }}" style="color:#fff;font-weight:700;font-size:17px">{{ phoneDisplay }}</a>
+          <span>info@svoyproect.kz</span>
+          <span>Пн — Пт · 09:00 — 18:00</span>
+          <a href="{{ waLink }}" target="_blank" style="display:inline-flex;align-items:center;gap:8px;margin-top:6px;background:#25d366;color:#fff;padding:11px 18px;border-radius:9px;font-weight:600;width:fit-content;transition:background .15s" style-hover="background:#1ebe5d">{{ waIcon }} WhatsApp</a>
+        </div>
+      </div>
+    </div>
+    <div style="border-top:1px solid rgba(255,255,255,.1)">
+      <div style="max-width:1280px;margin:0 auto;padding:22px 32px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:12px;font-size:12.5px;color:#6b7686">
+        <span>© 2026 ТОО «СВОЙ ПРОЕКТ». Проектирование объектов под ключ.</span>
+        <span style="font-family:'JetBrains Mono',monospace">Эскиз · Рабочий проект · Экспертиза · Согласование</span>
+      </div>
+    </div>
+  </footer>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1280,&quot;height&quot;:1700},&quot;heroVariant&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Раздельный&quot;,&quot;Иммерсивный&quot;],&quot;default&quot;:&quot;Раздельный&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;servicesStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Карточки&quot;,&quot;Список&quot;],&quot;default&quot;:&quot;Список&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;sectionsStyle&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;Реестр&quot;,&quot;Компактный&quot;],&quot;default&quot;:&quot;Реестр&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  state = { lang: 'ru', navOpen: false };
+
+  renderVals() {
+    const phone = '87755557475';
+    const intl = '7' + phone.slice(1); // 77755557475
+    const active = { background:'#16202c', color:'#fff', border:'none', padding:'7px 11px', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', fontWeight:600 };
+    const idle   = { background:'#fff', color:'#7c8694', border:'none', padding:'7px 11px', cursor:'pointer', fontFamily:"'JetBrains Mono',monospace", fontSize:'11px', fontWeight:600 };
+    const hv = this.props.heroVariant ?? 'Раздельный';
+    const sv = this.props.servicesStyle ?? 'Карточки';
+    const pv = this.props.portfolioStyle ?? 'Мозаика';
+    const secv = this.props.sectionsStyle ?? 'Реестр';
+    if (!this.licRef) this.licRef = React.createRef();
+    if (!this.waIcon) this.waIcon = React.createElement('svg', { viewBox:'0 0 24 24', width:18, height:18, fill:'currentColor', style:{flex:'none'} }, React.createElement('path', { d:'M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z' }));
+
+    return {
+      waLink: 'https://wa.me/' + intl,
+      telLink: 'tel:+' + intl,
+      phoneDisplay: '+7 (775) 555-74-75',
+
+      ruBtnStyle: this.state.lang === 'ru' ? active : idle,
+      kzBtnStyle: this.state.lang === 'kz' ? active : idle,
+      setRu: () => this.setState({ lang: 'ru' }),
+      setKz: () => this.setState({ lang: 'kz' }),
+
+      navOpen: this.state.navOpen,
+      toggleNav: () => this.setState(s => ({ navOpen: !s.navOpen })),
+      closeNav: () => this.setState({ navOpen: false }),
+
+      heroSplit: hv === 'Раздельный',
+      heroImmersive: hv === 'Иммерсивный',
+      servicesCards: sv === 'Карточки',
+      servicesList: sv === 'Список',
+      sectionsRegister: secv === 'Реестр',
+      sectionsCompact: secv === 'Компактный',
+      portfolioMosaic: pv === 'Мозаика',
+      portfolioFeatured: pv === 'Акцентный',
+
+      waIcon: this.waIcon,
+      licRef: this.licRef,
+      licLeft: () => { const e = this.licRef && this.licRef.current; if (e) e.scrollBy({ left: -300, behavior: 'smooth' }); },
+      licRight: () => { const e = this.licRef && this.licRef.current; if (e) e.scrollBy({ left: 300, behavior: 'smooth' }); },
+
+      objects: [
+        { title: 'Частные дома', img: 'https://images.unsplash.com/photo-1568605114967-8130f3a36994?auto=format&fit=crop&w=600&q=70' },
+        { title: 'Жилые дома', img: './assets/projects/jk-day.jpg' },
+        { title: 'Жилые комплексы', img: './assets/projects/jk-orchid.jpg' },
+        { title: 'Склады', img: 'https://images.unsplash.com/photo-1553413077-190dd305871c?auto=format&fit=crop&w=600&q=70' },
+        { title: 'Производственные базы', img: './assets/projects/prombaza.jpg' },
+        { title: 'Промышленные объекты', img: 'https://images.unsplash.com/photo-1503387762-592deb58ef4e?auto=format&fit=crop&w=600&q=70' },
+        { title: 'Коммерческие объекты', img: 'https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=600&q=70' },
+        { title: 'Базы и логистика', img: 'https://images.unsplash.com/photo-1578575437130-527eed3abbec?auto=format&fit=crop&w=600&q=70' },
+      ],
+
+      steps: [
+        { n: '1', title: 'Получаем заявку', text: 'Уточняем задачу и тип объекта.' },
+        { n: '2', title: 'Изучаем объект', text: 'Анализируем участок и исходные данные.' },
+        { n: '3', title: 'Техническое решение', text: 'Формируем оптимальный вариант.' },
+        { n: '4', title: 'Разрабатываем проект', text: 'Готовим все разделы документации.' },
+        { n: '5', title: 'Сопровождаем экспертизу', text: 'Отрабатываем замечания.' },
+        { n: '6', title: 'Помогаем с согласованиями', text: 'Ведём по инстанциям.' },
+        { n: '7', title: 'Передаём комплект', text: 'Готовая документация на руках.' },
+      ],
+
+      trust: [
+        { code: '01', title: 'Комплексное проектирование', text: 'Все разделы объекта в одном бюро — единое решение и ответственность.' },
+        { code: '02', title: 'Работа по нормам', text: 'Проектируем в соответствии с действующими нормами и требованиями.' },
+        { code: '03', title: 'Опыт разных объектов', text: 'Жилые, коммерческие и промышленные объекты различного масштаба.' },
+        { code: '04', title: 'Ведём до результата', text: 'Сопровождаем проект до положительного заключения экспертизы.' },
+        { code: '05', title: 'Понятная коммуникация', text: 'Держим заказчика в курсе на каждом этапе работы.' },
+        { code: '06', title: 'Ответственно к срокам', text: 'Отвечаем за качество документации и соблюдение сроков.' },
+      ],
+
+      approvals: [
+        { title: 'Государственная экспертиза', text: 'подача и сопровождение' },
+        { title: 'Частная экспертиза', text: 'до заключения' },
+        { title: 'Согласование в архитектуре', text: 'градостроительные нормы' },
+        { title: 'Согласование в РЭК', text: 'подключение сетей' },
+        { title: 'Согласование в Акимате', text: 'разрешительные процедуры' },
+        { title: 'Прочие инстанции', text: 'по требованиям объекта' },
+      ],
+
+      licenses: [
+        { tag: 'ЛИЦЕНЗИЯ', cat: 'I категория', title: 'Государственная лицензия', no: 'Проектная деятельность · бессрочно', img: './assets/licenses/license-1.jpg' },
+        { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-2.jpg' },
+        { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-3.jpg' },
+        { tag: 'ПРИЛОЖЕНИЕ', cat: 'Подвиды', title: 'Перечень видов работ', no: 'Приложение к лицензии', img: './assets/licenses/license-4.jpg' },
+        { tag: 'ПРИЛОЖЕНИЕ', cat: 'I категория', title: 'Производственная база', no: 'Приложение № 001', img: './assets/licenses/license-5.jpg' },
+      ],
+
+      portfolio: [
+        { type: 'Жилой комплекс', loc: 'г. Астана, у воды', name: 'Жилой комплекс премиум-класса', img: './assets/projects/jk-lake.jpg' },
+        { type: 'Административное здание', loc: 'KazProfits, г. Астана', name: 'Бизнес-центр «KazProfits»', img: './assets/projects/kazprofits-day.jpg' },
+        { type: 'Производственная база', loc: 'г. Астана, р-н Байконыр', name: 'Производственная база (ул. С-352)', img: './assets/projects/base-baikonyr.jpg' },
+        { type: 'Жилой комплекс', loc: 'г. Астана', name: 'ЖК «Orchid» — высотные башни', img: './assets/projects/jk-orchid.jpg' },
+        { type: 'Придорожный сервис', loc: 'Cafe · Restaurant · Market', name: 'Сервисный ХАБ', img: './assets/projects/servicehub.jpg' },
+        { type: 'Промышленный объект', loc: 'г. Астана', name: 'Производственный цех', img: './assets/projects/ceh-astana.jpg' },
+        { type: 'Жилой комплекс', loc: 'набережная', name: 'Жилой комплекс «SAT NS»', img: './assets/projects/jk-satns.jpg' },
+        { type: 'Автоцентр', loc: 'CAR CITY', name: 'Автоцентр «CAR CITY»', img: './assets/projects/carcity.jpg' },
+        { type: 'Производственная база', loc: 'промзона', name: 'Кирпичный завод', img: './assets/projects/prombaza.jpg' },
+        { type: 'Жилой комплекс', loc: 'г. Астана, р-н Есиль', name: 'Комплекс малоэтажных жилых домов', img: './assets/projects/villa.jpg' },
+        { type: 'Жилой комплекс', loc: 'г. Астана', name: 'Многофункциональный жилой квартал', img: './assets/projects/jk-sunset.jpg' },
+        { type: 'Наружные сети', loc: 'Электроснабжение, участок 26', name: 'Наружные сети электроснабжения', img: './assets/projects/seti-es.jpg' },
+      ],
+    };
+  }
+}
+</script>
+</body>
+</html>
