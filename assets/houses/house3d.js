@@ -304,8 +304,36 @@ function col(hex, opt = {}) {
   if (MATS[key]) return MATS[key];
   return (MATS[key] = new THREE.MeshStandardMaterial({ color: hex, roughness: opt.rough ?? 0.6, metalness: opt.metal ?? 0, envMapIntensity: opt.env ?? 0.55, transparent: !!opt.opacity, opacity: opt.opacity ?? 1, side: opt.double ? THREE.DoubleSide : THREE.FrontSide }));
 }
-let GLASS = null;
-const glass = () => GLASS || (GLASS = new THREE.MeshStandardMaterial({ color: '#1c2a36', metalness: 0.92, roughness: 0.05, envMapIntensity: 1.6 }));
+let LAMPM = null;
+const LAMP = () => LAMPM || (LAMPM = new THREE.MeshStandardMaterial({ color: '#fff6e0', emissive: '#ffd59a', emissiveIntensity: 0.9, roughness: 0.3 }));
+
+// Стекло с «интерьером» за ним: комната и шторы, поверх — отражения окружения
+const GLASSES = [];
+let glassTurn = 0;
+function glass() {
+  if (!GLASSES.length) {
+    [['#e9dfcc', '#3b342d'], ['#d9e1e6', '#2f3337'], ['#e6d2c0', '#38302a'], ['#f1ece2', '#33302c']].forEach(([curtain, room], n) => {
+      const c = document.createElement('canvas');
+      c.width = c.height = 256;
+      const g = c.getContext('2d');
+      const bg = g.createLinearGradient(0, 0, 0, 256);
+      bg.addColorStop(0, shade(room, 1.9)); bg.addColorStop(0.18, shade(room, 1.25)); bg.addColorStop(0.7, room); bg.addColorStop(1, shade(room, 0.7));
+      g.fillStyle = bg; g.fillRect(0, 0, 256, 256);
+      const r = rnd(97 + n * 13);
+      g.fillStyle = 'rgba(0,0,0,.25)'; g.fillRect(70 + r() * 60, 150, 60 + r() * 50, 106);
+      [[0, 50 + r() * 20], [256 - 50 - r() * 20, 256]].forEach(([x0, x1]) => {
+        for (let x = x0; x < x1; x += 8) {
+          g.fillStyle = shade(curtain, 0.82 + ((x / 8) % 2) * 0.18);
+          g.fillRect(x, 0, 8, 256);
+        }
+      });
+      const t = canvasTex(c, true);
+      t.wrapS = t.wrapT = THREE.ClampToEdgeWrapping;
+      GLASSES.push(new THREE.MeshStandardMaterial({ map: t, metalness: 0.35, roughness: 0.04, envMapIntensity: 1.35 }));
+    });
+  }
+  return GLASSES[glassTurn++ % GLASSES.length];
+}
 
 function garageDoorMat(color) {
   const key = 'gdoor' + color;
@@ -699,6 +727,13 @@ function buildHouse(v) {
         const u = slots.at(i), base = PLINTH + f * FLOOR_H;
         if (side === 'front' && f === 0 && i === slots.door) {
           house.add(onFacade(doorUnit(st), 'front', u, base + 1.125, W, L));
+          // бра по сторонам двери
+          [-1, 1].forEach(s => {
+            const lamp = new THREE.Group();
+            box(lamp, 0.16, 0.26, 0.14, col('#26292c', { rough: 0.4, metal: 0.6 }), 0, 0, 0.07);
+            box(lamp, 0.11, 0.18, 0.1, LAMP(), 0, 0, 0.1, false);
+            house.add(onFacade(lamp, 'front', u + s * ((st.big ? 1.2 : 1.0) / 2 + 0.38), base + 1.95, W, L));
+          });
           continue;
         }
         const pano = st.big && (side === 'front' || side === 'back');
@@ -881,13 +916,46 @@ function buildSite(v, pos) {
     if (free(x, z, 2.2) && Math.abs(x - gateX) > 2) tree(site, x, z, s, r);
   });
   [[-pw / 2 + 25, pl / 2 + 14, 1.3], [pw / 2 + 8, -pl / 2 - 6, 1.4], [-pw / 2 - 9, -pl / 2 + 4, 1.2], [pw / 2 + 12, pl / 2 + 15, 1.1]].forEach(([x, z, s]) => tree(site, x, z, s, r));
+  // клумбы вдоль фасада: мульча, кусты и цветы
   const bush = col('#4f7d36', { rough: 0.9 });
   if (!pos.rot) {
-    const z = h.z1 + 0.6;
-    for (let x = h.x0 + 0.5; x < h.x1 - 0.3; x += 1.1) {
-      if (Math.abs(x - gateX) < 1.6 || (v.terrace && Math.abs(x - (h.x0 + h.x1) / 2) < pos.tw / 2 + 0.4)) continue;
-      const b = put(site, new THREE.IcosahedronGeometry(0.42 + r() * 0.15, 1), bush, x, 0.32, z);
-      b.scale.y = 0.75;
+    const z = h.z1 + 1.15;
+    const flowers = [];
+    let bed = null;
+    const flushBed = x1 => {
+      if (bed !== null && x1 - bed > 0.8) box(site, x1 - bed, 0.08, 0.9, col('#4a3426', { rough: 1 }), (bed + x1) / 2, 0.04, z, false);
+      bed = null;
+    };
+    for (let x = h.x0 + 0.5; x < h.x1 - 0.3; x += 0.55) {
+      const blocked = Math.abs(x - gateX) < 1.4 || (v.terrace && Math.abs(x - (h.x0 + h.x1) / 2) < pos.tw / 2 + 0.3);
+      if (blocked) { flushBed(x - 0.3); continue; }
+      if (bed === null) bed = x - 0.3;
+      if (Math.round((x - h.x0) / 0.55) % 3 === 0) {
+        const b = put(site, new THREE.IcosahedronGeometry(0.38 + r() * 0.12, 1), bush, x, 0.34, z);
+        b.scale.y = 0.8;
+      } else for (let k = 0; k < 7; k++) flowers.push([x + (r() - 0.5) * 0.5, z + (r() - 0.5) * 0.7]);
+    }
+    flushBed(h.x1 - 0.2);
+    if (flowers.length) {
+      const fm = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(0.07, 0), col('#ffffff', { rough: 0.7 }), flowers.length);
+      const palette = ['#d9475a', '#f2c94c', '#f5f1e8', '#9b6ad1', '#ef8a3c'].map(c => new THREE.Color(c));
+      const m4 = new THREE.Matrix4();
+      flowers.forEach(([x, zz], i) => {
+        m4.makeTranslation(x, 0.18 + r() * 0.12, zz);
+        fm.setMatrixAt(i, m4);
+        fm.setColorAt(i, palette[Math.floor(r() * palette.length)]);
+      });
+      site.add(fm);
+    }
+    // фонари вдоль дорожки
+    const front = pos.rects.find(rc => rc.k === (v.terrace ? 'terrace' : 'house')).z1 + 1.2;
+    for (let zz = front + 0.6; zz < pl / 2 - 0.4; zz += 3.2) {
+      [-1, 1].forEach(s => {
+        const x = gateX + s * 1.0;
+        put(site, new THREE.CylinderGeometry(0.035, 0.05, 0.75, 8), col('#26292c', { rough: 0.4, metal: 0.6 }), x, 0.375, zz);
+        box(site, 0.16, 0.2, 0.16, LAMP(), x, 0.85, zz, false);
+        box(site, 0.22, 0.04, 0.22, col('#26292c', { rough: 0.4, metal: 0.6 }), x, 0.97, zz);
+      });
     }
   }
   return site;
@@ -907,12 +975,66 @@ function skyTexture() {
   return t;
 }
 
+const HORIZON = '#dfe7ee';
+
+// Небо с облаками на куполе
+function skyDome() {
+  const c = document.createElement('canvas');
+  c.width = 1024; c.height = 512;
+  const g = c.getContext('2d');
+  const gr = g.createLinearGradient(0, 0, 0, 256);
+  gr.addColorStop(0, '#6f9fd2'); gr.addColorStop(0.6, '#a9c6e4'); gr.addColorStop(1, HORIZON);
+  g.fillStyle = gr; g.fillRect(0, 0, 1024, 256);
+  g.fillStyle = HORIZON; g.fillRect(0, 256, 1024, 256);
+  const r = rnd(4242);
+  for (let i = 0; i < 70; i++) {
+    const x = r() * 1024, y = 90 + r() * 150, rx = 30 + r() * 90, ry = rx * (0.22 + r() * 0.15);
+    for (const dx of [-1024, 0, 1024]) {
+      for (let k = 0; k < 6; k++) {
+        const cx = x + dx + (r() - 0.5) * rx, cy = y + (r() - 0.5) * ry * 0.8, rr = rx * (0.35 + r() * 0.4);
+        const cg = g.createRadialGradient(cx, cy, 0, cx, cy, rr);
+        cg.addColorStop(0, 'rgba(255,255,255,.55)'); cg.addColorStop(1, 'rgba(255,255,255,0)');
+        g.fillStyle = cg;
+        g.save(); g.translate(cx, cy); g.scale(1, ry / rx); g.translate(-cx, -cy);
+        g.fillRect(cx - rr, cy - rr, rr * 2, rr * 2);
+        g.restore();
+      }
+    }
+  }
+  const t = new THREE.CanvasTexture(c);
+  t.colorSpace = THREE.SRGBColorSpace;
+  const m = new THREE.Mesh(new THREE.SphereGeometry(300, 48, 24), new THREE.MeshBasicMaterial({ map: t, side: THREE.BackSide, fog: false, depthWrite: false }));
+  m.renderOrder = -1;
+  return m;
+}
+
+// Полоса леса на горизонте, чтобы земля не обрывалась пустым краем
+function horizonForest() {
+  const grp = new THREE.Group();
+  const r = rnd(777);
+  const n = 220;
+  const cone = new THREE.InstancedMesh(new THREE.ConeGeometry(1, 1, 7), col('#3d5f38', { rough: 0.95 }), n);
+  const blob = new THREE.InstancedMesh(new THREE.IcosahedronGeometry(1, 1), col('#577f42', { rough: 0.95 }), n);
+  const m4 = new THREE.Matrix4(), q = new THREE.Quaternion(), s = V3(1, 1, 1);
+  for (let i = 0; i < n; i++) {
+    const a = r() * Math.PI * 2, d = 150 + r() * 70;
+    const h = 6 + r() * 7;
+    m4.compose(V3(Math.cos(a) * d, h / 2, Math.sin(a) * d), q, s.set(h * 0.32, h, h * 0.32));
+    cone.setMatrixAt(i, m4);
+    const a2 = r() * Math.PI * 2, d2 = 145 + r() * 75, rad = 2.5 + r() * 3;
+    m4.compose(V3(Math.cos(a2) * d2, rad * 1.1, Math.sin(a2) * d2), q, s.set(rad, rad * 1.2, rad));
+    blob.setMatrixAt(i, m4);
+  }
+  grp.add(cone, blob);
+  return grp;
+}
+
 function createRenderer(canvas, w, h, pr) {
   const renderer = new THREE.WebGLRenderer({ canvas: canvas || undefined, antialias: true, preserveDrawingBuffer: !!canvas });
   renderer.setPixelRatio(pr);
   renderer.setSize(w, h, false);
   renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.shadowMap.type = THREE.VSMShadowMap;
   renderer.outputColorSpace = THREE.SRGBColorSpace;
   renderer.toneMapping = THREE.ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -925,18 +1047,21 @@ function createScene(renderer) {
   scene.environment = pm.fromScene(new RoomEnvironment(renderer), 0.04).texture;
   pm.dispose();
   scene.background = skyTexture();
-  scene.fog = new THREE.Fog('#e3eaf0', 110, 300);
+  scene.fog = new THREE.Fog(HORIZON, 110, 340);
+  scene.add(skyDome(), horizonForest());
   scene.add(new THREE.HemisphereLight('#eaf2ff', '#5f6f4c', 0.45));
   const sun = new THREE.DirectionalLight('#fff0d8', 2.6);
   sun.position.set(26, 38, 30);
   sun.castShadow = true;
   sun.shadow.mapSize.set(2048, 2048);
-  sun.shadow.bias = -0.0003;
-  sun.shadow.normalBias = 0.03;
+  sun.shadow.bias = -0.0005;
+  sun.shadow.normalBias = 0.02;
+  sun.shadow.radius = 6;
+  sun.shadow.blurSamples = 16;
   scene.add(sun, sun.target);
-  const ground = put(scene, new THREE.PlaneGeometry(400, 400), surf('grass'), 0, 0, 0, false);
+  const ground = put(scene, new THREE.PlaneGeometry(700, 700), surf('grass'), 0, 0, 0, false);
   ground.rotation.x = -Math.PI / 2;
-  ground.geometry.attributes.uv.array.forEach((_, i, arr) => { arr[i] *= 400 / 7; });
+  ground.geometry.attributes.uv.array.forEach((_, i, arr) => { arr[i] *= 700 / 7; });
   return { scene, sun };
 }
 
@@ -950,7 +1075,9 @@ function fitSun(sun, center, radius) {
 }
 
 function makeComposer(renderer, scene, camera, w, h) {
-  const comp = new EffectComposer(renderer);
+  // MSAA-буфер: без него после постобработки края идут «лесенкой»
+  const rt = new THREE.WebGLRenderTarget(w, h, { type: THREE.HalfFloatType, samples: 4 });
+  const comp = new EffectComposer(renderer, rt);
   comp.addPass(new RenderPass(scene, camera));
   const ao = new GTAOPass(scene, camera, w, h, undefined, { radius: 0.7, distanceExponent: 1.2, thickness: 1.5, scale: 1.2, samples: 16, distanceFallOff: 1, screenSpaceRadius: false });
   ao.blendIntensity = 1;
@@ -1060,7 +1187,7 @@ function ensureShots() {
   const canvas = document.createElement('canvas');
   const renderer = createRenderer(canvas, w, h, 1);
   const { scene, sun } = createScene(renderer);
-  scene.fog = new THREE.Fog('#e3eaf0', 60, 160);
+  scene.fog = new THREE.Fog(HORIZON, 100, 320);
   const camera = new THREE.PerspectiveCamera(32, w / h, 0.1, 400);
   let comp = null;
   try { comp = makeComposer(renderer, scene, camera, w, h); } catch (e) { /* без AO */ }

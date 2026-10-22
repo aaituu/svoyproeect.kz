@@ -30,6 +30,13 @@ const T = {
     gMat: 'Материал стен', gExtra: 'Пожелания', roofLbl: 'Кровля', any: 'Не важно',
     r_gable: 'Двускатная', r_hip: 'Вальмовая (четырёхскатная)', r_flat: 'Плоская', r_shed: 'Односкатная', r_mansard: 'Мансардная',
     bedsLbl: 'Спален', garageLbl: 'Гараж', yes: 'Нужен', no: 'Не нужен', submit: 'Подобрать варианты',
+    gPlan: 'Планировка', pBeds: 'Спальни', pBaths: 'Санузлы', pKitchen: 'Кухня', kOpen: 'Кухня-гостиная', kSep: 'Кухня и гостиная отдельно',
+    pCab: 'Кабинет', none: 'Нет', pWardrobe: 'Гардеробная', pLaundry: 'Постирочная', pBoiler: 'Котельная', pGuest: 'Спальня на 1 этаже',
+    need: (a, per, w, l) => `Под такой состав нужно ≈ ${a} м² (≈ ${per} м² на этаж — например, ${fmt(w)} × ${fmt(l)} м).`,
+    useArea: 'Подставить площадь', layoutLbl: 'Вариант планировки', lay: ['Вход у фасада', 'Зеркально', 'Зоны слева и справа'],
+    tightTag: 'Тесно для этих комнат', tightNote: a => `Комнаты получились тесными: для выбранного состава лучше общая площадь от ≈ ${a} м².`,
+    specRooms: 'Состав помещений', kitchenOpen: 'кухня-гостиная', kitchenSep: 'кухня и гостиная',
+    roomsLine: v => `${v.beds} ${plural(v.beds, 'спальня', 'спальни', 'спален')}, ${v.baths} ${plural(v.baths, 'санузел', 'санузла', 'санузлов')}, ${v.prog.kitchen === 'separate' ? 'кухня и гостиная' : 'кухня-гостиная'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', гардеробная' : ''}${v.prog.laundry ? ', постирочная' : ''}${v.prog.boiler ? ', котельная' : ''}`,
     resTitle: 'Подходящие варианты', t3d: '3D-модель', tPlan: 'Планировка', tSite: 'На участке',
     cFront: 'Фасад', cCorner: '3/4', cTop: 'Сверху', cPlot: 'Участок', drag: 'Вращайте мышью или пальцем',
     note: 'Визуализация и планировка — эскизные и ориентировочные. Точные площади, конструктив, инженерные системы и смета определяются в рабочем проекте с учётом вашего участка и норм РК.',
@@ -52,7 +59,7 @@ const T = {
     yesShort: 'есть', noShort: 'нет', street: 'УЛИЦА', entrance: 'Вход', floorCap: ['1 этаж', '2 этаж', '3 этаж'], attic: 'Мансарда',
     atticNote: 'площадь с учётом скосов', garage: 'Гараж', terrace: 'Терраса',
     no3d: 'Не удалось загрузить 3D-просмотр в этом браузере. Планировка и генплан доступны на соседних вкладках.',
-    wa: v => `Здравствуйте! Я подобрал(а) дом в онлайн-конструкторе на сайте svoyproect.kz и хочу получить полный рабочий проект.\n\nПроект: ${v.p.id} «${v.p.ru}» (${STYLES[v.style].ru})\nЭтажность: ${T.ru.floorsShort[v.floors]}\nГабариты: ${fmt(v.W)} × ${fmt(v.L)} м, общая площадь ≈ ${fmt(v.total)} м²\nМатериал стен: ${MATS[v.mat].ru}\nКровля: ${T.ru['r_' + v.roof]}\nСпален: ${v.beds}, гараж: ${v.garage ? 'да' : 'нет'}\nУчасток: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
+    wa: v => `Здравствуйте! Я подобрал(а) дом в онлайн-конструкторе на сайте svoyproect.kz и хочу получить полный рабочий проект.\n\nПроект: ${v.p.id} «${v.p.ru}» (${STYLES[v.style].ru})\nЭтажность: ${T.ru.floorsShort[v.floors]}\nГабариты: ${fmt(v.W)} × ${fmt(v.L)} м, общая площадь ≈ ${fmt(v.total)} м²\nМатериал стен: ${MATS[v.mat].ru}\nКровля: ${T.ru['r_' + v.roof]}\nПомещения: ${T.ru.roomsLine(v)}\nВариант планировки: ${v.layout + 1}\nГараж: ${v.garage ? 'да' : 'нет'}\nУчасток: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
     waGeneric: 'Здравствуйте! Хочу проконсультироваться по проекту частного дома (svoyproect.kz).'
   },
   kz: {
@@ -67,6 +74,13 @@ const T = {
     gMat: 'Қабырға материалы', gExtra: 'Тілектер', roofLbl: 'Шатыр', any: 'Маңызды емес',
     r_gable: 'Екі беткейлі', r_hip: 'Төрт беткейлі', r_flat: 'Жалпақ', r_shed: 'Бір беткейлі', r_mansard: 'Мансардалы',
     bedsLbl: 'Жатын бөлме', garageLbl: 'Гараж', yes: 'Керек', no: 'Керек емес', submit: 'Нұсқаларды таңдау',
+    gPlan: 'Жоспарлау', pBeds: 'Жатын бөлмелер', pBaths: 'Санторабтар', pKitchen: 'Ас үй', kOpen: 'Ас үй-қонақ бөлме', kSep: 'Ас үй мен қонақ бөлме бөлек',
+    pCab: 'Кабинет', none: 'Жоқ', pWardrobe: 'Киім бөлмесі', pLaundry: 'Кір жуатын бөлме', pBoiler: 'Қазандық', pGuest: '1-қабатта жатын бөлме',
+    need: (a, per, w, l) => `Мұндай құрамға ≈ ${a} м² керек (қабатқа ≈ ${per} м² — мысалы, ${fmt(w)} × ${fmt(l)} м).`,
+    useArea: 'Ауданды қою', layoutLbl: 'Жоспар нұсқасы', lay: ['Кіреберіс қасбет жақта', 'Айналы', 'Аймақтар сол және оң жақта'],
+    tightTag: 'Бұл бөлмелерге тар', tightNote: a => `Бөлмелер тар болып шықты: таңдалған құрамға жалпы аудан ≈ ${a} м²-ден болғаны дұрыс.`,
+    specRooms: 'Бөлмелер құрамы', kitchenOpen: 'ас үй-қонақ бөлме', kitchenSep: 'ас үй мен қонақ бөлме',
+    roomsLine: v => `${v.beds} жатын бөлме, ${v.baths} санторап, ${v.prog.kitchen === 'separate' ? 'ас үй мен қонақ бөлме' : 'ас үй-қонақ бөлме'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', киім бөлмесі' : ''}${v.prog.laundry ? ', кір жуатын бөлме' : ''}${v.prog.boiler ? ', қазандық' : ''}`,
     resTitle: 'Лайықты нұсқалар', t3d: '3D-модель', tPlan: 'Жоспар', tSite: 'Учаскеде',
     cFront: 'Қасбет', cCorner: '3/4', cTop: 'Жоғарыдан', cPlot: 'Учаске', drag: 'Тышқанмен немесе саусақпен айналдырыңыз',
     note: 'Визуализация мен жоспар — эскиздік әрі шамамен берілген. Нақты аудандар, конструктив, инженерлік жүйелер мен смета учаскеңіз бен ҚР нормаларын ескере отырып, жұмыс жобасында анықталады.',
@@ -89,7 +103,7 @@ const T = {
     yesShort: 'бар', noShort: 'жоқ', street: 'КӨШЕ', entrance: 'Кіреберіс', floorCap: ['1 қабат', '2 қабат', '3 қабат'], attic: 'Мансарда',
     atticNote: 'көлбеуді ескергендегі аудан', garage: 'Гараж', terrace: 'Терраса',
     no3d: 'Бұл браузерде 3D-көріністі жүктеу мүмкін болмады. Жоспар мен бас жоспар көрші қойындыларда қолжетімді.',
-    wa: v => `Сәлеметсіз бе! svoyproect.kz сайтындағы онлайн-конструкторда үй таңдадым, толық жұмыс жобасын алғым келеді.\n\nЖоба: ${v.p.id} «${v.p.kz}» (${STYLES[v.style].kz})\nҚабат саны: ${T.kz.floorsShort[v.floors]}\nӨлшемдері: ${fmt(v.W)} × ${fmt(v.L)} м, жалпы ауданы ≈ ${fmt(v.total)} м²\nҚабырға материалы: ${MATS[v.mat].kz}\nШатыр: ${T.kz['r_' + v.roof]}\nЖатын бөлмелер: ${v.beds}, гараж: ${v.garage ? 'иә' : 'жоқ'}\nУчаске: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
+    wa: v => `Сәлеметсіз бе! svoyproect.kz сайтындағы онлайн-конструкторда үй таңдадым, толық жұмыс жобасын алғым келеді.\n\nЖоба: ${v.p.id} «${v.p.kz}» (${STYLES[v.style].kz})\nҚабат саны: ${T.kz.floorsShort[v.floors]}\nӨлшемдері: ${fmt(v.W)} × ${fmt(v.L)} м, жалпы ауданы ≈ ${fmt(v.total)} м²\nҚабырға материалы: ${MATS[v.mat].kz}\nШатыр: ${T.kz['r_' + v.roof]}\nБөлмелер: ${T.kz.roomsLine(v)}\nЖоспар нұсқасы: ${v.layout + 1}\nГараж: ${v.garage ? 'иә' : 'жоқ'}\nУчаске: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
     waGeneric: 'Сәлеметсіз бе! Жеке үй жобасы бойынша кеңес алғым келеді (svoyproect.kz).'
   }
 };
@@ -123,7 +137,11 @@ const ROOMS = {
   stairs:   { ru: 'Лестница', kz: 'Баспалдақ', fill: '#e9e6f4' },
   hallup:   { ru: 'Холл', kz: 'Холл', fill: '#eef1f5' },
   cabinet:  { ru: 'Кабинет', kz: 'Кабинет', fill: '#eaf3e1' },
-  wardrobe: { ru: 'Гардероб', kz: 'Киім бөлмесі', fill: '#f4efe4' }
+  wardrobe: { ru: 'Гардероб', kz: 'Киім бөлмесі', fill: '#f4efe4' },
+  kitchen:  { ru: 'Кухня', kz: 'Ас үй', fill: '#fbe7cf' },
+  lounge:   { ru: 'Гостиная', kz: 'Қонақ бөлме', fill: '#fdf0de' },
+  laundry:  { ru: 'Постирочная', kz: 'Кір жуатын бөлме', fill: '#e6f0f3' },
+  corridor: { ru: 'Коридор', kz: 'Дәліз', fill: '#f3f4f6' }
 };
 
 // Внешний вид по стилю: свес кровли, уклон (тангенс), цвета
@@ -274,83 +292,170 @@ function texKind(mat, style) {
 /* ------------------------------------------------------- variant generation */
 
 const FLOOR_K = { 1: 1, 1.5: 1.8, 2: 2, 3: 3 };
+const CORRIDOR = 1.3; // ширина коридора, м
 
-// Раскладка помещений: прямоугольник делится «squarified treemap»
-function squarify(items, rect) {
-  const out = [];
-  let rest = items.slice();
-  let r = { ...rect };
-  const sum = a => a.reduce((s, i) => s + i.a, 0);
-  const worst = (row, side) => {
-    const s = sum(row);
-    return Math.max(...row.map(i => Math.max((side * side * i.a) / (s * s), (s * s) / (side * side * i.a))));
+// Нормативные площади помещений, м² (растягиваются под размер этажа)
+const ROOM_SIZE = { hall: 6, living: 0, kitchen: 12, lounge: 0, bed: 13, master: 16, bath: 5.5, wc: 3, boiler: 4, laundry: 4, wardrobe: 5, cabinet: 10, stairs: 7 };
+const GROW = { living: 1.6, lounge: 1.5, kitchen: 1.1, master: 1.3, bed: 1.2, cabinet: 1, hall: 0.5, bath: 0.5, wardrobe: 0.4, stairs: 0.2, boiler: 0.2, laundry: 0.3, wc: 0.15 };
+
+function readProgram() {
+  return {
+    beds: parseInt($('#pBeds').value, 10) || 1,
+    baths: parseInt($('#pBaths').value, 10) || 1,
+    kitchen: $('#pKitchen').value,
+    cabinet: parseInt($('#pCab').value, 10) || 0,
+    wardrobe: $('#pWardrobe').checked,
+    laundry: $('#pLaundry').checked,
+    boiler: $('#pBoiler').checked,
+    guestDown: $('#pGuest').checked
   };
-  while (rest.length) {
-    const side = Math.min(r.w, r.h);
-    const row = [rest[0]];
-    let i = 1;
-    while (i < rest.length && worst(row.concat(rest[i]), side) <= worst(row, side)) row.push(rest[i++]);
-    const s = sum(row);
-    if (r.w >= r.h) {
-      const cw = s / r.h;
-      let y = r.y;
-      row.forEach(it => { const h = it.a / cw; out.push({ ...it, x: r.x, y, w: cw, h }); y += h; });
-      r = { x: r.x + cw, y: r.y, w: r.w - cw, h: r.h };
-    } else {
-      const rh = s / r.w;
-      let x = r.x;
-      row.forEach(it => { const w = it.a / rh; out.push({ ...it, x, y: r.y, w, h: rh }); x += w; });
-      r = { x: r.x, y: r.y + rh, w: r.w, h: r.h - rh };
-    }
-    rest = rest.slice(i);
+}
+
+// Состав помещений по этажам
+function roomSet(floors, prog) {
+  const levels = [];
+  const living = prog.kitchen === 'separate'
+    ? [{ k: 'lounge', a: 18 + 2 * prog.beds }, { k: 'kitchen', a: ROOM_SIZE.kitchen }]
+    : [{ k: 'living', a: clamp(22 + 3 * prog.beds, 24, 46) }];
+  const beds = Array.from({ length: prog.beds }, (_, i) => ({ k: i === 0 && prog.beds > 1 ? 'master' : 'bed' }));
+  if (prog.beds === 1) beds[0].k = 'master';
+  const room = k => ({ k, a: ROOM_SIZE[k] });
+  if (floors === 1) {
+    const A = [room('hall'), ...living];
+    if (prog.boiler) A.push(room('boiler'));
+    if (prog.laundry) A.push(room('laundry'));
+    for (let i = 0; i < prog.cabinet; i++) A.push(room('cabinet'));
+    const B = beds.map(b => room(b.k));
+    for (let i = 0; i < prog.baths; i++) B.push(room('bath'));
+    if (prog.wardrobe) B.push(room('wardrobe'));
+    levels.push({ A, B, factor: 1 });
+    return levels;
   }
+  const uppers = floors === 3 ? 2 : 1;
+  // 1 этаж: вход и служебные — к улице, общая зона — к саду
+  const F1A = [room('hall'), room('stairs')];
+  const F1B = [...living];
+  let bathsLeft = prog.baths, bedsLeft = beds.slice();
+  if (prog.baths === 1) { F1A.push(room('bath')); bathsLeft = 0; }
+  else { F1A.push(prog.guestDown ? room('bath') : room('wc')); bathsLeft -= 1; }
+  if (prog.boiler) F1A.push(room('boiler'));
+  if (prog.laundry) F1A.push(room('laundry'));
+  if (prog.guestDown && bedsLeft.length) F1B.push(room(bedsLeft.pop().k === 'master' && bedsLeft.length === 0 ? 'master' : 'bed'));
+  if (prog.cabinet) F1B.push(room('cabinet'));
+  levels.push({ A: F1A, B: F1B, factor: 1 });
+  const cabUp = Math.max(0, prog.cabinet - 1);
+  for (let f = 0; f < uppers; f++) {
+    const top = f === uppers - 1;
+    const share = uppers === 1 ? bedsLeft.length : top ? Math.floor(bedsLeft.length / 2) : Math.ceil(bedsLeft.length / 2);
+    const myBeds = top ? bedsLeft.splice(0, bedsLeft.length) : bedsLeft.splice(bedsLeft.length - share, share);
+    const myBaths = uppers === 1 ? bathsLeft : top ? Math.floor(bathsLeft / 2) : Math.ceil(bathsLeft / 2);
+    const rooms = [room('stairs')];
+    for (let i = 0; i < myBaths; i++) rooms.push(room('bath'));
+    if (prog.wardrobe && top) rooms.push(room('wardrobe'));
+    if (cabUp && top) rooms.push(room('cabinet'));
+    const sleep = myBeds.map(b => room(b.k));
+    if (!sleep.length && !rooms.some(r => r.k === 'cabinet')) sleep.push(room('cabinet'));
+    // делим поровну по площади: лестница и мокрые зоны — к фасаду
+    const A = rooms, B = [];
+    sleep.sort((a, b) => b.a - a.a).forEach(r => {
+      const sa = A.reduce((s, x) => s + x.a, 0), sb = B.reduce((s, x) => s + x.a, 0);
+      (sa <= sb ? A : B).push(r);
+    });
+    levels.push({ A, B, factor: floors === 1.5 ? 0.8 : 1, attic: floors === 1.5, upper: true });
+  }
+  return levels;
+}
+
+// Площадь, которая нужна под выбранный состав, м² (с коридорами и стенами)
+function neededArea(floors, prog) {
+  const set = roomSet(floors, prog);
+  const net = set.reduce((s, lv) => s + [...lv.A, ...lv.B].reduce((a, r) => a + r.a, 0), 0);
+  return Math.round(net * 1.12 / 5) * 5;
+}
+
+// Раскладка полосы: помещения идут колонками вдоль len, мелкие ставятся стопкой
+function packBand(rooms, x0, y0, len, depth, along) {
+  const out = [];
+  const cols = [];
+  let i = 0;
+  while (i < rooms.length) {
+    const col = [rooms[i++]];
+    let area = col[0].a;
+    while (i < rooms.length && area / depth < 2.3 && rooms[i].a < 12) { col.push(rooms[i]); area += rooms[i++].a; }
+    cols.push({ rooms: col, area });
+  }
+  const total = cols.reduce((s, c) => s + c.area, 0);
+  let pos = 0;
+  cols.forEach(c => {
+    const w = len * c.area / total;
+    let off = 0;
+    c.rooms.forEach(r => {
+      const d = depth * r.a / c.area;
+      if (along === 'x') out.push({ ...r, x: x0 + pos, y: y0 + off, w, h: d });
+      else out.push({ ...r, x: x0 + off, y: y0 + pos, w: d, h: w });
+      off += d;
+    });
+    pos += w;
+  });
   return out;
 }
 
-// Спальни в оставшейся площади: без пожелания — примерно по 18–20 м² на спальню с гардеробом
-function bedroomsFor(rest, want) {
-  if (rest < 8) return [{ k: 'cabinet', a: Math.max(rest, 1) }];
-  let n = want ? Math.min(want, Math.floor(rest / 9)) : clamp(Math.floor(rest / 19), 1, 4);
-  n = Math.max(n, 1);
-  if (n === 1) return [{ k: rest > 22 ? 'master' : 'bed', a: rest }];
-  const unit = rest / (n + 0.3);
-  return [{ k: 'master', a: unit * 1.3 }].concat(Array.from({ length: n - 1 }, () => ({ k: 'bed', a: unit })));
+// Ставит прихожую напротив входной двери
+function orderForDoor(rooms, depth, doorX) {
+  const i = rooms.findIndex(r => r.k === 'hall');
+  if (i < 0) return rooms;
+  const hall = rooms[i], rest = rooms.filter((_, j) => j !== i);
+  let acc = 0, at = 0;
+  for (; at < rest.length; at++) {
+    if (acc + hall.a / depth / 2 >= doorX) break;
+    acc += rest[at].a / depth;
+  }
+  rest.splice(at, 0, hall);
+  return rest;
 }
 
-function program(floors, W, L, wantBeds) {
-  const A = W * L;
-  const fix = list => list.map(([k, a]) => ({ k, a }));
-  const rest = list => A - list.reduce((s, i) => s + i.a, 0);
-  const levels = [];
-  if (floors === 1) {
-    const f = fix([['hall', Math.max(4, 0.07 * A)], ['living', Math.max(16, 0.3 * A)], ['bath', Math.max(4, 0.06 * A)], ['boiler', Math.max(3, 0.035 * A)]]);
-    if (A >= 110) f.push({ k: 'wc', a: 3.5 });
-    levels.push({ rooms: f.concat(bedroomsFor(rest(f), wantBeds)), factor: 1 });
-  } else {
-    const upper = floors === 3 ? 2 : 1;
-    const f1 = fix([['hall', Math.max(4, 0.07 * A)], ['living', Math.max(18, (floors === 3 ? 0.42 : 0.36) * A)], ['bath', Math.max(4, 0.06 * A)], ['boiler', Math.max(3, 0.04 * A)], ['stairs', Math.max(5, 0.07 * A)]]);
-    const r1 = rest(f1);
-    let guest = 0;
-    if (r1 >= 26) { f1.push({ k: 'bed', a: r1 * 0.55 }, { k: 'cabinet', a: r1 * 0.45 }); guest = 1; }
-    else if (r1 >= 11) { f1.push({ k: 'bed', a: r1 }); guest = 1; }
-    else f1.push({ k: 'cabinet', a: Math.max(r1, 1) });
-    levels.push({ rooms: f1, factor: 1 });
-    const wantUp = wantBeds ? Math.max(1, wantBeds - guest) : 0;
-    for (let i = 0; i < upper; i++) {
-      const top = i === upper - 1;
-      const f = fix([['stairs', Math.max(5, 0.07 * A)], ['hallup', Math.max(5, 0.1 * A)], ['bath', Math.max(4.5, 0.07 * A)]]);
-      if (A >= 90) f.push({ k: 'wardrobe', a: 0.04 * A });
-      const share = !wantUp ? 0 : upper === 2 ? (top ? Math.ceil(wantUp / 2) : Math.floor(wantUp / 2) || 1) : wantUp;
-      levels.push({ rooms: f.concat(bedroomsFor(rest(f), share)), factor: floors === 1.5 ? 0.8 : 1, attic: floors === 1.5 });
+// variant: 0 — служебная зона у фасада, 1 — зеркально, 2 — зоны слева и справа
+function program(floors, W, L, prog, variant = 0) {
+  const F = W * L;
+  return roomSet(floors, prog).map((lv, idx) => {
+    const both = lv.A.length && lv.B.length;
+    const corridor = both && (lv.B.length >= 2 || lv.upper) ? CORRIDOR : 0;
+    const vertical = variant === 2;
+    const len = vertical ? L : W;
+    const avail = F - corridor * len;
+    const A = lv.A.map(r => ({ ...r })), B = lv.B.map(r => ({ ...r }));
+    const all = [...A, ...B];
+    const need = all.reduce((s, r) => s + r.a, 0);
+    let tight = 1;
+    if (need > avail) {
+      tight = avail / need;
+      all.forEach(r => { r.a *= tight; });
+    } else {
+      const extra = avail - need;
+      const weight = all.reduce((s, r) => s + r.a * (GROW[r.k] || 0.5), 0);
+      all.forEach(r => { r.a += extra * r.a * (GROW[r.k] || 0.5) / weight; });
     }
-  }
-  levels.forEach(lv => {
-    lv.rooms.sort((a, b) => b.a - a.a);
-    lv.rects = squarify(lv.rooms, { x: 0, y: 0, w: W, h: L });
-    lv.rects.forEach(rc => { rc.net = rc.w * rc.h * 0.9 * lv.factor; });
-    lv.total = lv.rects.reduce((s, rc) => s + rc.net, 0);
+    const sum = list => list.reduce((s, r) => s + r.a, 0);
+    const span = (vertical ? W : L) - corridor;
+    const dA = both ? span * sum(A) / (sum(A) + sum(B)) : span;
+    const dB = span - (both ? dA : 0);
+    let rects = [];
+    if (!vertical) {
+      // фасад — сторона y = L; служебная полоса A у фасада, жилая B — к саду
+      const doorX = W / 2 + doorU(W);
+      const aRooms = orderForDoor(A, dA, doorX);
+      if (A.length) rects = rects.concat(packBand(aRooms, 0, L - dA, W, dA, 'x'));
+      if (B.length) rects = rects.concat(packBand(B, 0, 0, W, dB, 'x'));
+      if (corridor) rects.push({ k: lv.upper ? 'hallup' : 'corridor', x: 0, y: dB, w: W, h: corridor });
+      if (variant === 1) rects.forEach(r => { r.x = W - r.x - r.w; });
+    } else {
+      if (A.length) rects = rects.concat(packBand(A, 0, 0, L, dA, 'y'));
+      if (B.length) rects = rects.concat(packBand(B, dA + corridor, 0, L, dB, 'y'));
+      if (corridor) rects.push({ k: lv.upper ? 'hallup' : 'corridor', x: dA, y: 0, w: corridor, h: L });
+    }
+    rects.forEach(rc => { rc.net = rc.w * rc.h * 0.92 * lv.factor; });
+    return { rects, factor: lv.factor, attic: lv.attic, tight, total: rects.reduce((s, rc) => s + rc.net, 0), idx };
   });
-  return levels;
 }
 
 function plotDims(sot, width) {
@@ -371,8 +476,8 @@ function readInput() {
     floors: state.floors,
     mat: state.mat,
     roof: $('#roof').value,
-    beds: parseInt($('#beds').value, 10) || 0,
-    garage: $('#garage').value
+    garage: $('#garage').value,
+    prog: readProgram()
   };
 }
 
@@ -408,10 +513,11 @@ function makeVariant(p, inp, plot) {
   if (inp.garage === 'no' && p.garage) penalty += 0.3;
   if (!p.materials.includes(inp.mat)) penalty += 1.5;
 
-  const levels = program(floors, W, L, inp.beds);
+  const levels = program(floors, W, L, inp.prog);
   const beds = levels.reduce((s, lv) => s + lv.rects.filter(r => r.k === 'bed' || r.k === 'master').length, 0);
   const baths = levels.reduce((s, lv) => s + lv.rects.filter(r => r.k === 'bath' || r.k === 'wc').length, 0);
-  if (inp.beds) penalty += Math.abs(beds - inp.beds);
+  const tight = Math.min(...levels.map(lv => lv.tight));
+  if (tight < 0.9) penalty += (0.9 - tight) * 8;
   const total = levels.reduce((s, lv) => s + lv.total, 0);
 
   // Размещение на участке
@@ -428,7 +534,8 @@ function makeVariant(p, inp, plot) {
 
   const v = {
     p, W, L, floors, roof, garage, gd, terrace: p.terrace, mat: inp.mat, style: p.style,
-    levels, beds, baths, total, built, cover, fits, rotated, plot, score: penalty
+    levels, beds, baths, total, built, cover, fits, rotated, plot, score: penalty,
+    prog: inp.prog, tight, layout: 0
   };
   v.geo = geometry(v);
   return v;
@@ -722,6 +829,7 @@ function applyLang() {
   const generic = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('waGeneric'));
   $$('[data-wa]').forEach(a => { a.href = generic; });
   renderMats();
+  updateNeed();
   if (state.variants.length) {
     renderCards();
     if (state.sel) selectVariant(state.sel, false);
@@ -740,6 +848,7 @@ function renderCards() {
     const tags = [t('floorsShort')[v.floors], `${fmt(v.W)}×${fmt(v.L)} ${t('m')}`, MATS[v.mat][state.lang], STYLES[v.style][state.lang]];
     if (v.garage) tags.push(t('garage'));
     if (!v.fits) tags.unshift(`⚠ ${t('noFitTag')}`);
+    else if (v.tight < 0.9) tags.unshift(`⚠ ${t('tightTag')}`);
     b.innerHTML = `
       <div class="thumb">${elevationSVG(v)}</div>
       <div class="body">
@@ -767,8 +876,7 @@ function renderSpecs(v) {
     [t('specSize'), `${fmt(v.W)} × ${fmt(v.L)} ${t('m')}`],
     [t('specTotal'), `≈ ${fmt(v.total)} ${t('m2')}`],
     [t('specBuilt'), `${fmt(v.built)} ${t('m2')}`],
-    [t('specBeds'), v.beds],
-    [t('specBaths'), v.baths],
+    [t('specRooms'), t('roomsLine')(v)],
     [t('specRoof'), t('r_' + v.roof)],
     [t('specMat'), MATS[v.mat][L]],
     [t('specGarage'), v.garage ? t('yesShort') : t('noShort')],
@@ -782,11 +890,20 @@ function renderSpecs(v) {
 
 function renderPlans(v) {
   const caps = t('floorCap');
-  $('#panePlan').innerHTML = v.levels.map((lv, i) => {
+  const switcher = `<div class="layouts"><span>${esc(t('layoutLbl'))}:</span>${t('lay').map((name, i) =>
+    `<button type="button" data-lay="${i}" class="${i === v.layout ? 'on' : ''}">${i + 1}. ${esc(name)}</button>`).join('')}</div>`;
+  const tight = v.tight < 0.9 ? `<div class="tight">${esc(t('tightNote')(neededArea(v.floors, v.prog)))}</div>` : '';
+  $('#panePlan').innerHTML = switcher + tight + v.levels.map((lv, i) => {
     const cap = lv.attic ? t('attic') : caps[i];
     const sub = `${fmt(lv.total)} ${t('m2')}${lv.attic ? ' · ' + t('atticNote') : ''}`;
     return `<figure><figcaption>${esc(cap)}<span>${esc(sub)}</span></figcaption>${planSVG(v, lv, i)}</figure>`;
   }).join('');
+  $$('#panePlan [data-lay]').forEach(b => b.onclick = () => {
+    v.layout = +b.dataset.lay;
+    v.levels = program(v.floors, v.W, v.L, v.prog, v.layout);
+    renderPlans(v);
+    $('#orderWa').href = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('wa')(v));
+  });
   $('#paneSite').innerHTML = `<figure style="max-width:640px"><figcaption>${esc(t('tSite'))}<span>${fmt(v.plot.sot)} ${t('sot')} · ${Math.round(v.cover * 100)} %</span></figcaption>${siteSVG(v)}</figure>`;
 }
 
@@ -812,6 +929,7 @@ function setTab(tab) {
   $('#pane3d').hidden = tab !== '3d';
   $('#panePlan').hidden = tab !== 'plan';
   $('#paneSite').hidden = tab !== 'site';
+  $('.stage').classList.toggle('flow', tab !== '3d');
   if (H3) { if (tab === '3d') H3.start(); else H3.stop(); }
 }
 
@@ -841,6 +959,15 @@ function run(scroll) {
   if (window.gtag && scroll) gtag('event', 'house_configure', { floors: inp.floors, material: inp.mat });
 }
 
+// Подсказка: какая площадь нужна под выбранный состав комнат
+function updateNeed() {
+  $('#guestBox').hidden = state.floors === 1;
+  const need = neededArea(state.floors, readProgram());
+  const per = Math.round(need / FLOOR_K[state.floors]);
+  const w = half(Math.sqrt(per * 0.85)), l = half(per / w);
+  $('#needText').textContent = t('need')(need, per, w, l);
+}
+
 function initLang() {
   let lang = new URLSearchParams(location.search).get('lang');
   if (!lang) { try { lang = localStorage.getItem('sp_lang'); } catch (e) { /* хранилище недоступно */ } }
@@ -863,7 +990,13 @@ function init() {
   $$('#floors button').forEach(b => b.onclick = () => {
     state.floors = parseFloat(b.dataset.v);
     $$('#floors button').forEach(x => x.classList.toggle('on', x === b));
+    updateNeed();
   });
+  ['#pBeds', '#pBaths', '#pKitchen', '#pCab', '#pWardrobe', '#pBoiler', '#pLaundry', '#pGuest'].forEach(id => $(id).addEventListener('change', updateNeed));
+  $('#useArea').onclick = () => {
+    $('#houseArea').value = neededArea(state.floors, readProgram());
+    $('#sizeMode button[data-v="area"]').click();
+  };
   $$('#tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
   $$('.cams button').forEach(b => b.onclick = () => setCam(b.dataset.cam));
   $('#cfg').addEventListener('submit', e => { e.preventDefault(); run(true); });

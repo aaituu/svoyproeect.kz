@@ -165,6 +165,26 @@
       .mats button.on { border-color: #2f7fd1; box-shadow: 0 0 0 2px rgba(47,127,209,.2); }
       .mats i { width: 22px; height: 22px; border-radius: 6px; flex: none; border: 1px solid rgba(0,0,0,.08); background-size: cover; }
       .submit { width: 100%; margin-top: 22px; }
+      .checks { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+      .checks label {
+        display: flex; align-items: center; gap: 8px; padding: 9px 10px; border: 1px solid #d9dee6; border-radius: 10px;
+        font-size: 13px; font-weight: 600; cursor: pointer; background: #fff; line-height: 1.2;
+      }
+      .checks label:has(input:checked) { border-color: #2f7fd1; box-shadow: 0 0 0 2px rgba(47,127,209,.18); }
+      .checks input { width: 16px; height: 16px; accent-color: #2f7fd1; flex: none; }
+      .need { margin-top: 12px; padding: 11px 12px; border-radius: 10px; background: #f1f6fc; font-size: 12.5px; line-height: 1.45; color: #2a4a6e; }
+      .need button {
+        display: block; margin-top: 7px; border: none; background: none; padding: 0; cursor: pointer;
+        color: #2f7fd1; font-weight: 700; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px;
+      }
+      .layouts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; justify-content: center; }
+      .layouts span { font-size: 13px; font-weight: 700; color: #3a4453; margin-right: 4px; }
+      .layouts button {
+        border: 1px solid #d9dee6; background: #fff; padding: 8px 12px; border-radius: 9px; cursor: pointer;
+        font-size: 13px; font-weight: 600; color: #3a4453;
+      }
+      .layouts button.on { border-color: #2f7fd1; background: #2f7fd1; color: #fff; }
+      .tight { width: 100%; text-align: center; font-size: 13px; color: #8a5a1c; background: #fff6ec; border: 1px solid #f1d2ae; border-radius: 9px; padding: 8px 12px; }
 
       /* ---------- results ---------- */
       .res-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -202,6 +222,8 @@
       .tabs button.on { background: #fff; color: #11161d; box-shadow: 0 1px 3px rgba(17,22,29,.14); }
       .stage { position: relative; height: 520px; background: #dfe9f3; }
       .stage > div { position: absolute; inset: 0; }
+      .stage.flow { height: auto; min-height: 320px; background: #fff; }
+      .stage.flow > div { position: static; }
       #pane3d canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
       .cams { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 6px; flex-wrap: wrap; inset: auto auto 14px 14px !important; }
       .cams button {
@@ -371,6 +393,49 @@
         </div>
 
         <div class="group">
+          <div class="glabel" data-i18n="gPlan">Планировка</div>
+          <div class="row2">
+            <div class="field">
+              <label for="pBeds" data-i18n="pBeds">Спальни</label>
+              <select id="pBeds">
+                <option>1</option><option>2</option><option selected>3</option><option>4</option><option>5</option><option>6</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pBaths" data-i18n="pBaths">Санузлы</label>
+              <select id="pBaths">
+                <option>1</option><option selected>2</option><option>3</option><option>4</option>
+              </select>
+            </div>
+          </div>
+          <div class="row2" style="margin-top: 10px">
+            <div class="field">
+              <label for="pKitchen" data-i18n="pKitchen">Кухня</label>
+              <select id="pKitchen">
+                <option value="open" data-i18n="kOpen">Кухня-гостиная</option>
+                <option value="separate" data-i18n="kSep">Кухня и гостиная отдельно</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="pCab" data-i18n="pCab">Кабинет</label>
+              <select id="pCab">
+                <option value="0" data-i18n="none">Нет</option><option value="1">1</option><option value="2">2</option>
+              </select>
+            </div>
+          </div>
+          <div class="checks">
+            <label><input type="checkbox" id="pWardrobe" checked /><span data-i18n="pWardrobe">Гардеробная</span></label>
+            <label><input type="checkbox" id="pBoiler" checked /><span data-i18n="pBoiler">Котельная</span></label>
+            <label><input type="checkbox" id="pLaundry" /><span data-i18n="pLaundry">Постирочная</span></label>
+            <label id="guestBox" hidden><input type="checkbox" id="pGuest" /><span data-i18n="pGuest">Спальня на 1 этаже</span></label>
+          </div>
+          <div class="need" id="need">
+            <span id="needText"></span>
+            <button type="button" id="useArea" data-i18n="useArea">Подставить площадь</button>
+          </div>
+        </div>
+
+        <div class="group">
           <div class="glabel" data-i18n="gExtra">Пожелания</div>
           <div class="field">
             <label for="roof" data-i18n="roofLbl">Кровля</label>
@@ -382,26 +447,13 @@
               <option value="shed" data-i18n="r_shed">Односкатная</option>
             </select>
           </div>
-          <div class="row2" style="margin-top: 10px">
-            <div class="field">
-              <label for="beds" data-i18n="bedsLbl">Спален</label>
-              <select id="beds">
-                <option value="" data-i18n="any">Не важно</option>
-                <option value="1">1</option>
-                <option value="2">2</option>
-                <option value="3">3</option>
-                <option value="4">4</option>
-                <option value="5">5</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="garage" data-i18n="garageLbl">Гараж</label>
-              <select id="garage">
-                <option value="" data-i18n="any">Не важно</option>
-                <option value="yes" data-i18n="yes">Нужен</option>
-                <option value="no" data-i18n="no">Не нужен</option>
-              </select>
-            </div>
+          <div class="field" style="margin-top: 10px">
+            <label for="garage" data-i18n="garageLbl">Гараж</label>
+            <select id="garage">
+              <option value="" data-i18n="any">Не важно</option>
+              <option value="yes" data-i18n="yes">Нужен</option>
+              <option value="no" data-i18n="no">Не нужен</option>
+            </select>
           </div>
         </div>
 
