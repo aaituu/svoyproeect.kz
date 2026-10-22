@@ -1,8 +1,9 @@
 /*
  * Конструктор частного дома — svoyproect.kz
- * Подбирает проекты из HOUSE_CATALOG под параметры посетителя, строит
- * 3D-модель (Three.js), схемы планировок и генплан участка.
+ * Подбирает проекты из HOUSE_CATALOG под параметры посетителя и строит
+ * по выбранному варианту эскизный проект (листы в sketch.js).
  */
+import { setContext, sheets, facadeThumb, defaultFacade, FACADES, ROOF_COLORS } from './sketch.js';
 
 const PHONE = '77755557475';
 const FLOOR_H = 3.0;   // высота этажа, м
@@ -21,8 +22,8 @@ const T = {
   ru: {
     brandSub: 'Проектная компания', back: 'На главную', badge: 'Онлайн-конструктор частного дома',
     h1a: 'Спроектируйте', h1b: 'свой дом', h1c: 'за пару минут',
-    lead: 'Укажите участок, размеры, этажность и материал — программа подберёт подходящие проекты из каталога и покажет ваш будущий дом в 3D, с планировками и расположением на участке.',
-    s1: 'Введите параметры', s2: 'Выберите вариант в 3D', s3: 'Закажите рабочий проект',
+    lead: 'Укажите участок, размеры, этажность, состав комнат и материал — программа подберёт проекты из каталога и соберёт эскизный проект вашего дома: планы, фасады, разрез, генплан и кровлю.',
+    s1: 'Введите параметры', s2: 'Выберите вариант и фасад', s3: 'Получите эскиз в PDF',
     formTitle: 'Параметры дома', gPlot: 'Участок', plotArea: 'Площадь участка', sot: 'сот.', plotWidth: 'Ширина участка', auto: 'авто',
     plotHint: '1 сотка = 100 м². Ширина — сторона участка вдоль улицы; если не знаете, оставьте пустым.',
     gSize: 'Размеры дома', modeDims: 'Длина × ширина', modeArea: 'Общая площадь', houseW: 'Ширина (фасад)', houseL: 'Длина (глубина)', houseArea: 'Желаемая общая площадь',
@@ -30,6 +31,11 @@ const T = {
     gMat: 'Материал стен', gExtra: 'Пожелания', roofLbl: 'Кровля', any: 'Не важно',
     r_gable: 'Двускатная', r_hip: 'Вальмовая (четырёхскатная)', r_flat: 'Плоская', r_shed: 'Односкатная', r_mansard: 'Мансардная',
     bedsLbl: 'Спален', garageLbl: 'Гараж', yes: 'Нужен', no: 'Не нужен', submit: 'Подобрать варианты',
+    gTitle: 'Для титульного листа', addrLbl: 'Адрес участка', addrPh: 'необязательно', custLbl: 'Заказчик (ФИО)',
+    facLbl: 'Фасад', facType: 'Отделка стен', facColor: 'Цвет стен', roofColorLbl: 'Цвет кровли', layoutTitle: 'Планировка',
+    sheetsLbl: 'Листы эскизного проекта', full: 'Во весь экран', zoomHint: 'Листы можно смотреть на сайте. Файл PDF — по запросу.',
+    sheetOf: (i, n, title) => i === 0 ? `Титульный лист · всего ${n} листов` : `Лист ${i} из ${n} · ${title}`,
+    resLead: 'Выберите вариант — ниже откроется его эскизный проект.',
     gPlan: 'Планировка', pBeds: 'Спальни', pBaths: 'Санузлы', pKitchen: 'Кухня', kOpen: 'Кухня-гостиная', kSep: 'Кухня и гостиная отдельно',
     pCab: 'Кабинет', none: 'Нет', pWardrobe: 'Гардеробная', pLaundry: 'Постирочная', pBoiler: 'Котельная', pGuest: 'Спальня на 1 этаже',
     need: (a, per, w, l) => `Под такой состав нужно ≈ ${a} м² (≈ ${per} м² на этаж — например, ${fmt(w)} × ${fmt(l)} м).`,
@@ -37,19 +43,19 @@ const T = {
     tightTag: 'Тесно для этих комнат', tightNote: a => `Комнаты получились тесными: для выбранного состава лучше общая площадь от ≈ ${a} м².`,
     specRooms: 'Состав помещений', kitchenOpen: 'кухня-гостиная', kitchenSep: 'кухня и гостиная',
     roomsLine: v => `${v.beds} ${plural(v.beds, 'спальня', 'спальни', 'спален')}, ${v.baths} ${plural(v.baths, 'санузел', 'санузла', 'санузлов')}, ${v.prog.kitchen === 'separate' ? 'кухня и гостиная' : 'кухня-гостиная'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', гардеробная' : ''}${v.prog.laundry ? ', постирочная' : ''}${v.prog.boiler ? ', котельная' : ''}`,
-    resTitle: 'Подходящие варианты', t3d: '3D-модель', tPlan: 'Планировка', tSite: 'На участке',
+    resTitle: 'Подходящие варианты',
     cFront: 'Фасад', cCorner: '3/4', cTop: 'Сверху', cPlot: 'Участок', drag: 'Вращайте мышью или пальцем',
     note: 'Визуализация и планировка — эскизные и ориентировочные. Точные площади, конструктив, инженерные системы и смета определяются в рабочем проекте с учётом вашего участка и норм РК.',
-    orderTitle: 'Получите полный рабочий проект этого дома',
-    orderText: 'Адаптируем выбранный вариант под ваш участок и пожелания и подготовим комплект документации для строительства.',
+    orderTitle: 'Получите эскизный проект в PDF',
+    orderText: 'Пришлём эскизный проект этого дома в PDF и подготовим полный рабочий проект для строительства — с адаптацией под ваш участок.',
     o1: 'Архитектурные и конструктивные решения', o2: 'Инженерные сети: отопление, водоснабжение, электрика', o3: 'Генплан и помощь с согласованием',
-    orderWa: 'Написать в WhatsApp', orderCall: 'Позвонить',
+    orderWa: 'Получить PDF в WhatsApp', orderCall: 'Позвонить', ctaWa: 'Написать в WhatsApp',
     ctaTitle: 'Нужен индивидуальный проект?',
     ctaText: 'Не нашли подходящий вариант — спроектируем дом с нуля по вашему участку и пожеланиям. Позвоните или напишите в WhatsApp.',
     copyright: '© 2026 ТОО «СВОЙ ПРОЕКТ». Проектирование объектов под ключ.',
     title: 'Спроектировать дом онлайн — СВОЙ ПРОЕКТ',
     m: 'м', m2: 'м²', floorsShort: { 1: '1 этаж', 1.5: '1 этаж + мансарда', 2: '2 этажа', 3: '3 этажа' },
-    summary: (n, sot, pw, pl) => `Найдено вариантов: ${n}. Участок ${fmt(sot)} сот. (≈ ${fmt(pw)} × ${fmt(pl)} м). Нажмите на карточку, чтобы рассмотреть дом в 3D.`,
+    summary: (n, sot, pw, pl) => `Найдено вариантов: ${n}. Участок ${fmt(sot)} сот. (≈ ${fmt(pw)} × ${fmt(pl)} м). Нажмите на карточку, чтобы открыть эскизный проект.`,
     noFit: (mw, ml, maxA) => `На этом участке с отступами (5 м от улицы, 3 м от соседей) помещается пятно дома не больше ≈ ${fmt(mw)} × ${fmt(ml)} м, а площадь застройки — не больше ${fmt(maxA)} м². Уменьшите размеры дома, добавьте этаж или увеличьте участок. Ниже — ближайшие варианты, их можно адаптировать в индивидуальном проекте.`,
     badInput: 'Проверьте параметры: площадь участка от 2 соток, размеры дома от 4 до 30 м, площадь от 30 м².',
     noFitTag: 'Не помещается на участке', bedsN: n => `${n} ${plural(n, 'спальня', 'спальни', 'спален')}`,
@@ -58,15 +64,14 @@ const T = {
     specGarage: 'Гараж', specTerrace: 'Терраса', specHeight: 'Высота дома (ориент.)', specPlot: 'Участок', specCover: 'Застройка участка',
     yesShort: 'есть', noShort: 'нет', street: 'УЛИЦА', entrance: 'Вход', floorCap: ['1 этаж', '2 этаж', '3 этаж'], attic: 'Мансарда',
     atticNote: 'площадь с учётом скосов', garage: 'Гараж', terrace: 'Терраса',
-    no3d: 'Не удалось загрузить 3D-просмотр в этом браузере. Планировка и генплан доступны на соседних вкладках.',
-    wa: v => `Здравствуйте! Я подобрал(а) дом в онлайн-конструкторе на сайте svoyproect.kz и хочу получить полный рабочий проект.\n\nПроект: ${v.p.id} «${v.p.ru}» (${STYLES[v.style].ru})\nЭтажность: ${T.ru.floorsShort[v.floors]}\nГабариты: ${fmt(v.W)} × ${fmt(v.L)} м, общая площадь ≈ ${fmt(v.total)} м²\nМатериал стен: ${MATS[v.mat].ru}\nКровля: ${T.ru['r_' + v.roof]}\nПомещения: ${T.ru.roomsLine(v)}\nВариант планировки: ${v.layout + 1}\nГараж: ${v.garage ? 'да' : 'нет'}\nУчасток: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
+    wa: v => `Здравствуйте! Я подобрал(а) дом в онлайн-конструкторе на сайте svoyproect.kz и хочу получить эскизный проект в PDF и полный рабочий проект.\n\nПроект: ${v.p.id} «${v.p.ru}» (${STYLES[v.style].ru})\nЭтажность: ${T.ru.floorsShort[v.floors]}\nГабариты: ${fmt(v.W)} × ${fmt(v.L)} м, общая площадь ≈ ${fmt(v.total)} м²\nМатериал стен: ${MATS[v.mat].ru}\nКровля: ${T.ru['r_' + v.roof]}\nПомещения: ${T.ru.roomsLine(v)}\nВариант планировки: ${v.layout + 1}\nФасад: ${facadeLabel(v)}\nГараж: ${v.garage ? 'да' : 'нет'}\nУчасток: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
     waGeneric: 'Здравствуйте! Хочу проконсультироваться по проекту частного дома (svoyproect.kz).'
   },
   kz: {
     brandSub: 'Жобалау компаниясы', back: 'Басты бетке', badge: 'Жеке үйдің онлайн-конструкторы',
     h1a: 'Өз үйіңізді', h1b: 'бірнеше минутта', h1c: 'жобалаңыз',
-    lead: 'Учаскені, өлшемдерді, қабат санын және материалды көрсетіңіз — бағдарлама каталогтан лайықты жобаларды таңдап, болашақ үйіңізді 3D форматта, жоспарларымен және учаскедегі орналасуымен көрсетеді.',
-    s1: 'Параметрлерді енгізіңіз', s2: '3D-нұсқаны таңдаңыз', s3: 'Жұмыс жобасына тапсырыс беріңіз',
+    lead: 'Учаскені, өлшемдерді, қабат санын, бөлмелер құрамын және материалды көрсетіңіз — бағдарлама каталогтан жобаларды таңдап, үйіңіздің эскиздік жобасын жасайды: жоспарлар, қасбеттер, қима, бас жоспар және шатыр.',
+    s1: 'Параметрлерді енгізіңіз', s2: 'Нұсқа мен қасбетті таңдаңыз', s3: 'Эскизді PDF форматында алыңыз',
     formTitle: 'Үй параметрлері', gPlot: 'Учаске', plotArea: 'Учаске ауданы', sot: 'сот.', plotWidth: 'Учаске ені', auto: 'авто',
     plotHint: '1 сотық = 100 м². Ені — учаскенің көше бойындағы жағы; білмесеңіз, бос қалдырыңыз.',
     gSize: 'Үйдің өлшемдері', modeDims: 'Ұзындығы × ені', modeArea: 'Жалпы ауданы', houseW: 'Ені (қасбет)', houseL: 'Ұзындығы (тереңдігі)', houseArea: 'Қалаған жалпы аудан',
@@ -74,6 +79,11 @@ const T = {
     gMat: 'Қабырға материалы', gExtra: 'Тілектер', roofLbl: 'Шатыр', any: 'Маңызды емес',
     r_gable: 'Екі беткейлі', r_hip: 'Төрт беткейлі', r_flat: 'Жалпақ', r_shed: 'Бір беткейлі', r_mansard: 'Мансардалы',
     bedsLbl: 'Жатын бөлме', garageLbl: 'Гараж', yes: 'Керек', no: 'Керек емес', submit: 'Нұсқаларды таңдау',
+    gTitle: 'Титул парағы үшін', addrLbl: 'Учаске мекенжайы', addrPh: 'міндетті емес', custLbl: 'Тапсырыс беруші (АЖТ)',
+    facLbl: 'Қасбет', facType: 'Қабырға әрлеуі', facColor: 'Қабырға түсі', roofColorLbl: 'Шатыр түсі', layoutTitle: 'Жоспар',
+    sheetsLbl: 'Эскиздік жоба парақтары', full: 'Толық экран', zoomHint: 'Парақтарды сайтта көруге болады. PDF файлы — сұраныс бойынша.',
+    sheetOf: (i, n, title) => i === 0 ? `Титул парағы · барлығы ${n} парақ` : `${n} парақтың ${i}-сі · ${title}`,
+    resLead: 'Нұсқаны таңдаңыз — төменде оның эскиздік жобасы ашылады.',
     gPlan: 'Жоспарлау', pBeds: 'Жатын бөлмелер', pBaths: 'Санторабтар', pKitchen: 'Ас үй', kOpen: 'Ас үй-қонақ бөлме', kSep: 'Ас үй мен қонақ бөлме бөлек',
     pCab: 'Кабинет', none: 'Жоқ', pWardrobe: 'Киім бөлмесі', pLaundry: 'Кір жуатын бөлме', pBoiler: 'Қазандық', pGuest: '1-қабатта жатын бөлме',
     need: (a, per, w, l) => `Мұндай құрамға ≈ ${a} м² керек (қабатқа ≈ ${per} м² — мысалы, ${fmt(w)} × ${fmt(l)} м).`,
@@ -81,19 +91,19 @@ const T = {
     tightTag: 'Бұл бөлмелерге тар', tightNote: a => `Бөлмелер тар болып шықты: таңдалған құрамға жалпы аудан ≈ ${a} м²-ден болғаны дұрыс.`,
     specRooms: 'Бөлмелер құрамы', kitchenOpen: 'ас үй-қонақ бөлме', kitchenSep: 'ас үй мен қонақ бөлме',
     roomsLine: v => `${v.beds} жатын бөлме, ${v.baths} санторап, ${v.prog.kitchen === 'separate' ? 'ас үй мен қонақ бөлме' : 'ас үй-қонақ бөлме'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', киім бөлмесі' : ''}${v.prog.laundry ? ', кір жуатын бөлме' : ''}${v.prog.boiler ? ', қазандық' : ''}`,
-    resTitle: 'Лайықты нұсқалар', t3d: '3D-модель', tPlan: 'Жоспар', tSite: 'Учаскеде',
+    resTitle: 'Лайықты нұсқалар',
     cFront: 'Қасбет', cCorner: '3/4', cTop: 'Жоғарыдан', cPlot: 'Учаске', drag: 'Тышқанмен немесе саусақпен айналдырыңыз',
     note: 'Визуализация мен жоспар — эскиздік әрі шамамен берілген. Нақты аудандар, конструктив, инженерлік жүйелер мен смета учаскеңіз бен ҚР нормаларын ескере отырып, жұмыс жобасында анықталады.',
-    orderTitle: 'Осы үйдің толық жұмыс жобасын алыңыз',
-    orderText: 'Таңдалған нұсқаны учаскеңізге және тілектеріңізге бейімдеп, құрылысқа арналған құжаттама жинағын дайындаймыз.',
+    orderTitle: 'Эскиздік жобаны PDF форматында алыңыз',
+    orderText: 'Осы үйдің эскиздік жобасын PDF форматында жібереміз және учаскеңізге бейімделген толық жұмыс жобасын дайындаймыз.',
     o1: 'Сәулеттік және конструктивтік шешімдер', o2: 'Инженерлік желілер: жылыту, сумен жабдықтау, электр', o3: 'Бас жоспар және келісуге көмек',
-    orderWa: 'WhatsApp-қа жазу', orderCall: 'Қоңырау шалу',
+    orderWa: 'PDF-ті WhatsApp арқылы алу', orderCall: 'Қоңырау шалу', ctaWa: 'WhatsApp-қа жазу',
     ctaTitle: 'Жеке жоба керек пе?',
     ctaText: 'Лайықты нұсқа таппадыңыз ба — учаскеңіз бен тілектеріңіз бойынша үйді нөлден жобалаймыз. Қоңырау шалыңыз немесе WhatsApp-қа жазыңыз.',
     copyright: '© 2026 ТОО «СВОЙ ПРОЕКТ». Нысандарды кілтпен жобалау.',
     title: 'Үйді онлайн жобалау — СВОЙ ПРОЕКТ',
     m: 'м', m2: 'м²', floorsShort: { 1: '1 қабат', 1.5: '1 қабат + мансарда', 2: '2 қабат', 3: '3 қабат' },
-    summary: (n, sot, pw, pl) => `Табылған нұсқалар: ${n}. Учаске ${fmt(sot)} сот. (≈ ${fmt(pw)} × ${fmt(pl)} м). Үйді 3D форматта көру үшін карточканы басыңыз.`,
+    summary: (n, sot, pw, pl) => `Табылған нұсқалар: ${n}. Учаске ${fmt(sot)} сот. (≈ ${fmt(pw)} × ${fmt(pl)} м). Эскиздік жобаны ашу үшін карточканы басыңыз.`,
     noFit: (mw, ml, maxA) => `Бұл учаскеде шегіністерді ескергенде (көшеден 5 м, көршілерден 3 м) үй ізі ≈ ${fmt(mw)} × ${fmt(ml)} м-ден, ал құрылыс ауданы ${fmt(maxA)} м²-ден аспауы керек. Үй өлшемін азайтыңыз, қабат қосыңыз немесе учаскені үлкейтіңіз. Төменде — ең жақын нұсқалар, оларды жеке жобада бейімдеуге болады.`,
     badInput: 'Параметрлерді тексеріңіз: учаске ауданы 2 сотықтан, үй өлшемі 4-тен 30 м-ге дейін, аудан 30 м²-ден.',
     noFitTag: 'Учаскеге сыймайды', bedsN: n => `${n} жатын бөлме`,
@@ -102,8 +112,7 @@ const T = {
     specGarage: 'Гараж', specTerrace: 'Терраса', specHeight: 'Үй биіктігі (шамамен)', specPlot: 'Учаске', specCover: 'Учаскенің құрылыс тығыздығы',
     yesShort: 'бар', noShort: 'жоқ', street: 'КӨШЕ', entrance: 'Кіреберіс', floorCap: ['1 қабат', '2 қабат', '3 қабат'], attic: 'Мансарда',
     atticNote: 'көлбеуді ескергендегі аудан', garage: 'Гараж', terrace: 'Терраса',
-    no3d: 'Бұл браузерде 3D-көріністі жүктеу мүмкін болмады. Жоспар мен бас жоспар көрші қойындыларда қолжетімді.',
-    wa: v => `Сәлеметсіз бе! svoyproect.kz сайтындағы онлайн-конструкторда үй таңдадым, толық жұмыс жобасын алғым келеді.\n\nЖоба: ${v.p.id} «${v.p.kz}» (${STYLES[v.style].kz})\nҚабат саны: ${T.kz.floorsShort[v.floors]}\nӨлшемдері: ${fmt(v.W)} × ${fmt(v.L)} м, жалпы ауданы ≈ ${fmt(v.total)} м²\nҚабырға материалы: ${MATS[v.mat].kz}\nШатыр: ${T.kz['r_' + v.roof]}\nБөлмелер: ${T.kz.roomsLine(v)}\nЖоспар нұсқасы: ${v.layout + 1}\nГараж: ${v.garage ? 'иә' : 'жоқ'}\nУчаске: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
+    wa: v => `Сәлеметсіз бе! svoyproect.kz сайтындағы онлайн-конструкторда үй таңдадым, эскиздік жобаны PDF форматында және толық жұмыс жобасын алғым келеді.\n\nЖоба: ${v.p.id} «${v.p.kz}» (${STYLES[v.style].kz})\nҚабат саны: ${T.kz.floorsShort[v.floors]}\nӨлшемдері: ${fmt(v.W)} × ${fmt(v.L)} м, жалпы ауданы ≈ ${fmt(v.total)} м²\nҚабырға материалы: ${MATS[v.mat].kz}\nШатыр: ${T.kz['r_' + v.roof]}\nБөлмелер: ${T.kz.roomsLine(v)}\nЖоспар нұсқасы: ${v.layout + 1}\nҚасбет: ${facadeLabel(v)}\nГараж: ${v.garage ? 'иә' : 'жоқ'}\nУчаске: ${fmt(v.plot.sot)} сот. (${fmt(v.plot.w)} × ${fmt(v.plot.l)} м)`,
     waGeneric: 'Сәлеметсіз бе! Жеке үй жобасы бойынша кеңес алғым келеді (svoyproect.kz).'
   }
 };
@@ -184,8 +193,7 @@ const state = {
   floors: 1,
   mat: 'gas',
   variants: [],
-  sel: null,
-  tab: '3d'
+  sel: null
 };
 
 function t(key) {
@@ -284,10 +292,6 @@ function wallCanvas(kind) {
   return c;
 }
 
-function texKind(mat, style) {
-  if (mat === 'frame' && (style === 'barn' || style === 'modern' || style === 'hitech')) return 'frameDark';
-  return mat;
-}
 
 /* ------------------------------------------------------- variant generation */
 
@@ -374,7 +378,7 @@ function neededArea(floors, prog) {
 }
 
 // Раскладка полосы: помещения идут колонками вдоль len, мелкие ставятся стопкой
-function packBand(rooms, x0, y0, len, depth, along) {
+function packBand(rooms, x0, y0, len, depth, along, hallOuter = 'end') {
   const out = [];
   const cols = [];
   let i = 0;
@@ -382,6 +386,9 @@ function packBand(rooms, x0, y0, len, depth, along) {
     const col = [rooms[i++]];
     let area = col[0].a;
     while (i < rooms.length && area / depth < 2.3 && rooms[i].a < 12) { col.push(rooms[i]); area += rooms[i++].a; }
+    // прихожая в стопке — у наружной стены, чтобы в ней была входная дверь
+    const h = col.findIndex(r => r.k === 'hall');
+    if (h >= 0) { const [hall] = col.splice(h, 1); if (hallOuter === 'end') col.push(hall); else col.unshift(hall); }
     cols.push({ rooms: col, area });
   }
   const total = cols.reduce((s, c) => s + c.area, 0);
@@ -449,7 +456,7 @@ function program(floors, W, L, prog, variant = 0) {
       if (corridor) rects.push({ k: lv.upper ? 'hallup' : 'corridor', x: 0, y: dB, w: W, h: corridor });
       if (variant === 1) rects.forEach(r => { r.x = W - r.x - r.w; });
     } else {
-      if (A.length) rects = rects.concat(packBand(A, 0, 0, L, dA, 'y'));
+      if (A.length) rects = rects.concat(packBand(A, 0, 0, L, dA, 'y', 'start'));
       if (B.length) rects = rects.concat(packBand(B, dA + corridor, 0, L, dB, 'y'));
       if (corridor) rects.push({ k: lv.upper ? 'hallup' : 'corridor', x: dA, y: 0, w: corridor, h: L });
     }
@@ -541,7 +548,7 @@ function makeVariant(p, inp, plot) {
   return v;
 }
 
-// Общая геометрия дома — используется и 3D-моделью, и чертежами
+// Общая геометрия дома — для фасадов, разреза и кровли
 function geometry(v) {
   const look = LOOK[v.style];
   const wallTop = PLINTH + (v.floors === 1.5 ? FLOOR_H + KNEE : v.floors * FLOOR_H);
@@ -572,128 +579,7 @@ function pickVariants(inp) {
   return { plot, list: (fit.length ? fit : list).slice(0, 6), anyFit: fit.length > 0 };
 }
 
-/* ---------------------------------------------------------------- SVG views */
-
-function elevationSVG(v) {
-  const g = v.geo, look = LOOK[v.style];
-  const gw = v.garage ? GARAGE_W : 0;
-  const totalW = v.W + gw + 2 * Math.max(g.over, 0.3);
-  const H = g.height + 0.6;
-  const S = 10;
-  const pad = 1.4;
-  const vbW = (totalW + pad * 2) * S, vbH = (H + pad) * S;
-  const x0 = (pad + Math.max(g.over, 0.3)) * S;
-  const yG = vbH - 0.4 * S;             // линия земли
-  const Y = m => yG - m * S;              // высота → y
-  const X = m => x0 + m * S;              // позиция по фасаду → x (0..W)
-  const wallFill = { gas: '#ebe6dc', brick: '#a4553a', ceramic: '#cdab7c', wood: '#a8733f', frame: '#e3e6e8', monolith: '#b9bcbf' }[v.mat];
-  const wf = texKind(v.mat, v.style) === 'frameDark' ? '#363b40' : wallFill;
-  let s = `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">`;
-  s += `<rect x="0" y="${yG}" width="${vbW}" height="${vbH - yG}" fill="#b9cf9f"/>`;
-  // гараж
-  if (v.garage) {
-    s += `<rect x="${X(v.W)}" y="${Y(PLINTH + 3)}" width="${gw * S}" height="${(3 + PLINTH) * S}" fill="${wf}" stroke="#2b3138" stroke-width="1"/>`;
-    s += `<rect x="${X(v.W + 0.7)}" y="${Y(PLINTH + 2.3)}" width="${2.6 * S}" height="${2.3 * S}" fill="#d6d9dd" stroke="#8a929b"/>`;
-    s += `<rect x="${X(v.W) - 2}" y="${Y(PLINTH + 3.3)}" width="${gw * S + 6}" height="${0.3 * S}" fill="${look.roof}"/>`;
-  }
-  // стены
-  s += `<rect x="${X(0)}" y="${Y(g.wallTop)}" width="${v.W * S}" height="${(g.wallTop - PLINTH) * S}" fill="${wf}" stroke="#2b3138" stroke-width="1"/>`;
-  s += `<rect x="${X(0)}" y="${Y(PLINTH)}" width="${v.W * S}" height="${PLINTH * S}" fill="#7d8186"/>`;
-  // кровля
-  const o = g.over;
-  const top = g.wallTop;
-  if (v.roof === 'flat') {
-    s += `<rect x="${X(-o)}" y="${Y(top + 0.35)}" width="${(v.W + 2 * o) * S}" height="${0.35 * S}" fill="${look.roof}"/>`;
-  } else if (v.roof === 'shed') {
-    s += `<polygon points="${X(-o)},${Y(top)} ${X(v.W + o)},${Y(top)} ${X(v.W + o)},${Y(top + g.h)} ${X(-o)},${Y(top + g.h)}" fill="${look.roof}" opacity=".92"/>`;
-    s += `<rect x="${X(-o)}" y="${Y(top + 0.25)}" width="${(v.W + 2 * o) * S}" height="${0.25 * S}" fill="#2b3138"/>`;
-  } else if (g.ridgeAlongZ && v.roof !== 'hip') {
-    const slope = g.h / (v.W / 2);
-    s += `<polygon points="${X(0)},${Y(top)} ${X(v.W / 2)},${Y(top + g.h)} ${X(v.W)},${Y(top)}" fill="${wf}" stroke="#2b3138" stroke-width="1"/>`;
-    s += `<polyline points="${X(-o)},${Y(top - o * slope)} ${X(v.W / 2)},${Y(top + g.h)} ${X(v.W + o)},${Y(top - o * slope)}" fill="none" stroke="${look.roof}" stroke-width="${0.35 * S}" stroke-linejoin="round"/>`;
-  } else {
-    const ridgeHalf = v.roof === 'hip' ? Math.max(0, (Math.max(v.W, v.L) - Math.min(v.W, v.L)) / 2) : v.W / 2 + o;
-    const along = v.roof === 'hip' ? (v.L > v.W ? 0 : ridgeHalf) : ridgeHalf;
-    const cx = v.W / 2;
-    const eaveY = top - o * (g.h / (g.span / 2));
-    s += `<polygon points="${X(-o)},${Y(eaveY)} ${X(v.W + o)},${Y(eaveY)} ${X(cx + along)},${Y(top + g.h)} ${X(cx - along)},${Y(top + g.h)}" fill="${look.roof}"/>`;
-  }
-  // окна и дверь
-  const frame = look.frame;
-  const glass = '#3c5266';
-  const full = v.floors === 1.5 ? 1 : v.floors;
-  const big = v.style === 'modern' || v.style === 'hitech';
-  const slots = facadeSlots(v.W);
-  for (let f = 0; f < full; f++) {
-    for (let i = 0; i < slots.n; i++) {
-      const u = v.W / 2 + slots.at(i);
-      const isDoor = f === 0 && i === slots.door;
-      const base = PLINTH + f * FLOOR_H;
-      if (isDoor) {
-        s += `<rect x="${X(u - 0.5)}" y="${Y(base + 2.2)}" width="${S}" height="${2.2 * S}" fill="#6b4a2f" stroke="${frame}"/>`;
-      } else {
-        const ww = big ? 2.0 : 1.2, wh = big ? 2.2 : 1.4, sill = big ? 0.4 : 0.9;
-        s += `<rect x="${X(u - ww / 2)}" y="${Y(base + sill + wh)}" width="${ww * S}" height="${wh * S}" fill="${glass}" stroke="${frame}" stroke-width="2"/>`;
-      }
-    }
-  }
-  if ((v.roof === 'mansard' || v.roof === 'gable') && g.ridgeAlongZ) {
-    s += `<rect x="${X(v.W / 2 - 0.6)}" y="${Y(top + g.h * 0.2 + 1.2)}" width="${1.2 * S}" height="${1.2 * S}" fill="${glass}" stroke="${frame}" stroke-width="2"/>`;
-  }
-  if (v.terrace) {
-    s += `<rect x="${X(v.W * 0.15)}" y="${Y(PLINTH)}" width="${v.W * 0.7 * S}" height="${PLINTH * S}" fill="#9a6b40"/>`;
-  }
-  s += '</svg>';
-  return s;
-}
-
-function planSVG(v, lv, idx) {
-  const L = state.lang;
-  const pad = 1.6;
-  const gw = idx === 0 && v.garage ? GARAGE_W : 0;
-  const td = idx === 0 && v.terrace ? TERRACE_D : 0;
-  const S = 40;
-  const vbW = (v.W + gw + pad * 2) * S, vbH = (v.L + td + pad * 2) * S;
-  const X = m => (pad + m) * S, Y = m => (pad + m) * S;
-  let s = `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg" font-family="Manrope, sans-serif">`;
-  lv.rects.forEach(r => {
-    const R = ROOMS[r.k];
-    s += `<rect x="${X(r.x)}" y="${Y(r.y)}" width="${r.w * S}" height="${r.h * S}" fill="${R.fill}" stroke="#2b3138" stroke-width="3"/>`;
-    const name = R[L];
-    const fs = clamp(Math.min(r.w * S / (name.length * 0.62), r.h * S / 3.2), 6.5, 15);
-    const cx = X(r.x + r.w / 2), cy = Y(r.y + r.h / 2);
-    s += `<text x="${cx}" y="${cy - fs * 0.15}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#11161d">${esc(name)}</text>`;
-    s += `<text x="${cx}" y="${cy + fs * 1.15}" text-anchor="middle" font-size="${fs * 0.92}" fill="#56616f">${fmt(r.net)} ${t('m2')}</text>`;
-  });
-  s += `<rect x="${X(0)}" y="${Y(0)}" width="${v.W * S}" height="${v.L * S}" fill="none" stroke="#11161d" stroke-width="9"/>`;
-  if (gw) {
-    const gy = v.L - v.gd;
-    s += `<rect x="${X(v.W)}" y="${Y(gy)}" width="${gw * S}" height="${v.gd * S}" fill="#e6e8eb" stroke="#11161d" stroke-width="6"/>`;
-    s += `<text x="${X(v.W + gw / 2)}" y="${Y(gy + v.gd / 2)}" text-anchor="middle" font-size="14" font-weight="700" fill="#3a4453">${esc(t('garage'))}</text>`;
-    s += `<text x="${X(v.W + gw / 2)}" y="${Y(gy + v.gd / 2) + 17}" text-anchor="middle" font-size="12" fill="#56616f">${fmt(GARAGE_W * v.gd * 0.9)} ${t('m2')}</text>`;
-  }
-  if (td) {
-    const tw = Math.min(v.W * 0.7, 7);
-    s += `<rect x="${X(v.W / 2 - tw / 2)}" y="${Y(v.L)}" width="${tw * S}" height="${td * S}" fill="#f3e6d6" stroke="#9a6b40" stroke-width="2" stroke-dasharray="8 5"/>`;
-    s += `<text x="${X(v.W / 2)}" y="${Y(v.L + td / 2) + 5}" text-anchor="middle" font-size="13" font-weight="700" fill="#7a5330">${esc(t('terrace'))}</text>`;
-  }
-  if (idx === 0) {
-    const ex = X(v.W / 2 + doorU(v.W)), ey = Y(v.L + td) + 8;
-    s += `<path d="M${ex - 9},${ey + 14} L${ex},${ey} L${ex + 9},${ey + 14}" fill="none" stroke="#2f7fd1" stroke-width="3"/>`;
-    s += `<text x="${ex}" y="${ey + 30}" text-anchor="middle" font-size="12" font-weight="700" fill="#2f7fd1">${esc(t('entrance'))}</text>`;
-  }
-  // размеры
-  const dy = Y(0) - 0.8 * S;
-  s += `<line x1="${X(0)}" y1="${dy}" x2="${X(v.W)}" y2="${dy}" stroke="#7c8694" stroke-width="1.5"/>`;
-  s += `<line x1="${X(0)}" y1="${dy - 6}" x2="${X(0)}" y2="${dy + 6}" stroke="#7c8694" stroke-width="1.5"/><line x1="${X(v.W)}" y1="${dy - 6}" x2="${X(v.W)}" y2="${dy + 6}" stroke="#7c8694" stroke-width="1.5"/>`;
-  s += `<text x="${X(v.W / 2)}" y="${dy - 7}" text-anchor="middle" font-size="14" font-weight="700" fill="#3a4453">${fmt(v.W)} ${t('m')}</text>`;
-  const dx = X(0) - 0.8 * S;
-  s += `<line x1="${dx}" y1="${Y(0)}" x2="${dx}" y2="${Y(v.L)}" stroke="#7c8694" stroke-width="1.5"/>`;
-  s += `<line x1="${dx - 6}" y1="${Y(0)}" x2="${dx + 6}" y2="${Y(0)}" stroke="#7c8694" stroke-width="1.5"/><line x1="${dx - 6}" y1="${Y(v.L)}" x2="${dx + 6}" y2="${Y(v.L)}" stroke="#7c8694" stroke-width="1.5"/>`;
-  s += `<text x="${dx - 7}" y="${Y(v.L / 2)}" text-anchor="middle" font-size="14" font-weight="700" fill="#3a4453" transform="rotate(-90 ${dx - 7} ${Y(v.L / 2)})">${fmt(v.L)} ${t('m')}</text>`;
-  s += '</svg>';
-  return s;
-}
+/* ------------------------------------------------------------- участок */
 
 // Расположение дома на участке. Мировые координаты: участок по центру,
 // улица со стороны +z. Локальные координаты дома: фасад смотрит в +z.
@@ -707,7 +593,7 @@ function placement(v) {
   const rot = v.rotated ? 1 : 0;
   const tf = (x, z) => (rot ? [z, -x] : [x, z]);
   let cx, cz;
-  const pw = v.plot.w, pl = v.plot.l;
+  const pl = v.plot.l;
   if (!rot) {
     cx = -(lx0 + lx1) / 2;
     cz = pl / 2 - FRONT - lz1;
@@ -725,80 +611,86 @@ function placement(v) {
   return { rot, cx, cz, toWorld, rects, tw };
 }
 
-function siteSVG(v) {
-  const pw = v.plot.w, pl = v.plot.l;
-  const pad = 4;
-  const S = clamp(560 / Math.max(pw, pl), 6, 30);
-  const vbW = (pw + pad * 2) * S, vbH = (pl + pad * 2 + 2) * S;
-  const X = x => (pad + x + pw / 2) * S, Y = z => (pad + z + pl / 2) * S;
-  const pos = placement(v);
-  let s = `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg" font-family="Manrope, sans-serif">`;
-  s += `<rect x="${X(-pw / 2)}" y="${Y(-pl / 2)}" width="${pw * S}" height="${pl * S}" fill="#dfeccd" stroke="#4d5a3b" stroke-width="3"/>`;
-  s += `<rect x="${X(-pw / 2 + SIDE)}" y="${Y(-pl / 2 + BACK)}" width="${(pw - 2 * SIDE) * S}" height="${(pl - FRONT - BACK) * S}" fill="none" stroke="#c0392b" stroke-width="1.5" stroke-dasharray="7 5"/>`;
-  const fills = { house: '#2f7fd1', garage: '#7c8694', terrace: '#c99a6a' };
-  pos.rects.forEach(r => {
-    s += `<rect x="${X(r.x0)}" y="${Y(r.z0)}" width="${(r.x1 - r.x0) * S}" height="${(r.z1 - r.z0) * S}" fill="${fills[r.k]}" opacity="${r.k === 'house' ? 0.9 : 0.75}" stroke="#11161d" stroke-width="1.5"/>`;
+/* ------------------------------------------------------ эскизный проект */
+
+// Листы чертежей всегда по-русски, как в проектной документации
+function sketchContext() {
+  return {
+    PLINTH, FLOOR_H, GARAGE_W, TERRACE_D, SIDE, FRONT, BACK,
+    placement, doorU,
+    address: $('#addr').value.trim(),
+    customer: $('#customer').value.trim(),
+    roomName: k => ROOMS[k].ru,
+    roomsLine: v => T.ru.roomsLine(v),
+    floorsName: f => T.ru.floorsShort[f]
+  };
+}
+
+function renderSheets(v) {
+  setContext(sketchContext());
+  state.sheets = sheets(v);
+  if (state.sheet >= state.sheets.length) state.sheet = 0;
+  $('#sheetTabs').innerHTML = state.sheets.map((s, i) =>
+    `<button type="button" data-sheet="${i}" class="${i === state.sheet ? 'on' : ''}">${i ? i + '. ' : ''}${esc(s.short)}</button>`).join('');
+  $$('#sheetTabs [data-sheet]').forEach(b => b.onclick = () => showSheet(+b.dataset.sheet));
+  showSheet(state.sheet);
+}
+
+function showSheet(i) {
+  state.sheet = (i + state.sheets.length) % state.sheets.length;
+  const s = state.sheets[state.sheet];
+  $('#sheet').innerHTML = s.svg;
+  $('#sheetNo').textContent = t('sheetOf')(state.sheet, state.sheets.length - 1, s.title);
+  $$('#sheetTabs [data-sheet]').forEach(b => b.classList.toggle('on', +b.dataset.sheet === state.sheet));
+  if (!$('#zoom').hidden) $('#zoomSheet').innerHTML = s.svg;
+}
+
+// Выбор отделки фасада и цвета кровли для выбранного варианта
+function renderFacadePick(v) {
+  const L = state.lang;
+  const fc = v.facade;
+  $('#facType').innerHTML = Object.entries(FACADES).map(([key, f]) =>
+    `<button type="button" data-fac="${key}" class="${key === fc.type ? 'on' : ''}">${esc(f[L])}</button>`).join('');
+  $('#facColor').innerHTML = FACADES[fc.type].colors.map(([name, hex], i) =>
+    `<button type="button" data-col="${i}" class="${i === fc.color ? 'on' : ''}" title="${esc(name)}"><i style="background:${hex}"></i>${esc(name)}</button>`).join('');
+  $('#roofBox').hidden = v.roof === 'flat';
+  $('#roofColor').innerHTML = ROOF_COLORS.map(([name, hex], i) =>
+    `<button type="button" data-rc="${i}" class="${i === v.roofColor ? 'on' : ''}" title="${esc(name)}"><i style="background:${hex}"></i>${esc(name)}</button>`).join('');
+  const changed = () => { renderFacadePick(v); renderSheets(v); updateCardThumb(v); updateOrder(v); };
+  $$('#facType [data-fac]').forEach(b => b.onclick = () => { v.facade = { type: b.dataset.fac, color: 0 }; changed(); });
+  $$('#facColor [data-col]').forEach(b => b.onclick = () => { v.facade = { ...v.facade, color: +b.dataset.col }; changed(); });
+  $$('#roofColor [data-rc]').forEach(b => b.onclick = () => { v.roofColor = +b.dataset.rc; changed(); });
+}
+
+function renderLayoutPick(v) {
+  $('#layouts').innerHTML = t('lay').map((name, i) =>
+    `<button type="button" data-lay="${i}" class="${i === v.layout ? 'on' : ''}">${i + 1}. ${esc(name)}</button>`).join('');
+  $('#tight').hidden = v.tight >= 0.9;
+  $('#tight').textContent = t('tightNote')(neededArea(v.floors, v.prog));
+  $$('#layouts [data-lay]').forEach(b => b.onclick = () => {
+    v.layout = +b.dataset.lay;
+    v.levels = program(v.floors, v.W, v.L, v.prog, v.layout);
+    renderLayoutPick(v);
+    renderSheets(v);
+    updateOrder(v);
   });
-  const h = pos.rects[0];
-  const fs = clamp(S * 0.9, 11, 15);
-  s += `<text x="${X((h.x0 + h.x1) / 2)}" y="${Y((h.z0 + h.z1) / 2) + 5}" text-anchor="middle" font-size="${fs}" font-weight="800" fill="#fff">${fmt(v.W)}×${fmt(v.L)}</text>`;
-  // улица
-  s += `<rect x="0" y="${Y(pl / 2) + 0.6 * S}" width="${vbW}" height="${2.4 * S}" fill="#c9ced4"/>`;
-  s += `<text x="${vbW / 2}" y="${Y(pl / 2) + 2.1 * S}" text-anchor="middle" font-size="${fs}" font-weight="800" letter-spacing="3" fill="#56616f">${esc(t('street'))}</text>`;
-  // размеры участка
-  s += `<text x="${X(0)}" y="${Y(-pl / 2) - 0.8 * S}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#3a4453">${fmt(pw)} ${t('m')}</text>`;
-  s += `<text x="${X(-pw / 2) - 0.8 * S}" y="${Y(0)}" text-anchor="middle" font-size="${fs}" font-weight="700" fill="#3a4453" transform="rotate(-90 ${X(-pw / 2) - 0.8 * S} ${Y(0)})">${fmt(pl)} ${t('m')}</text>`;
-  s += `<text x="${X(-pw / 2 + SIDE) + 4}" y="${Y(pl / 2 - FRONT) - 6}" font-size="${fs * 0.85}" fill="#c0392b" font-weight="600">${FRONT} ${t('m')} / ${SIDE} ${t('m')}</text>`;
-  s += '</svg>';
-  return s;
 }
 
-/* ---------------------------------------------------------------- 3D viewer */
-
-// Сам 3D-движок — в house3d.js, грузится по требованию; без WebGL остаются чертежи
-let H3 = null, h3failed = false;
-
-async function load3D() {
-  if (H3 || h3failed) return H3;
-  try {
-    const mod = await import('./house3d.js');
-    mod.init({ pane: $('#pane3d'), PLINTH, FLOOR_H, GARAGE_W, TERRACE_D, placement, facadeSlots, doorU });
-    H3 = mod;
-  } catch (e) {
-    console.error(e);
-    h3failed = true;
-  }
-  return H3;
+function updateCardThumb(v) {
+  const i = state.variants.indexOf(v);
+  const card = $$('#cards .card')[i];
+  if (card) card.querySelector('.thumb').innerHTML = facadeThumb(v);
 }
 
-async function show3D(v) {
-  const h = await load3D();
-  if (!h) {
-    $('#pane3d').innerHTML = `<div class="fallback">${esc(t('no3d'))}</div>`;
-    return;
-  }
-  try {
-    h.show(v);
-    if (state.tab === '3d') h.start();
-  } catch (e) {
-    console.error(e);
-  }
+function facadeLabel(v) {
+  const fc = FACADES[v.facade.type];
+  return `${fc.ru}, ${fc.colors[v.facade.color][0].toLowerCase()}${v.roof !== 'flat' ? `; кровля — ${ROOF_COLORS[v.roofColor][0].toLowerCase()}` : ''}`;
 }
 
-function setCam(kind) { if (H3) H3.setCam(kind); }
-
-// Превью карточек рендерятся по очереди, пока список вариантов не сменился
-async function renderThumbs() {
-  const h = await load3D();
-  if (!h) return;
-  const list = state.variants;
-  for (let i = 0; i < list.length; i++) {
-    if (state.variants !== list) return;
-    let url = null;
-    try { url = await h.thumb(list[i]); } catch (e) { console.error(e); return; }
-    const card = $$('#cards .card')[i];
-    if (card && url && state.variants === list) card.querySelector('.thumb').innerHTML = `<img src="${url}" alt="">`;
-  }
+function updateOrder(v) {
+  const href = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('wa')(v));
+  $('#orderWa').href = href;
+  $('#zoomWa').href = href;
 }
 
 /* -------------------------------------------------------------------- UI */
@@ -839,6 +731,7 @@ function applyLang() {
 let lastSummary = null;
 
 function renderCards() {
+  setContext(sketchContext());
   const box = $('#cards');
   box.innerHTML = '';
   state.variants.forEach(v => {
@@ -850,7 +743,7 @@ function renderCards() {
     if (!v.fits) tags.unshift(`⚠ ${t('noFitTag')}`);
     else if (v.tight < 0.9) tags.unshift(`⚠ ${t('tightTag')}`);
     b.innerHTML = `
-      <div class="thumb">${elevationSVG(v)}</div>
+      <div class="thumb">${facadeThumb(v)}</div>
       <div class="body">
         <div class="code">${v.p.id}</div>
         <h3>${esc(v.p[state.lang])}</h3>
@@ -864,7 +757,6 @@ function renderCards() {
     const [n, plot] = lastSummary;
     $('#summary').textContent = t('summary')(n, plot.sot, plot.w, plot.l);
   }
-  renderThumbs();
 }
 
 function renderSpecs(v) {
@@ -881,30 +773,11 @@ function renderSpecs(v) {
     [t('specMat'), MATS[v.mat][L]],
     [t('specGarage'), v.garage ? t('yesShort') : t('noShort')],
     [t('specTerrace'), v.terrace ? t('yesShort') : t('noShort')],
-    [t('specHeight'), `≈ ${fmt(v.geo.height)} ${t('m')}`],
+    [t('specHeight'), `≈ ${fmt(v.geo.height - PLINTH)} ${t('m')}`],
     [t('specPlot'), `${fmt(v.plot.sot)} ${t('sot')} · ${fmt(v.plot.w)} × ${fmt(v.plot.l)} ${t('m')}`],
     [t('specCover'), `${Math.round(v.cover * 100)} %`]
   ];
   $('#specs').innerHTML = rows.map(([a, b]) => `<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join('');
-}
-
-function renderPlans(v) {
-  const caps = t('floorCap');
-  const switcher = `<div class="layouts"><span>${esc(t('layoutLbl'))}:</span>${t('lay').map((name, i) =>
-    `<button type="button" data-lay="${i}" class="${i === v.layout ? 'on' : ''}">${i + 1}. ${esc(name)}</button>`).join('')}</div>`;
-  const tight = v.tight < 0.9 ? `<div class="tight">${esc(t('tightNote')(neededArea(v.floors, v.prog)))}</div>` : '';
-  $('#panePlan').innerHTML = switcher + tight + v.levels.map((lv, i) => {
-    const cap = lv.attic ? t('attic') : caps[i];
-    const sub = `${fmt(lv.total)} ${t('m2')}${lv.attic ? ' · ' + t('atticNote') : ''}`;
-    return `<figure><figcaption>${esc(cap)}<span>${esc(sub)}</span></figcaption>${planSVG(v, lv, i)}</figure>`;
-  }).join('');
-  $$('#panePlan [data-lay]').forEach(b => b.onclick = () => {
-    v.layout = +b.dataset.lay;
-    v.levels = program(v.floors, v.W, v.L, v.prog, v.layout);
-    renderPlans(v);
-    $('#orderWa').href = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('wa')(v));
-  });
-  $('#paneSite').innerHTML = `<figure style="max-width:640px"><figcaption>${esc(t('tSite'))}<span>${fmt(v.plot.sot)} ${t('sot')} · ${Math.round(v.cover * 100)} %</span></figcaption>${siteSVG(v)}</figure>`;
 }
 
 function selectVariant(v, scroll) {
@@ -914,23 +787,14 @@ function selectVariant(v, scroll) {
   $('#vCode').textContent = `${v.p.id} · ${STYLES[v.style][state.lang]}`;
   $('#vName').textContent = v.p[state.lang];
   renderSpecs(v);
-  renderPlans(v);
-  $('#orderWa').href = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('wa')(v));
+  renderLayoutPick(v);
+  renderFacadePick(v);
+  renderSheets(v);
+  updateOrder(v);
   if (scroll) {
     $('#viewer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    show3D(v);
     if (window.gtag) gtag('event', 'house_variant_view', { project_id: v.p.id });
   }
-}
-
-function setTab(tab) {
-  state.tab = tab;
-  $$('#tabs button').forEach(b => b.classList.toggle('on', b.dataset.tab === tab));
-  $('#pane3d').hidden = tab !== '3d';
-  $('#panePlan').hidden = tab !== 'plan';
-  $('#paneSite').hidden = tab !== 'site';
-  $('.stage').classList.toggle('flow', tab !== '3d');
-  if (H3) { if (tab === '3d') H3.start(); else H3.stop(); }
 }
 
 function run(scroll) {
@@ -942,8 +806,10 @@ function run(scroll) {
     return;
   }
   const { plot, list, anyFit } = pickVariants(inp);
+  list.forEach(v => { v.facade = defaultFacade(v); v.roofColor = defaultRoofColor(v); });
   state.variants = list;
   state.sel = null;
+  state.sheet = 0;
   lastSummary = [list.length, plot];
   if (!anyFit) {
     const mw = plot.w - 2 * SIDE, ml = plot.l - FRONT - BACK;
@@ -953,10 +819,14 @@ function run(scroll) {
   renderCards();
   if (list.length) {
     selectVariant(list[0], false);
-    show3D(list[0]);
     if (scroll) $('#summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
   }
   if (window.gtag && scroll) gtag('event', 'house_configure', { floors: inp.floors, material: inp.mat });
+}
+
+// Цвет кровли по умолчанию — от стиля
+function defaultRoofColor(v) {
+  return { classic: 0, chalet: 1, scandi: 2, barn: 2, modern: 2, hitech: 4 }[v.style];
 }
 
 // Подсказка: какая площадь нужна под выбранный состав комнат
@@ -972,6 +842,23 @@ function initLang() {
   let lang = new URLSearchParams(location.search).get('lang');
   if (!lang) { try { lang = localStorage.getItem('sp_lang'); } catch (e) { /* хранилище недоступно */ } }
   state.lang = lang === 'kz' ? 'kz' : 'ru';
+}
+
+// Полноэкранный просмотр листа с масштабом
+function openZoom() {
+  state.zoom = 1;
+  $('#zoomSheet').innerHTML = state.sheets[state.sheet].svg;
+  $('#zoomSheet').style.width = '100%';
+  $('#zoom').hidden = false;
+  document.body.style.overflow = 'hidden';
+}
+function closeZoom() {
+  $('#zoom').hidden = true;
+  document.body.style.overflow = '';
+}
+function setZoom(d) {
+  state.zoom = clamp(state.zoom * d, 1, 4);
+  $('#zoomSheet').style.width = state.zoom * 100 + '%';
 }
 
 function init() {
@@ -993,12 +880,28 @@ function init() {
     updateNeed();
   });
   ['#pBeds', '#pBaths', '#pKitchen', '#pCab', '#pWardrobe', '#pBoiler', '#pLaundry', '#pGuest'].forEach(id => $(id).addEventListener('change', updateNeed));
+  ['#addr', '#customer'].forEach(id => $(id).addEventListener('change', () => { if (state.sel) renderSheets(state.sel); }));
   $('#useArea').onclick = () => {
     $('#houseArea').value = neededArea(state.floors, readProgram());
     $('#sizeMode button[data-v="area"]').click();
   };
-  $$('#tabs button').forEach(b => b.onclick = () => setTab(b.dataset.tab));
-  $$('.cams button').forEach(b => b.onclick = () => setCam(b.dataset.cam));
+  $('#prevSheet').onclick = () => showSheet(state.sheet - 1);
+  $('#nextSheet').onclick = () => showSheet(state.sheet + 1);
+  $('#fullSheet').onclick = openZoom;
+  $('#sheet').onclick = openZoom;
+  $('#zoomClose').onclick = closeZoom;
+  $('#zoomIn').onclick = () => setZoom(1.4);
+  $('#zoomOut').onclick = () => setZoom(1 / 1.4);
+  $('#zoomPrev').onclick = () => showSheet(state.sheet - 1);
+  $('#zoomNext').onclick = () => showSheet(state.sheet + 1);
+  document.addEventListener('keydown', e => {
+    if ($('#zoom').hidden) return;
+    if (e.key === 'Escape') closeZoom();
+    if (e.key === 'ArrowLeft') showSheet(state.sheet - 1);
+    if (e.key === 'ArrowRight') showSheet(state.sheet + 1);
+  });
+  // эскиз смотрят на сайте, файл выдаём по запросу
+  ['#sheet', '#zoomSheet'].forEach(id => $(id).addEventListener('contextmenu', e => e.preventDefault()));
   $('#cfg').addEventListener('submit', e => { e.preventDefault(); run(true); });
   $('#orderWa').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_whatsapp', { project_id: state.sel && state.sel.p.id }); });
   $('#orderTel').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_call', { project_id: state.sel && state.sel.p.id }); });

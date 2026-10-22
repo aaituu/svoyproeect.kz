@@ -34,18 +34,9 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=JetBrains+Mono:wght@500;600&family=PT+Sans+Narrow:wght@400;700&display=swap"
       rel="stylesheet"
     />
-
-    <script type="importmap">
-      {
-        "imports": {
-          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
-          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
-        }
-      }
-    </script>
 
     <style>
       * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -177,14 +168,6 @@
         display: block; margin-top: 7px; border: none; background: none; padding: 0; cursor: pointer;
         color: #2f7fd1; font-weight: 700; font-size: 12.5px; text-decoration: underline; text-underline-offset: 3px;
       }
-      .layouts { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; width: 100%; justify-content: center; }
-      .layouts span { font-size: 13px; font-weight: 700; color: #3a4453; margin-right: 4px; }
-      .layouts button {
-        border: 1px solid #d9dee6; background: #fff; padding: 8px 12px; border-radius: 9px; cursor: pointer;
-        font-size: 13px; font-weight: 600; color: #3a4453;
-      }
-      .layouts button.on { border-color: #2f7fd1; background: #2f7fd1; color: #fff; }
-      .tight { width: 100%; text-align: center; font-size: 13px; color: #8a5a1c; background: #fff6ec; border: 1px solid #f1d2ae; border-radius: 9px; padding: 8px 12px; }
 
       /* ---------- results ---------- */
       .res-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
@@ -217,27 +200,46 @@
       .vhead { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-bottom: 1px solid #eef1f5; }
       .vhead h2 { font-size: 24px; }
       .vhead .code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: #2f7fd1; font-weight: 600; }
-      .tabs { display: flex; gap: 4px; background: #eef1f5; padding: 4px; border-radius: 11px; }
-      .tabs button { border: none; background: transparent; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 600; color: #56616f; }
-      .tabs button.on { background: #fff; color: #11161d; box-shadow: 0 1px 3px rgba(17,22,29,.14); }
-      .stage { position: relative; height: 520px; background: #dfe9f3; }
-      .stage > div { position: absolute; inset: 0; }
-      .stage.flow { height: auto; min-height: 320px; background: #fff; }
-      .stage.flow > div { position: static; }
-      #pane3d canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
-      .cams { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 6px; flex-wrap: wrap; inset: auto auto 14px 14px !important; }
-      .cams button {
-        border: none; background: rgba(255,255,255,.92); padding: 8px 12px; border-radius: 8px; cursor: pointer;
-        font-size: 12.5px; font-weight: 700; box-shadow: 0 2px 8px rgba(17,22,29,.15);
+      .picks { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 1px solid #eef1f5; }
+      .pick { padding: 16px 20px 18px; }
+      .pick + .pick { border-left: 1px solid #eef1f5; }
+      .plabel { font-size: 12.5px; font-weight: 700; color: #3a4453; margin: 10px 0 7px; display: block; }
+      .chips { display: flex; flex-wrap: wrap; gap: 6px; }
+      .chips button {
+        border: 1px solid #d9dee6; background: #fff; padding: 7px 11px; border-radius: 9px; cursor: pointer;
+        font-size: 13px; font-weight: 600; color: #3a4453; display: inline-flex; align-items: center; gap: 7px;
       }
-      .cams button:hover { background: #fff; color: #2f7fd1; }
-      .drag-hint { position: absolute; right: 14px; top: 14px; inset: 14px 14px auto auto !important; font-size: 12px; font-weight: 600; background: rgba(17,22,29,.65); color: #fff; padding: 6px 10px; border-radius: 8px; pointer-events: none; }
-      .plans { background: #fff; overflow: auto; padding: 18px; display: flex; flex-wrap: wrap; gap: 18px; align-content: flex-start; justify-content: center; }
-      .plans figure { flex: 1 1 300px; max-width: 520px; }
-      .plans figcaption { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; }
-      .plans figcaption span { color: #7c8694; font-weight: 600; }
-      .plans svg { width: 100%; height: auto; display: block; }
-      .fallback { display: grid; place-items: center; text-align: center; padding: 24px; color: #56616f; font-size: 14.5px; line-height: 1.5; }
+      .chips button.on { border-color: #2f7fd1; box-shadow: 0 0 0 2px rgba(47,127,209,.2); color: #11161d; }
+      .chips:not(.swatches) button.on { background: #2f7fd1; color: #fff; box-shadow: none; }
+      .chips i { width: 18px; height: 18px; border-radius: 5px; border: 1px solid rgba(0,0,0,.15); flex: none; }
+      .tight { margin-top: 10px; font-size: 12.5px; line-height: 1.45; color: #8a5a1c; background: #fff6ec; border: 1px solid #f1d2ae; border-radius: 9px; padding: 8px 11px; }
+      .sheets { background: #eef1f5; padding: 14px 16px 16px; }
+      .sheetbar { display: flex; flex-direction: column; gap: 4px; }
+      .sheetbar .plabel { margin: 0 0 4px; }
+      .sheettabs { display: flex; gap: 6px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
+      .sheettabs button {
+        flex: none; border: 1px solid #d4dae3; background: #fff; padding: 6px 10px; border-radius: 8px; cursor: pointer;
+        font-size: 12.5px; font-weight: 600; color: #3a4453; white-space: nowrap;
+      }
+      .sheettabs button.on { background: #16202c; border-color: #16202c; color: #fff; }
+      .sheetwrap { display: flex; align-items: center; gap: 8px; margin-top: 10px; }
+      .sheet { flex: 1; min-width: 0; background: #fff; box-shadow: 0 10px 30px -14px rgba(17,22,29,.35); cursor: zoom-in; user-select: none; -webkit-user-select: none; }
+      .sheet svg, .zoomsheet svg { display: block; width: 100%; height: auto; }
+      .nav {
+        flex: none; width: 36px; height: 56px; border-radius: 9px; border: 1px solid #d4dae3; background: #fff;
+        font-size: 26px; line-height: 1; color: #3a4453; cursor: pointer;
+      }
+      .nav:hover { border-color: #2f7fd1; color: #2f7fd1; }
+      .sheetfoot { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; margin-top: 10px; font-size: 13px; color: #56616f; font-weight: 600; }
+      .sheetfoot .btn { padding: 8px 14px; font-size: 13px; }
+      .zoom { position: fixed; inset: 0; z-index: 100; background: rgba(14,21,29,.92); display: flex; flex-direction: column; }
+      .zoombar { display: flex; align-items: center; gap: 8px; padding: 10px 14px; color: #cfd6de; font-size: 13px; flex-wrap: wrap; }
+      .zoombar > button { width: 38px; height: 38px; border-radius: 9px; border: 1px solid rgba(255,255,255,.2); background: rgba(255,255,255,.08); color: #fff; font-size: 20px; cursor: pointer; }
+      .zoombar > button:hover { background: rgba(255,255,255,.18); }
+      .zoombar span { flex: 1; min-width: 160px; }
+      .zoombar .btn { padding: 9px 14px; font-size: 13px; }
+      .zoomarea { flex: 1; overflow: auto; padding: 0 14px 14px; }
+      .zoomsheet { margin: 0 auto; background: #fff; user-select: none; -webkit-user-select: none; }
       .vbody { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; }
       .specs { padding: 20px; border-right: 1px solid #eef1f5; }
       .specs table { width: 100%; border-collapse: collapse; font-size: 14px; }
@@ -274,9 +276,10 @@
       @media (max-width: 860px) {
         .layout { grid-template-columns: 1fr; }
         .panel { position: static; }
+        .picks { grid-template-columns: 1fr; }
+        .pick + .pick { border-left: none; border-top: 1px solid #eef1f5; }
         .top-actions .btn-tel, .back-text { display: none; }
         .intro h1 { font-size: 38px; }
-        .stage { height: 420px; }
       }
       @media (max-width: 600px) {
         .wrap { padding: 0 16px; }
@@ -287,12 +290,12 @@
         .top-actions .btn-wa { padding: 10px 12px; }
         .top .wrap { gap: 10px; }
         .top-actions { gap: 8px; }
-        .tabs button { padding: 8px 10px; font-size: 12.5px; }
         .intro .wrap { padding-top: 34px; padding-bottom: 30px; }
         .intro h1 { font-size: 31px; }
         .intro p { font-size: 15.5px; }
         .cards { grid-template-columns: 1fr; }
-        .stage { height: 360px; }
+        .nav { display: none; }
+        .sheets { padding: 12px 10px; }
         .res-head h2 { font-size: 25px; }
         .cta h2 { font-size: 26px; }
         .panel { padding: 18px; }
@@ -457,6 +460,18 @@
           </div>
         </div>
 
+        <div class="group">
+          <div class="glabel" data-i18n="gTitle">Для титульного листа</div>
+          <div class="field">
+            <label for="addr" data-i18n="addrLbl">Адрес участка</label>
+            <input id="addr" type="text" maxlength="120" placeholder="необязательно" data-i18n-ph="addrPh" />
+          </div>
+          <div class="field">
+            <label for="customer" data-i18n="custLbl">Заказчик (ФИО)</label>
+            <input id="customer" type="text" maxlength="80" placeholder="необязательно" data-i18n-ph="addrPh" />
+          </div>
+        </div>
+
         <button type="submit" class="btn btn-main submit" data-i18n="submit">Подобрать варианты</button>
       </form>
 
@@ -476,24 +491,39 @@
               <div class="code" id="vCode"></div>
               <h2 id="vName"></h2>
             </div>
-            <div class="tabs" id="tabs">
-              <button type="button" data-tab="3d" class="on" data-i18n="t3d">3D-модель</button>
-              <button type="button" data-tab="plan" data-i18n="tPlan">Планировка</button>
-              <button type="button" data-tab="site" data-i18n="tSite">На участке</button>
+          </div>
+          <div class="picks">
+            <div class="pick">
+              <div class="glabel" data-i18n="facLbl">Фасад</div>
+              <div class="plabel" data-i18n="facType">Отделка стен</div>
+              <div class="chips" id="facType"></div>
+              <div class="plabel" data-i18n="facColor">Цвет стен</div>
+              <div class="chips swatches" id="facColor"></div>
+              <div id="roofBox">
+                <div class="plabel" data-i18n="roofColorLbl">Цвет кровли</div>
+                <div class="chips swatches" id="roofColor"></div>
+              </div>
+            </div>
+            <div class="pick">
+              <div class="glabel" data-i18n="layoutTitle">Планировка</div>
+              <div class="chips" id="layouts"></div>
+              <div class="tight" id="tight" hidden></div>
             </div>
           </div>
-          <div class="stage">
-            <div id="pane3d">
-              <div class="cams">
-                <button type="button" data-cam="front" data-i18n="cFront">Фасад</button>
-                <button type="button" data-cam="corner" data-i18n="cCorner">3/4</button>
-                <button type="button" data-cam="top" data-i18n="cTop">Сверху</button>
-                <button type="button" data-cam="plot" data-i18n="cPlot">Участок</button>
-              </div>
-              <div class="drag-hint" data-i18n="drag">Вращайте мышью или пальцем</div>
+          <div class="sheets">
+            <div class="sheetbar">
+              <span class="plabel" data-i18n="sheetsLbl">Листы эскизного проекта</span>
+              <div class="sheettabs" id="sheetTabs"></div>
             </div>
-            <div id="panePlan" class="plans" hidden></div>
-            <div id="paneSite" class="plans" hidden></div>
+            <div class="sheetwrap">
+              <button type="button" class="nav" id="prevSheet" aria-label="Назад">‹</button>
+              <div class="sheet" id="sheet"></div>
+              <button type="button" class="nav" id="nextSheet" aria-label="Вперёд">›</button>
+            </div>
+            <div class="sheetfoot">
+              <span id="sheetNo"></span>
+              <button type="button" class="btn btn-tel" id="fullSheet">⤢ <span data-i18n="full">Во весь экран</span></button>
+            </div>
           </div>
           <div class="vbody">
             <div class="specs">
@@ -536,7 +566,7 @@
         <div class="btns">
           <a class="btn btn-wa" href="https://wa.me/77755557475" target="_blank" rel="noopener" data-wa>
             <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><use href="#wa-icon" /></svg>
-            <span data-i18n="orderWa">Написать в WhatsApp</span>
+            <span data-i18n="ctaWa">Написать в WhatsApp</span>
           </a>
           <a class="btn btn-tel" href="tel:+77755557475">
             <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><use href="#tel-icon" /></svg>
@@ -556,6 +586,22 @@
       <symbol id="wa-icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></symbol>
       <symbol id="tel-icon" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" /></symbol>
     </svg>
+
+    <div class="zoom" id="zoom" hidden>
+      <div class="zoombar">
+        <button type="button" id="zoomPrev" aria-label="Назад">‹</button>
+        <button type="button" id="zoomNext" aria-label="Вперёд">›</button>
+        <button type="button" id="zoomOut" aria-label="Уменьшить">−</button>
+        <button type="button" id="zoomIn" aria-label="Увеличить">+</button>
+        <span data-i18n="zoomHint">Листы можно смотреть на сайте. Файл PDF — по запросу.</span>
+        <a class="btn btn-wa" href="https://wa.me/77755557475" target="_blank" rel="noopener" id="zoomWa">
+          <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><use href="#wa-icon" /></svg>
+          <span data-i18n="orderWa">Получить PDF в WhatsApp</span>
+        </a>
+        <button type="button" id="zoomClose" aria-label="Закрыть">✕</button>
+      </div>
+      <div class="zoomarea"><div id="zoomSheet" class="zoomsheet"></div></div>
+    </div>
 
     <script src="./assets/houses/catalog.js"></script>
     <script type="module" src="./assets/houses/configurator.js"></script>
