@@ -200,7 +200,34 @@
       .vhead { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-bottom: 1px solid #eef1f5; }
       .vhead h2 { font-size: 24px; }
       .vhead .code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: #2f7fd1; font-weight: 600; }
-      .picks { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 1px solid #eef1f5; }
+      .editor { padding: 16px 20px 20px; border-bottom: 1px solid #eef1f5; }
+      .edhead { display: flex; justify-content: space-between; align-items: flex-start; gap: 14px; }
+      .edhint { font-size: 13px; color: #56616f; line-height: 1.5; margin-top: -2px; max-width: 620px; }
+      .edhead .btn { padding: 8px 12px; font-size: 13px; flex: none; }
+      .edhead .btn:disabled { opacity: .45; cursor: default; }
+      .edauto { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+      .edauto .plabel { margin: 0; }
+      .edfloors { margin-top: 12px; }
+      .edbody { display: grid; grid-template-columns: 1fr 250px; gap: 16px; margin-top: 12px; align-items: start; }
+      .edcanvas { background: #fbfcfd; border: 1px solid #e3e8ef; border-radius: 12px; padding: 6px; }
+      .edcanvas svg { display: block; width: 100%; height: auto; max-height: 560px; touch-action: none; user-select: none; -webkit-user-select: none; font-family: Manrope, sans-serif; }
+      .edcanvas .room { cursor: pointer; }
+      .edcanvas .wall.v { cursor: col-resize; }
+      .edcanvas .wall.h { cursor: row-resize; }
+      .edcanvas .wall:hover { stroke: rgba(47,127,209,.45); }
+      .edside { background: #f6f8fa; border-radius: 12px; padding: 14px; font-size: 13.5px; }
+      .edside .field + .field { margin-top: 10px; }
+      .edside .field input, .edside .field select { height: 40px; font-size: 14px; }
+      .edempty { color: #56616f; line-height: 1.5; }
+      .edsum { margin-top: 10px; color: #3a4453; }
+      .edsize { margin: 12px 0 10px; color: #3a4453; }
+      .edbtns { display: grid; gap: 6px; }
+      .edbtns button { border: 1px solid #d9dee6; background: #fff; border-radius: 9px; padding: 9px 10px; font-size: 13px; font-weight: 600; text-align: left; cursor: pointer; color: #26303c; }
+      .edbtns button:hover { border-color: #2f7fd1; color: #2f7fd1; }
+      .edbtns .danger:hover { border-color: #d0312d; color: #d0312d; }
+      .edmsg { margin-top: 10px; font-size: 12.5px; color: #8a5a1c; background: #fff6ec; border: 1px solid #f1d2ae; border-radius: 8px; padding: 8px 10px; line-height: 1.45; }
+      .stylechips { display: grid; grid-template-columns: 1fr 1fr; }
+      .stylechips button { justify-content: center; }      .picks { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 1px solid #eef1f5; }
       .pick { padding: 16px 20px 18px; }
       .pick + .pick { border-left: 1px solid #eef1f5; }
       .facprev {
@@ -282,6 +309,7 @@
         .layout { grid-template-columns: 1fr; }
         .panel { position: static; }
         .picks { grid-template-columns: 1fr; }
+        .edbody { grid-template-columns: 1fr; }
         .pick + .pick { border-left: none; border-top: 1px solid #eef1f5; }
         .top-actions .btn-tel, .back-text { display: none; }
         .intro h1 { font-size: 38px; }
@@ -396,6 +424,11 @@
         </div>
 
         <div class="group">
+          <div class="glabel" data-i18n="gStyle">Стиль дома</div>
+          <div class="chips stylechips" id="styles"></div>
+        </div>
+
+        <div class="group">
           <div class="glabel" data-i18n="gMat">Материал стен</div>
           <div class="mats" id="mats"></div>
         </div>
@@ -458,10 +491,12 @@
           <div class="field" style="margin-top: 10px">
             <label for="garage" data-i18n="garageLbl">Гараж</label>
             <select id="garage">
-              <option value="" data-i18n="any">Не важно</option>
-              <option value="yes" data-i18n="yes">Нужен</option>
               <option value="no" data-i18n="no">Не нужен</option>
+              <option value="yes" data-i18n="yes">Нужен</option>
             </select>
+          </div>
+          <div class="checks" style="grid-template-columns: 1fr">
+            <label><input type="checkbox" id="pTerrace" checked /><span data-i18n="pTerrace">Терраса</span></label>
           </div>
         </div>
 
@@ -483,18 +518,32 @@
       <div>
         <div class="res-head">
           <div>
-            <h2 data-i18n="resTitle">Подходящие варианты</h2>
-            <p id="summary"></p>
+            <h2 data-i18n="resTitle">Ваш эскизный проект</h2>
           </div>
         </div>
         <div id="alert" class="alert" hidden></div>
-        <div id="cards" class="cards"></div>
 
         <section class="viewer" id="viewer" hidden>
           <div class="vhead">
             <div>
               <div class="code" id="vCode"></div>
               <h2 id="vName"></h2>
+            </div>
+          </div>
+          <div class="editor">
+            <div class="edhead">
+              <div>
+                <div class="glabel" data-i18n="edTitle">Планировка — редактор</div>
+                <p class="edhint" data-i18n="edHint">Перетаскивайте стены мышью или пальцем.</p>
+              </div>
+              <button type="button" class="btn btn-tel" id="edUndo">↶ <span data-i18n="undo">Отменить</span></button>
+            </div>
+            <div class="edauto"><span class="plabel" data-i18n="autoLbl">Автопланировка:</span><div class="chips" id="layouts"></div></div>
+            <div class="tight" id="tight" hidden></div>
+            <div class="chips edfloors" id="edFloors"></div>
+            <div class="edbody">
+              <div class="edcanvas" id="edCanvas"></div>
+              <div class="edside" id="edSide"></div>
             </div>
           </div>
           <div class="picks">
@@ -508,13 +557,8 @@
                 <div class="plabel" data-i18n="roofColorLbl">Цвет кровли</div>
                 <div class="chips swatches" id="roofColor"></div>
               </div>
-              <div class="facprev" id="facPrev"></div>
             </div>
-            <div class="pick">
-              <div class="glabel" data-i18n="layoutTitle">Планировка</div>
-              <div class="chips" id="layouts"></div>
-              <div class="tight" id="tight" hidden></div>
-            </div>
+            <div class="pick"><div class="facprev" id="facPrev"></div></div>
           </div>
           <div class="sheets">
             <div class="sheetbar">
@@ -609,7 +653,6 @@
       <div class="zoomarea"><div id="zoomSheet" class="zoomsheet"></div></div>
     </div>
 
-    <script src="./assets/houses/catalog.js?v=4"></script>
-    <script type="module" src="./assets/houses/configurator.js?v=4"></script>
+    <script type="module" src="./assets/houses/configurator.js?v=5"></script>
   </body>
 </html>

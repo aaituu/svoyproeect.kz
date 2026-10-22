@@ -1,9 +1,9 @@
 /*
  * Конструктор частного дома — svoyproect.kz
- * Подбирает проекты из HOUSE_CATALOG под параметры посетителя и строит
- * по выбранному варианту эскизный проект (листы в sketch.js).
+ * Строит дом по параметрам посетителя, даёт отредактировать планировку
+ * и собирает эскизный проект (листы в sketch.js).
  */
-import { setContext, sheets, facadeThumb, defaultFacade, FACADES, ROOF_COLORS } from './sketch.js?v=4';
+import { setContext, sheets, facadeThumb, defaultFacade, FACADES, ROOF_COLORS } from './sketch.js?v=5';
 
 const PHONE = '77755557475';
 const FLOOR_H = 3.0;   // высота этажа, м
@@ -22,15 +22,21 @@ const T = {
   ru: {
     brandSub: 'Проектная компания', back: 'На главную', badge: 'Онлайн-конструктор частного дома',
     h1a: 'Спроектируйте', h1b: 'свой дом', h1c: 'за пару минут',
-    lead: 'Укажите участок, размеры, этажность, состав комнат и материал — программа подберёт проекты из каталога и соберёт эскизный проект вашего дома: планы, фасады, разрез, генплан и кровлю.',
-    s1: 'Введите параметры', s2: 'Выберите вариант и фасад', s3: 'Получите эскиз в PDF',
+    lead: 'Укажите участок, размеры, этажность, состав комнат и стиль — программа соберёт эскизный проект вашего дома: планы, фасады, разрез, генплан и кровлю. Планировку можно поправить самому прямо на плане.',
+    s1: 'Введите параметры', s2: 'Настройте планировку и фасад', s3: 'Получите эскиз в PDF',
     formTitle: 'Параметры дома', gPlot: 'Участок', plotArea: 'Площадь участка', sot: 'сот.', plotWidth: 'Ширина участка', auto: 'авто',
     plotHint: '1 сотка = 100 м². Ширина — сторона участка вдоль улицы; если не знаете, оставьте пустым.',
     gSize: 'Размеры дома', modeDims: 'Длина × ширина', modeArea: 'Общая площадь', houseW: 'Ширина (фасад)', houseL: 'Длина (глубина)', houseArea: 'Желаемая общая площадь',
     gFloors: 'Этажность', f1: '1 этаж', f15: 'С мансардой', f2: '2 этажа', f3: '3 этажа',
     gMat: 'Материал стен', gExtra: 'Пожелания', roofLbl: 'Кровля', any: 'Не важно',
     r_gable: 'Двускатная', r_hip: 'Вальмовая (четырёхскатная)', r_flat: 'Плоская', r_shed: 'Односкатная', r_mansard: 'Мансардная',
-    bedsLbl: 'Спален', garageLbl: 'Гараж', yes: 'Нужен', no: 'Не нужен', submit: 'Подобрать варианты',
+    bedsLbl: 'Спален', garageLbl: 'Гараж', yes: 'Нужен', no: 'Не нужен', submit: 'Построить проект',
+    gStyle: 'Стиль дома', pTerrace: 'Терраса', yourHouse: 'Ваш дом', edTitle: 'Планировка — редактор',
+    edHint: 'Перетаскивайте стены мышью или пальцем. Нажмите на комнату, чтобы изменить её назначение, название, разделить или объединить.',
+    undo: 'Отменить', autoLbl: 'Автопланировка:', streetSide: 'вход / улица', edPick: 'Нажмите на комнату на плане, чтобы её изменить. Стены между комнатами можно перетаскивать.',
+    floorTotal: 'Площадь этажа', roomsCount: 'помещений', edType: 'Назначение', edName: 'Своё название', splitV: 'Разделить по вертикали', splitH: 'Разделить по горизонтали',
+    mergeBtn: 'Объединить с соседней', delBtn: 'Удалить комнату', tooSmall: 'Комната слишком маленькая, чтобы её делить.',
+    noMerge: 'Нет соседней комнаты с общей стеной на всю длину. Сначала выровняйте стены перетаскиванием.',
     gTitle: 'Для титульного листа', addrLbl: 'Адрес участка', addrPh: 'необязательно', custLbl: 'Заказчик (ФИО)',
     facLbl: 'Фасад', facType: 'Отделка стен', facColor: 'Цвет стен', roofColorLbl: 'Цвет кровли', layoutTitle: 'Планировка',
     sheetsLbl: 'Листы эскизного проекта', full: 'Во весь экран', zoomHint: 'Листы можно смотреть на сайте. Файл PDF — по запросу.',
@@ -43,7 +49,7 @@ const T = {
     tightTag: 'Тесно для этих комнат', tightNote: a => `Комнаты получились тесными: для выбранного состава лучше общая площадь от ≈ ${a} м².`,
     specRooms: 'Состав помещений', kitchenOpen: 'кухня-гостиная', kitchenSep: 'кухня и гостиная',
     roomsLine: v => `${v.beds} ${plural(v.beds, 'спальня', 'спальни', 'спален')}, ${v.baths} ${plural(v.baths, 'санузел', 'санузла', 'санузлов')}, ${v.prog.kitchen === 'separate' ? 'кухня и гостиная' : 'кухня-гостиная'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', гардеробная' : ''}${v.prog.laundry ? ', постирочная' : ''}${v.prog.boiler ? ', котельная' : ''}`,
-    resTitle: 'Подходящие варианты',
+    resTitle: 'Ваш эскизный проект',
     cFront: 'Фасад', cCorner: '3/4', cTop: 'Сверху', cPlot: 'Участок', drag: 'Вращайте мышью или пальцем',
     note: 'Визуализация и планировка — эскизные и ориентировочные. Точные площади, конструктив, инженерные системы и смета определяются в рабочем проекте с учётом вашего участка и норм РК.',
     orderTitle: 'Получите эскизный проект в PDF',
@@ -70,15 +76,21 @@ const T = {
   kz: {
     brandSub: 'Жобалау компаниясы', back: 'Басты бетке', badge: 'Жеке үйдің онлайн-конструкторы',
     h1a: 'Өз үйіңізді', h1b: 'бірнеше минутта', h1c: 'жобалаңыз',
-    lead: 'Учаскені, өлшемдерді, қабат санын, бөлмелер құрамын және материалды көрсетіңіз — бағдарлама каталогтан жобаларды таңдап, үйіңіздің эскиздік жобасын жасайды: жоспарлар, қасбеттер, қима, бас жоспар және шатыр.',
-    s1: 'Параметрлерді енгізіңіз', s2: 'Нұсқа мен қасбетті таңдаңыз', s3: 'Эскизді PDF форматында алыңыз',
+    lead: 'Учаскені, өлшемдерді, қабат санын, бөлмелер құрамын және стильді көрсетіңіз — бағдарлама үйіңіздің эскиздік жобасын жасайды: жоспарлар, қасбеттер, қима, бас жоспар және шатыр. Жоспарды тікелей сызбада өзіңіз түзете аласыз.',
+    s1: 'Параметрлерді енгізіңіз', s2: 'Жоспар мен қасбетті баптаңыз', s3: 'Эскизді PDF форматында алыңыз',
     formTitle: 'Үй параметрлері', gPlot: 'Учаске', plotArea: 'Учаске ауданы', sot: 'сот.', plotWidth: 'Учаске ені', auto: 'авто',
     plotHint: '1 сотық = 100 м². Ені — учаскенің көше бойындағы жағы; білмесеңіз, бос қалдырыңыз.',
     gSize: 'Үйдің өлшемдері', modeDims: 'Ұзындығы × ені', modeArea: 'Жалпы ауданы', houseW: 'Ені (қасбет)', houseL: 'Ұзындығы (тереңдігі)', houseArea: 'Қалаған жалпы аудан',
     gFloors: 'Қабат саны', f1: '1 қабат', f15: 'Мансардалы', f2: '2 қабат', f3: '3 қабат',
     gMat: 'Қабырға материалы', gExtra: 'Тілектер', roofLbl: 'Шатыр', any: 'Маңызды емес',
     r_gable: 'Екі беткейлі', r_hip: 'Төрт беткейлі', r_flat: 'Жалпақ', r_shed: 'Бір беткейлі', r_mansard: 'Мансардалы',
-    bedsLbl: 'Жатын бөлме', garageLbl: 'Гараж', yes: 'Керек', no: 'Керек емес', submit: 'Нұсқаларды таңдау',
+    bedsLbl: 'Жатын бөлме', garageLbl: 'Гараж', yes: 'Керек', no: 'Керек емес', submit: 'Жобаны құру',
+    gStyle: 'Үй стилі', pTerrace: 'Терраса', yourHouse: 'Сіздің үйіңіз', edTitle: 'Жоспар — редактор',
+    edHint: 'Қабырғаларды тышқанмен немесе саусақпен жылжытыңыз. Бөлменің мақсатын, атауын өзгерту, бөлу немесе біріктіру үшін оны басыңыз.',
+    undo: 'Болдырмау', autoLbl: 'Автожоспар:', streetSide: 'кіреберіс / көше', edPick: 'Өзгерту үшін жоспардағы бөлмені басыңыз. Бөлмелер арасындағы қабырғаларды жылжытуға болады.',
+    floorTotal: 'Қабат ауданы', roomsCount: 'бөлме', edType: 'Мақсаты', edName: 'Өз атауы', splitV: 'Тігінен бөлу', splitH: 'Көлденең бөлу',
+    mergeBtn: 'Көршісімен біріктіру', delBtn: 'Бөлмені жою', tooSmall: 'Бөлме бөлуге тым кішкентай.',
+    noMerge: 'Бүкіл ұзындығы бойынша ортақ қабырғасы бар көрші бөлме жоқ. Алдымен қабырғаларды жылжытып тураңыз.',
     gTitle: 'Титул парағы үшін', addrLbl: 'Учаске мекенжайы', addrPh: 'міндетті емес', custLbl: 'Тапсырыс беруші (АЖТ)',
     facLbl: 'Қасбет', facType: 'Қабырға әрлеуі', facColor: 'Қабырға түсі', roofColorLbl: 'Шатыр түсі', layoutTitle: 'Жоспар',
     sheetsLbl: 'Эскиздік жоба парақтары', full: 'Толық экран', zoomHint: 'Парақтарды сайтта көруге болады. PDF файлы — сұраныс бойынша.',
@@ -91,7 +103,7 @@ const T = {
     tightTag: 'Бұл бөлмелерге тар', tightNote: a => `Бөлмелер тар болып шықты: таңдалған құрамға жалпы аудан ≈ ${a} м²-ден болғаны дұрыс.`,
     specRooms: 'Бөлмелер құрамы', kitchenOpen: 'ас үй-қонақ бөлме', kitchenSep: 'ас үй мен қонақ бөлме',
     roomsLine: v => `${v.beds} жатын бөлме, ${v.baths} санторап, ${v.prog.kitchen === 'separate' ? 'ас үй мен қонақ бөлме' : 'ас үй-қонақ бөлме'}${v.prog.cabinet ? ', кабинет' + (v.prog.cabinet > 1 ? ' ×2' : '') : ''}${v.prog.wardrobe ? ', киім бөлмесі' : ''}${v.prog.laundry ? ', кір жуатын бөлме' : ''}${v.prog.boiler ? ', қазандық' : ''}`,
-    resTitle: 'Лайықты нұсқалар',
+    resTitle: 'Сіздің эскиздік жобаңыз',
     cFront: 'Қасбет', cCorner: '3/4', cTop: 'Жоғарыдан', cPlot: 'Учаске', drag: 'Тышқанмен немесе саусақпен айналдырыңыз',
     note: 'Визуализация мен жоспар — эскиздік әрі шамамен берілген. Нақты аудандар, конструктив, инженерлік жүйелер мен смета учаскеңіз бен ҚР нормаларын ескере отырып, жұмыс жобасында анықталады.',
     orderTitle: 'Эскиздік жобаны PDF форматында алыңыз',
@@ -192,6 +204,7 @@ const state = {
   sizeMode: 'dims',
   floors: 1,
   mat: 'gas',
+  style: 'classic',
   variants: [],
   sel: null
 };
@@ -484,6 +497,8 @@ function readInput() {
     mat: state.mat,
     roof: $('#roof').value,
     garage: $('#garage').value,
+    terrace: $('#pTerrace').checked,
+    style: state.style,
     prog: readProgram()
   };
 }
@@ -571,12 +586,17 @@ function geometry(v) {
   return { wallTop, ridgeAlongZ, span, h, over, height: wallTop + h };
 }
 
-function pickVariants(inp) {
+// Кровля по умолчанию для стиля
+const STYLE_ROOF = { classic: 'hip', modern: 'shed', barn: 'gable', chalet: 'gable', hitech: 'flat', scandi: 'gable' };
+
+// Один дом по параметрам посетителя (без подбора вариантов)
+function buildHouse(inp) {
   const plot = plotDims(inp.sot, inp.plotW);
-  let list = window.HOUSE_CATALOG.filter(p => p.floors === inp.floors).map(p => makeVariant(p, inp, plot));
-  list.sort((a, b) => a.score - b.score);
-  const fit = list.filter(v => v.fits);
-  return { plot, list: (fit.length ? fit : list).slice(0, 6), anyFit: fit.length > 0 };
+  const p = {
+    id: 'ЭП', ru: 'Ваш дом', kz: 'Сіздің үйіңіз', style: inp.style, floors: inp.floors, w: 12, l: 10,
+    roof: STYLE_ROOF[inp.style], terrace: inp.terrace, garage: inp.garage === 'yes', materials: Object.keys(MATS)
+  };
+  return { plot, v: makeVariant(p, inp, plot) };
 }
 
 /* ------------------------------------------------------------- участок */
@@ -620,7 +640,7 @@ function sketchContext() {
     placement, doorU,
     address: $('#addr').value.trim(),
     customer: $('#customer').value.trim(),
-    roomName: k => ROOMS[k].ru,
+    roomName: r => r.name || ROOMS[r.k].ru,
     roomsLine: v => T.ru.roomsLine(v),
     floorsName: f => T.ru.floorsShort[f]
   };
@@ -645,7 +665,9 @@ function showSheet(i) {
   if (!$('#zoom').hidden) $('#zoomSheet').innerHTML = s.svg;
 }
 
-// Выбор отделки фасада и цвета кровли для выбранного варианта
+const sheetIndex = prefix => Math.max(0, state.sheets.findIndex(s => s.short.startsWith(prefix)));
+
+// Выбор отделки фасада и цвета кровли
 function renderFacadePick(v) {
   const L = state.lang;
   const fc = v.facade;
@@ -656,38 +678,18 @@ function renderFacadePick(v) {
   $('#roofBox').hidden = v.roof === 'flat';
   $('#roofColor').innerHTML = ROOF_COLORS.map(([name, hex], i) =>
     `<button type="button" data-rc="${i}" class="${i === v.roofColor ? 'on' : ''}" title="${esc(name)}"><i style="background:${hex}"></i>${esc(name)}</button>`).join('');
+  setContext(sketchContext());
   $('#facPrev').innerHTML = facadeThumb(v);
   // после смены отделки показываем лист с фасадами — на остальных листах её не видно
   const changed = () => {
     renderFacadePick(v);
     renderSheets(v);
-    showSheet(state.sheets.findIndex(s => s.short.startsWith('Фасады')));
-    updateCardThumb(v);
+    showSheet(sheetIndex('Фасады'));
     updateOrder(v);
   };
   $$('#facType [data-fac]').forEach(b => b.onclick = () => { v.facade = { type: b.dataset.fac, color: 0 }; changed(); });
   $$('#facColor [data-col]').forEach(b => b.onclick = () => { v.facade = { ...v.facade, color: +b.dataset.col }; changed(); });
   $$('#roofColor [data-rc]').forEach(b => b.onclick = () => { v.roofColor = +b.dataset.rc; changed(); });
-}
-
-function renderLayoutPick(v) {
-  $('#layouts').innerHTML = t('lay').map((name, i) =>
-    `<button type="button" data-lay="${i}" class="${i === v.layout ? 'on' : ''}">${i + 1}. ${esc(name)}</button>`).join('');
-  $('#tight').hidden = v.tight >= 0.9;
-  $('#tight').textContent = t('tightNote')(neededArea(v.floors, v.prog));
-  $$('#layouts [data-lay]').forEach(b => b.onclick = () => {
-    v.layout = +b.dataset.lay;
-    v.levels = program(v.floors, v.W, v.L, v.prog, v.layout);
-    renderLayoutPick(v);
-    renderSheets(v);
-    updateOrder(v);
-  });
-}
-
-function updateCardThumb(v) {
-  const i = state.variants.indexOf(v);
-  const card = $$('#cards .card')[i];
-  if (card) card.querySelector('.thumb').innerHTML = facadeThumb(v);
 }
 
 function facadeLabel(v) {
@@ -699,6 +701,248 @@ function updateOrder(v) {
   const href = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('wa')(v));
   $('#orderWa').href = href;
   $('#zoomWa').href = href;
+}
+
+/* ------------------------------------------------- редактор планировки */
+
+const ED_MIN = 1.0;   // минимальная ширина комнаты, м
+const ED_SNAP = 0.05; // шаг перемещения стены, м
+const near = (a, b) => Math.abs(a - b) < 0.02;
+const snap = x => Math.round(x / ED_SNAP) * ED_SNAP;
+
+// Пересчёт площадей и состава после правки
+function recount(v) {
+  v.levels.forEach(lv => {
+    lv.rects.forEach(rc => { rc.net = rc.w * rc.h * 0.92 * lv.factor; });
+    lv.total = lv.rects.reduce((s, rc) => s + rc.net, 0);
+  });
+  v.total = v.levels.reduce((s, lv) => s + lv.total, 0);
+  v.beds = v.levels.reduce((s, lv) => s + lv.rects.filter(r => r.k === 'bed' || r.k === 'master').length, 0);
+  v.baths = v.levels.reduce((s, lv) => s + lv.rects.filter(r => r.k === 'bath' || r.k === 'wc').length, 0);
+}
+
+function snapshot(v) {
+  state.edit.history.push(JSON.stringify(v.levels.map(lv => lv.rects)));
+  if (state.edit.history.length > 60) state.edit.history.shift();
+}
+
+function undo(v) {
+  const s = state.edit.history.pop();
+  if (!s) return;
+  JSON.parse(s).forEach((rects, i) => { v.levels[i].rects = rects; });
+  state.edit.sel = null;
+  afterEdit(v);
+}
+
+let sheetTimer = null;
+function afterEdit(v) {
+  recount(v);
+  renderEditor(v);
+  renderSpecs(v);
+  updateOrder(v);
+  clearTimeout(sheetTimer);
+  sheetTimer = setTimeout(() => renderSheets(v), 60);
+}
+
+// Соседи комнаты, у которых общая стена на всю длину — с ними можно объединить
+function fullNeighbors(lv, r) {
+  return lv.rects.filter(n => n !== r && (
+    (near(n.x, r.x) && near(n.w, r.w) && (near(n.y, r.y + r.h) || near(n.y + n.h, r.y))) ||
+    (near(n.y, r.y) && near(n.h, r.h) && (near(n.x, r.x + r.w) || near(n.x + n.w, r.x)))));
+}
+
+function merge(lv, a, b) {
+  const x0 = Math.min(a.x, b.x), y0 = Math.min(a.y, b.y);
+  a.w = Math.max(a.x + a.w, b.x + b.w) - x0;
+  a.h = Math.max(a.y + a.h, b.y + b.h) - y0;
+  a.x = x0; a.y = y0;
+  lv.rects.splice(lv.rects.indexOf(b), 1);
+}
+
+// Стены, которые двигаются вместе с захваченной: та же линия, сплошная цепочка
+function wallGroup(lv, orient, c, a0, b0) {
+  const edges = [];
+  lv.rects.forEach(r => {
+    if (orient === 'v') {
+      if (near(r.x + r.w, c)) edges.push({ r, side: 'r', a: r.y, b: r.y + r.h });
+      if (near(r.x, c)) edges.push({ r, side: 'l', a: r.y, b: r.y + r.h });
+    } else {
+      if (near(r.y + r.h, c)) edges.push({ r, side: 'b', a: r.x, b: r.x + r.w });
+      if (near(r.y, c)) edges.push({ r, side: 't', a: r.x, b: r.x + r.w });
+    }
+  });
+  let lo = a0, hi = b0, grown = true;
+  const group = new Set();
+  while (grown) {
+    grown = false;
+    edges.forEach(e => {
+      if (!group.has(e) && e.a < hi + 0.02 && e.b > lo - 0.02) { group.add(e); lo = Math.min(lo, e.a); hi = Math.max(hi, e.b); grown = true; }
+    });
+  }
+  return [...group];
+}
+
+function moveWall(group, orient, c) {
+  let lo = -Infinity, hi = Infinity;
+  group.forEach(({ r, side }) => {
+    if (side === 'r') lo = Math.max(lo, r.x + ED_MIN);
+    if (side === 'l') hi = Math.min(hi, r.x + r.w - ED_MIN);
+    if (side === 'b') lo = Math.max(lo, r.y + ED_MIN);
+    if (side === 't') hi = Math.min(hi, r.y + r.h - ED_MIN);
+  });
+  const nc = clamp(snap(c), lo, hi);
+  group.forEach(e => {
+    const r = e.r;
+    if (e.side === 'r') r.w = nc - r.x;
+    if (e.side === 'l') { r.w = r.x + r.w - nc; r.x = nc; }
+    if (e.side === 'b') r.h = nc - r.y;
+    if (e.side === 't') { r.h = r.y + r.h - nc; r.y = nc; }
+  });
+}
+
+function renderEditor(v) {
+  const L = state.lang;
+  const ed = state.edit;
+  if (ed.level >= v.levels.length) ed.level = 0;
+  const lv = v.levels[ed.level];
+  $('#edFloors').innerHTML = v.levels.map((l2, i) =>
+    `<button type="button" data-lv="${i}" class="${i === ed.level ? 'on' : ''}">${esc(l2.attic ? t('attic') : t('floorCap')[i])}</button>`).join('');
+  $$('#edFloors [data-lv]').forEach(b => b.onclick = () => { ed.level = +b.dataset.lv; ed.sel = null; renderEditor(v); });
+  $('#edUndo').disabled = !ed.history.length;
+
+  const pad = 0.9, W = v.W, Lh = v.L;
+  const o = [`<svg viewBox="${-pad} ${-pad} ${W + 2 * pad} ${Lh + 2 * pad}" xmlns="http://www.w3.org/2000/svg" id="edSvg">`];
+  lv.rects.forEach((r, i) => {
+    const R0 = ROOMS[r.k];
+    const sel = i === ed.sel;
+    o.push(`<rect class="room" data-i="${i}" x="${r.x}" y="${r.y}" width="${r.w}" height="${r.h}" fill="${R0.fill}" stroke="${sel ? '#2f7fd1' : '#3a3f45'}" stroke-width="${sel ? 0.12 : 0.05}"/>`);
+    const name = r.name || R0[L];
+    const fs = clamp(Math.min((r.w - 0.2) / (name.length * 0.64), r.h / 3.4), 0.12, 0.42);
+    o.push(`<text x="${r.x + r.w / 2}" y="${r.y + r.h / 2 - fs * 0.1}" font-size="${fs}" text-anchor="middle" font-weight="700" fill="#11161d" pointer-events="none">${esc(name)}</text>`);
+    o.push(`<text x="${r.x + r.w / 2}" y="${r.y + r.h / 2 + fs * 1.1}" font-size="${fs * 0.85}" text-anchor="middle" fill="#56616f" pointer-events="none">${fmt(r.net)} ${t('m2')}</text>`);
+  });
+  o.push(`<rect x="0" y="0" width="${W}" height="${Lh}" fill="none" stroke="#11161d" stroke-width="0.22" pointer-events="none"/>`);
+  // ручки внутренних стен
+  lv.rects.forEach((r, i) => {
+    [['v', r.x + r.w, r.y, r.y + r.h, 'r'], ['h', r.y + r.h, r.x, r.x + r.w, 'b']].forEach(([orient, c, a, b]) => {
+      if (orient === 'v' && near(c, W)) return;
+      if (orient === 'h' && near(c, Lh)) return;
+      const line = orient === 'v' ? `x1="${c}" y1="${a}" x2="${c}" y2="${b}"` : `x1="${a}" y1="${c}" x2="${b}" y2="${c}"`;
+      o.push(`<line class="wall ${orient}" data-o="${orient}" data-c="${c}" data-a="${a}" data-b="${b}" ${line} stroke="transparent" stroke-width="0.45"/>`);
+    });
+  });
+  o.push(`<text x="${W / 2}" y="${Lh + pad * 0.7}" font-size="0.32" text-anchor="middle" fill="#2f7fd1" font-weight="700">▲ ${esc(t('streetSide'))}</text>`);
+  o.push('</svg>');
+  $('#edCanvas').innerHTML = o.join('');
+  bindEditor(v, lv);
+  renderSide(v, lv);
+}
+
+function svgPoint(svg, e) {
+  const pt = svg.createSVGPoint();
+  pt.x = e.clientX; pt.y = e.clientY;
+  return pt.matrixTransform(svg.getScreenCTM().inverse());
+}
+
+function bindEditor(v, lv) {
+  const svg = $('#edSvg');
+  const ed = state.edit;
+  svg.querySelectorAll('.room').forEach(el => el.addEventListener('pointerdown', () => {
+    ed.sel = +el.dataset.i;
+    renderEditor(v);
+  }));
+  svg.querySelectorAll('.wall').forEach(el => el.addEventListener('pointerdown', e => {
+    e.preventDefault();
+    e.stopPropagation();
+    const orient = el.dataset.o;
+    const group = wallGroup(lv, orient, +el.dataset.c, +el.dataset.a, +el.dataset.b);
+    if (!group.length) return;
+    snapshot(v);
+    let moved = false;
+    // svg перерисовывается на каждом шаге, поэтому слушаем документ
+    const onMove = ev => {
+      const p = svgPoint($('#edSvg'), ev);
+      moveWall(group, orient, orient === 'v' ? p.x : p.y);
+      moved = true;
+      recount(v);
+      renderEditor(v);
+    };
+    const onUp = () => {
+      document.removeEventListener('pointermove', onMove);
+      document.removeEventListener('pointerup', onUp);
+      if (!moved) state.edit.history.pop();
+      afterEdit(v);
+    };
+    document.addEventListener('pointermove', onMove);
+    document.addEventListener('pointerup', onUp);
+  }));
+}
+function renderSide(v, lv) {
+  const ed = state.edit;
+  const L = state.lang;
+  const side = $('#edSide');
+  if (ed.sel == null || !lv.rects[ed.sel]) {
+    side.innerHTML = `<p class="edempty">${esc(t('edPick'))}</p><div class="edsum">${esc(t('floorTotal'))}: <b>${fmt(lv.total)} ${t('m2')}</b> · ${esc(t('roomsCount'))}: <b>${lv.rects.length}</b></div>`;
+    return;
+  }
+  const r = lv.rects[ed.sel];
+  const opts = Object.keys(ROOMS).map(k => `<option value="${k}"${k === r.k ? ' selected' : ''}>${esc(ROOMS[k][L])}</option>`).join('');
+  side.innerHTML = `
+    <div class="field"><label>${esc(t('edType'))}</label><select id="edType">${opts}</select></div>
+    <div class="field"><label>${esc(t('edName'))}</label><input id="edName" type="text" maxlength="40" value="${esc(r.name || '')}" placeholder="${esc(ROOMS[r.k][L])}" /></div>
+    <div class="edsize">${fmt(r.w)} × ${fmt(r.h)} ${t('m')} · <b>${fmt(r.net)} ${t('m2')}</b></div>
+    <div class="edbtns">
+      <button type="button" data-act="splitV">⇹ ${esc(t('splitV'))}</button>
+      <button type="button" data-act="splitH">⇵ ${esc(t('splitH'))}</button>
+      <button type="button" data-act="merge">⧉ ${esc(t('mergeBtn'))}</button>
+      <button type="button" data-act="del" class="danger">✕ ${esc(t('delBtn'))}</button>
+    </div>
+    <p class="edmsg" id="edMsg" hidden></p>`;
+  $('#edType').onchange = e => { snapshot(v); r.k = e.target.value; afterEdit(v); };
+  $('#edName').onchange = e => { snapshot(v); r.name = e.target.value.trim(); afterEdit(v); };
+  const msg = s => { $('#edMsg').hidden = false; $('#edMsg').textContent = s; };
+  side.querySelectorAll('[data-act]').forEach(b => b.onclick = () => {
+    const act = b.dataset.act;
+    if (act === 'splitV' || act === 'splitH') {
+      const vert = act === 'splitV';
+      if ((vert ? r.w : r.h) < ED_MIN * 2) return msg(t('tooSmall'));
+      snapshot(v);
+      const n = { ...r, name: '' };
+      if (vert) { const w = snap(r.w / 2); n.x = r.x + w; n.w = r.w - w; r.w = w; }
+      else { const h = snap(r.h / 2); n.y = r.y + h; n.h = r.h - h; r.h = h; }
+      lv.rects.push(n);
+      afterEdit(v);
+      return;
+    }
+    const nb = fullNeighbors(lv, r);
+    if (!nb.length) return msg(t('noMerge'));
+    snapshot(v);
+    if (act === 'merge') {
+      merge(lv, r, nb.sort((a, b2) => b2.w * b2.h - a.w * a.h)[0]);
+      ed.sel = lv.rects.indexOf(r);
+    } else {
+      // удаляемую комнату забирает коридор или общая зона, иначе любой сосед
+      const pref = ['corridor', 'hallup', 'hall', 'living', 'lounge'];
+      merge(lv, nb.find(n => pref.includes(n.k)) || nb[0], r);
+      ed.sel = null;
+    }
+    afterEdit(v);
+  });
+}
+
+function renderLayoutPick(v) {
+  $('#layouts').innerHTML = t('lay').map((name, i) =>
+    `<button type="button" data-lay="${i}" class="${i === v.layout ? 'on' : ''}">${i + 1}. ${esc(name)}</button>`).join('');
+  $('#tight').hidden = v.tight >= 0.9;
+  $('#tight').textContent = t('tightNote')(neededArea(v.floors, v.prog));
+  $$('#layouts [data-lay]').forEach(b => b.onclick = () => {
+    snapshot(v);
+    v.layout = +b.dataset.lay;
+    v.levels = program(v.floors, v.W, v.L, v.prog, v.layout);
+    state.edit.sel = null;
+    renderLayoutPick(v);
+    afterEdit(v);
+  });
 }
 
 /* -------------------------------------------------------------------- UI */
@@ -719,6 +963,16 @@ function renderMats() {
   });
 }
 
+function renderStyles() {
+  $('#styles').innerHTML = Object.keys(STYLES).map(k =>
+    `<button type="button" data-style="${k}" class="${k === state.style ? 'on' : ''}">${esc(STYLES[k][state.lang])}</button>`).join('');
+  $$('#styles [data-style]').forEach(b => b.onclick = () => {
+    state.style = b.dataset.style;
+    renderStyles();
+    if (state.sel) run(false);
+  });
+}
+
 function applyLang() {
   document.documentElement.lang = state.lang === 'kz' ? 'kk' : 'ru';
   document.title = t('title');
@@ -729,48 +983,14 @@ function applyLang() {
   const generic = 'https://wa.me/' + PHONE + '?text=' + encodeURIComponent(t('waGeneric'));
   $$('[data-wa]').forEach(a => { a.href = generic; });
   renderMats();
+  renderStyles();
   updateNeed();
-  if (state.variants.length) {
-    renderCards();
-    if (state.sel) selectVariant(state.sel, false);
-  }
-}
-
-let lastSummary = null;
-
-function renderCards() {
-  setContext(sketchContext());
-  const box = $('#cards');
-  box.innerHTML = '';
-  state.variants.forEach(v => {
-    const b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'card' + (v === state.sel ? ' on' : '');
-    const tags = [t('floorsShort')[v.floors], `${fmt(v.W)}×${fmt(v.L)} ${t('m')}`, MATS[v.mat][state.lang], STYLES[v.style][state.lang]];
-    if (v.garage) tags.push(t('garage'));
-    if (!v.fits) tags.unshift(`⚠ ${t('noFitTag')}`);
-    else if (v.tight < 0.9) tags.unshift(`⚠ ${t('tightTag')}`);
-    b.innerHTML = `
-      <div class="thumb">${facadeThumb(v)}</div>
-      <div class="body">
-        <div class="code">${v.p.id}</div>
-        <h3>${esc(v.p[state.lang])}</h3>
-        <div class="meta">${tags.map(x => `<span>${esc(x)}</span>`).join('')}</div>
-        <div class="area">≈ ${fmt(v.total)} <small>${t('m2')} · ${esc(t('bedsN')(v.beds))}</small></div>
-      </div>`;
-    b.onclick = () => selectVariant(v, true);
-    box.append(b);
-  });
-  if (lastSummary) {
-    const [n, plot] = lastSummary;
-    $('#summary').textContent = t('summary')(n, plot.sot, plot.w, plot.l);
-  }
+  if (state.sel) selectVariant(state.sel, false);
 }
 
 function renderSpecs(v) {
   const L = state.lang;
   const rows = [
-    [t('specProject'), `${v.p.id} «${v.p[L]}»`],
     [t('specStyle'), STYLES[v.style][L]],
     [t('specFloors'), t('floorsShort')[v.floors]],
     [t('specSize'), `${fmt(v.W)} × ${fmt(v.L)} ${t('m')}`],
@@ -790,19 +1010,16 @@ function renderSpecs(v) {
 
 function selectVariant(v, scroll) {
   state.sel = v;
-  $$('#cards .card').forEach((c, i) => c.classList.toggle('on', state.variants[i] === v));
   $('#viewer').hidden = false;
-  $('#vCode').textContent = `${v.p.id} · ${STYLES[v.style][state.lang]}`;
-  $('#vName').textContent = v.p[state.lang];
+  $('#vCode').textContent = `${STYLES[v.style][state.lang]} · ${t('floorsShort')[v.floors]} · ${fmt(v.W)} × ${fmt(v.L)} ${t('m')}`;
+  $('#vName').textContent = t('yourHouse');
   renderSpecs(v);
   renderLayoutPick(v);
+  renderEditor(v);
   renderFacadePick(v);
   renderSheets(v);
   updateOrder(v);
-  if (scroll) {
-    $('#viewer').scrollIntoView({ behavior: 'smooth', block: 'start' });
-    if (window.gtag) gtag('event', 'house_variant_view', { project_id: v.p.id });
-  }
+  if (scroll) $('#viewer').scrollIntoView({ behavior: 'smooth', block: 'start' });
 }
 
 function run(scroll) {
@@ -813,23 +1030,19 @@ function run(scroll) {
     alert.textContent = t('badInput');
     return;
   }
-  const { plot, list, anyFit } = pickVariants(inp);
-  list.forEach(v => { v.facade = defaultFacade(v); v.roofColor = defaultRoofColor(v); });
-  state.variants = list;
-  state.sel = null;
+  const { plot, v } = buildHouse(inp);
+  const prev = state.sel;
+  v.facade = prev ? prev.facade : defaultFacade(v);
+  v.roofColor = prev && prev.roof === v.roof ? prev.roofColor : defaultRoofColor(v);
+  state.edit = { level: 0, sel: null, history: [] };
   state.sheet = 0;
-  lastSummary = [list.length, plot];
-  if (!anyFit) {
+  if (!v.fits) {
     const mw = plot.w - 2 * SIDE, ml = plot.l - FRONT - BACK;
     alert.hidden = false;
     alert.textContent = t('noFit')(Math.max(mw, 0), Math.max(ml, 0), plot.area * MAX_COVER);
   } else alert.hidden = true;
-  renderCards();
-  if (list.length) {
-    selectVariant(list[0], false);
-    if (scroll) $('#summary').scrollIntoView({ behavior: 'smooth', block: 'start' });
-  }
-  if (window.gtag && scroll) gtag('event', 'house_configure', { floors: inp.floors, material: inp.mat });
+  selectVariant(v, scroll);
+  if (window.gtag && scroll) gtag('event', 'house_configure', { floors: inp.floors, material: inp.mat, style: inp.style });
 }
 
 // Цвет кровли по умолчанию — от стиля
@@ -871,6 +1084,7 @@ function setZoom(d) {
 
 function init() {
   initLang();
+  state.edit = { level: 0, sel: null, history: [] };
   $$('.lang button').forEach(b => b.onclick = () => {
     state.lang = b.dataset.lang;
     try { localStorage.setItem('sp_lang', state.lang); } catch (e) { /* хранилище недоступно */ }
@@ -893,6 +1107,7 @@ function init() {
     $('#houseArea').value = neededArea(state.floors, readProgram());
     $('#sizeMode button[data-v="area"]').click();
   };
+  $('#edUndo').onclick = () => { if (state.sel) undo(state.sel); };
   $('#prevSheet').onclick = () => showSheet(state.sheet - 1);
   $('#nextSheet').onclick = () => showSheet(state.sheet + 1);
   $('#fullSheet').onclick = openZoom;
@@ -903,6 +1118,7 @@ function init() {
   $('#zoomPrev').onclick = () => showSheet(state.sheet - 1);
   $('#zoomNext').onclick = () => showSheet(state.sheet + 1);
   document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'z' && state.sel && $('#zoom').hidden && !/INPUT|SELECT/.test(document.activeElement.tagName)) { e.preventDefault(); undo(state.sel); }
     if ($('#zoom').hidden) return;
     if (e.key === 'Escape') closeZoom();
     if (e.key === 'ArrowLeft') showSheet(state.sheet - 1);
@@ -911,8 +1127,8 @@ function init() {
   // эскиз смотрят на сайте, файл выдаём по запросу
   ['#sheet', '#zoomSheet'].forEach(id => $(id).addEventListener('contextmenu', e => e.preventDefault()));
   $('#cfg').addEventListener('submit', e => { e.preventDefault(); run(true); });
-  $('#orderWa').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_whatsapp', { project_id: state.sel && state.sel.p.id }); });
-  $('#orderTel').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_call', { project_id: state.sel && state.sel.p.id }); });
+  $('#orderWa').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_whatsapp', { style: state.sel && state.sel.style }); });
+  $('#orderTel').addEventListener('click', () => { if (window.gtag) gtag('event', 'house_order_call', { style: state.sel && state.sel.style }); });
   applyLang();
   run(false);
 }

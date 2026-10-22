@@ -126,13 +126,186 @@ function finish(v) {
   return { wall, roof, win, door, plinth: { color: '#8f8c86', ral: 'RAL 7037', name: 'Облицовка камнем' } };
 }
 
-// Узоры для заливок — в единицах листа при масштабе k (мм листа на 1 м)
-function defs(P, k, f) {
+/* ------------------------------------------------- фактуры фасадов */
+
+// Размер плитки фактуры в метрах
+const TEX = {
+  stucco: [2, 2], brick: [1.04, 0.6], siding: [0.9, 0.9], battens: [1.2, 1.2], logs: [2, 1], concrete: [2.4, 1.2],
+  tile: [1.2, 0.72], seam: [1, 1], shingle: [1, 1], flat: [3, 3], stone: [1.6, 0.8]
+};
+const TS = 512;
+const texCache = {};
+
+function rnd(seed) {
+  let s = seed % 2147483647 || 1;
+  return () => (s = (s * 16807) % 2147483647) / 2147483647;
+}
+const hash = str => [...str].reduce((h, c) => (h * 31 + c.charCodeAt(0)) >>> 0, 7);
+function tone(hex, k) {
+  const n = parseInt(hex.slice(1), 16);
+  const f = c => Math.max(0, Math.min(255, Math.round(c * k)));
+  return `rgb(${f(n >> 16)},${f((n >> 8) & 255)},${f(n & 255)})`;
+}
+function specks(g, r, n, a, size = 2) {
+  for (let i = 0; i < n; i++) {
+    g.fillStyle = r() > 0.5 ? `rgba(0,0,0,${a})` : `rgba(255,255,255,${a})`;
+    g.fillRect(r() * TS, r() * TS, size, size);
+  }
+}
+// Мягкие пятна, бесшовно переходящие через края плитки
+function blots(g, r, n, alpha) {
+  for (let i = 0; i < n; i++) {
+    const x = r() * TS, y = r() * TS, rad = 50 + r() * 120, c = r() > 0.5 ? '0,0,0' : '255,255,255';
+    for (const dx of [-TS, 0, TS]) for (const dy of [-TS, 0, TS]) {
+      const gr = g.createRadialGradient(x + dx, y + dy, 0, x + dx, y + dy, rad);
+      gr.addColorStop(0, `rgba(${c},${alpha})`); gr.addColorStop(1, `rgba(${c},0)`);
+      g.fillStyle = gr; g.fillRect(x + dx - rad, y + dy - rad, rad * 2, rad * 2);
+    }
+  }
+}
+
+const PAINT = {
+  stucco(g, r, c) {
+    g.fillStyle = c; g.fillRect(0, 0, TS, TS);
+    blots(g, r, 34, 0.045);
+    specks(g, r, 26000, 0.07, 1.5);
+    specks(g, r, 4000, 0.1, 2.5);
+  },
+  brick(g, r, c, mortar = '#d8d0c3') {
+    g.fillStyle = mortar; g.fillRect(0, 0, TS, TS);
+    specks(g, r, 6000, 0.08, 2);
+    const rows = 8, cols = 4, bh = TS / rows, bw = TS / cols, m = 5;
+    for (let y = 0; y < rows; y++) {
+      const off = y % 2 ? bw / 2 : 0;
+      for (let x = -1; x <= cols; x++) {
+        const bx = x * bw + off + m / 2, by = y * bh + m / 2, w = bw - m, h = bh - m;
+        g.fillStyle = tone(c, 0.82 + r() * 0.3); g.fillRect(bx, by, w, h);
+        const gr = g.createLinearGradient(0, by, 0, by + h);
+        gr.addColorStop(0, 'rgba(255,255,255,.14)'); gr.addColorStop(0.25, 'rgba(255,255,255,0)'); gr.addColorStop(0.8, 'rgba(0,0,0,0)'); gr.addColorStop(1, 'rgba(0,0,0,.22)');
+        g.fillStyle = gr; g.fillRect(bx, by, w, h);
+      }
+    }
+    specks(g, r, 9000, 0.08, 2);
+  },
+  siding(g, r, c) {
+    const n = 5, bh = TS / n;
+    for (let i = 0; i < n; i++) {
+      const y = i * bh, gr = g.createLinearGradient(0, y, 0, y + bh);
+      gr.addColorStop(0, tone(c, 1.06)); gr.addColorStop(0.8, tone(c, 0.95)); gr.addColorStop(1, tone(c, 0.82));
+      g.fillStyle = gr; g.fillRect(0, y, TS, bh);
+      g.fillStyle = 'rgba(0,0,0,.32)'; g.fillRect(0, y + bh - 5, TS, 5);
+      g.fillStyle = 'rgba(255,255,255,.35)'; g.fillRect(0, y, TS, 2);
+    }
+    g.strokeStyle = 'rgba(0,0,0,.035)';
+    for (let i = 0; i < 220; i++) { const y = r() * TS; g.beginPath(); g.moveTo(0, y); g.lineTo(TS, y + (r() - 0.5) * 3); g.stroke(); }
+  },
+  battens(g, r, c) {
+    const n = 6, bw = TS / n;
+    for (let i = 0; i < n; i++) {
+      g.fillStyle = tone(c, 0.92 + r() * 0.14); g.fillRect(i * bw, 0, bw, TS);
+      g.fillStyle = 'rgba(255,255,255,.12)'; g.fillRect(i * bw, 0, 10, TS);
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(i * bw + 10, 0, 5, TS);
+    }
+    specks(g, r, 5000, 0.05, 2);
+  },
+  logs(g, r, c) {
+    const n = 5, lh = TS / n;
+    for (let i = 0; i < n; i++) {
+      const y = i * lh, gr = g.createLinearGradient(0, y, 0, y + lh);
+      gr.addColorStop(0, tone(c, 0.5)); gr.addColorStop(0.15, tone(c, 0.92)); gr.addColorStop(0.42, tone(c, 1.15));
+      gr.addColorStop(0.78, tone(c, 0.95)); gr.addColorStop(1, tone(c, 0.48));
+      g.fillStyle = gr; g.fillRect(0, y, TS, lh);
+    }
+    g.strokeStyle = 'rgba(60,30,10,.2)'; g.lineWidth = 1.2;
+    for (let i = 0; i < 300; i++) {
+      const y = r() * TS, x = r() * TS, len = 40 + r() * 170;
+      g.beginPath(); g.moveTo(x, y); g.bezierCurveTo(x + len / 3, y + (r() - 0.5) * 4, x + len * 2 / 3, y + (r() - 0.5) * 4, x + len, y); g.stroke();
+    }
+  },
+  concrete(g, r, c) {
+    PAINT.stucco(g, r, c);
+    g.strokeStyle = 'rgba(40,40,40,.32)'; g.lineWidth = 3;
+    [[0, TS / 2, TS, TS / 2], [TS / 2, 0, TS / 2, TS]].forEach(([a, b, d, e]) => { g.beginPath(); g.moveTo(a, b); g.lineTo(d, e); g.stroke(); });
+    [[0.25, 0.25], [0.75, 0.25], [0.25, 0.75], [0.75, 0.75]].forEach(([x, y]) => { g.fillStyle = 'rgba(30,30,30,.5)'; g.beginPath(); g.arc(x * TS, y * TS, 6, 0, 7); g.fill(); });
+  },
+  tile(g, r, c) {
+    const cols = 4, rows = 2, tw = TS / cols, th = TS / rows;
+    for (let y = 0; y < rows; y++) {
+      for (let x = 0; x < cols; x++) {
+        const k = 0.86 + r() * 0.2, gr = g.createLinearGradient(x * tw, 0, (x + 1) * tw, 0);
+        gr.addColorStop(0, tone(c, 0.55 * k)); gr.addColorStop(0.35, tone(c, 1.12 * k)); gr.addColorStop(0.65, tone(c, 1.0 * k)); gr.addColorStop(1, tone(c, 0.55 * k));
+        g.fillStyle = gr; g.fillRect(x * tw, y * th, tw, th);
+        const sh = g.createLinearGradient(0, y * th, 0, (y + 1) * th);
+        sh.addColorStop(0, 'rgba(255,255,255,.08)'); sh.addColorStop(0.85, 'rgba(0,0,0,0)'); sh.addColorStop(1, 'rgba(0,0,0,.35)');
+        g.fillStyle = sh; g.fillRect(x * tw, y * th, tw, th);
+      }
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, (y + 1) * th - 12, TS, 12);
+    }
+    specks(g, r, 5000, 0.06, 2);
+  },
+  seam(g, r, c) {
+    const n = 2, pw = TS / n;
+    for (let i = 0; i < n; i++) {
+      const gr = g.createLinearGradient(i * pw, 0, (i + 1) * pw, 0);
+      gr.addColorStop(0, tone(c, 0.9)); gr.addColorStop(0.5, tone(c, 1.08)); gr.addColorStop(1, tone(c, 0.88));
+      g.fillStyle = gr; g.fillRect(i * pw, 0, pw, TS);
+      g.fillStyle = tone(c, 1.5); g.fillRect(i * pw, 0, 5, TS);
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(i * pw + 5, 0, 6, TS);
+    }
+    specks(g, r, 2500, 0.04, 2);
+  },
+  shingle(g, r, c) {
+    const rows = 5, cols = 3, th = TS / rows, tw = TS / cols;
+    for (let y = 0; y < rows; y++) {
+      const off = y % 2 ? tw / 2 : 0;
+      for (let x = -1; x <= cols; x++) { g.fillStyle = tone(c, 0.75 + r() * 0.45); g.fillRect(x * tw + off + 3, y * th, tw - 6, th); }
+      g.fillStyle = 'rgba(0,0,0,.45)'; g.fillRect(0, (y + 1) * th - 8, TS, 8);
+    }
+    specks(g, r, 16000, 0.09, 2);
+  },
+  flat(g, r, c) { PAINT.stucco(g, r, c); },
+  stone(g, r) {
+    g.fillStyle = '#5f5a54'; g.fillRect(0, 0, TS, TS);
+    const rows = 4, rh = TS / rows;
+    for (let y = 0; y < rows; y++) {
+      let x = -r() * 60;
+      while (x < TS) {
+        const w = 70 + r() * 110, pad = 4 + r() * 3;
+        const base = ['#8c857b', '#9b9387', '#7e786f', '#a39a8b'][Math.floor(r() * 4)];
+        g.fillStyle = tone(base, 0.8 + r() * 0.35);
+        g.beginPath(); g.roundRect(x + pad, y * rh + pad, w - pad * 2, rh - pad * 2, 14); g.fill();
+        g.fillStyle = 'rgba(0,0,0,.2)'; g.beginPath(); g.roundRect(x + pad, y * rh + rh * 0.62, w - pad * 2, rh * 0.38 - pad, 12); g.fill();
+        x += w;
+      }
+    }
+    specks(g, r, 9000, 0.08, 2);
+  }
+};
+
+function texURL(kind, color, extra) {
+  const key = kind + color + (extra || '');
+  if (texCache[key]) return texCache[key];
+  const c = document.createElement('canvas');
+  c.width = c.height = TS;
+  PAINT[kind](c.getContext('2d'), rnd(hash(key)), color, extra);
+  return (texCache[key] = c.toDataURL('image/jpeg', 0.84));
+}
+
+// Узоры для заливок — в единицах листа при масштабе k (мм листа на 1 м).
+// tex — подключить растровые фактуры (нужны только на фасадах и кровле)
+function defs(P, k, f, tex = false) {
   const w = f.wall, rf = f.roof;
   const o = [];
   o.push(`<pattern id="${P}h" patternUnits="userSpaceOnUse" width="1.4" height="1.4" patternTransform="rotate(45)"><rect width="1.4" height="1.4" fill="#fff"/><line x1="0" y1="0" x2="0" y2="1.4" stroke="${INK}" stroke-width="0.22"/></pattern>`);
   o.push(`<pattern id="${P}c" patternUnits="userSpaceOnUse" width="3" height="3"><rect width="3" height="3" fill="#f1f1ef"/><circle cx="0.7" cy="0.8" r="0.18" fill="#777"/><circle cx="2.1" cy="2.2" r="0.14" fill="#777"/><path d="M1.6 0.6 l0.5 0.6 h-1z" fill="none" stroke="#777" stroke-width="0.12"/></pattern>`);
   o.push(`<pattern id="${P}i" patternUnits="userSpaceOnUse" width="2.4" height="2.4"><rect width="2.4" height="2.4" fill="#fbf5df"/><path d="M0 1.2 q0.6 -1 1.2 0 t1.2 0" fill="none" stroke="#b9a979" stroke-width="0.15"/></pattern>`);
+  const img = (id, url, [tw, th]) => `<pattern id="${id}" patternUnits="userSpaceOnUse" width="${r2(tw * k)}" height="${r2(th * k)}"><image href="${url}" width="${r2(tw * k)}" height="${r2(th * k)}" preserveAspectRatio="none"/></pattern>`;
+  if (tex) {
+    o.push(img(`${P}w`, texURL(w.tex, w.color, w.mortar), TEX[w.tex]));
+    o.push(img(`${P}r`, texURL(rf.tex, rf.color), TEX[rf.tex]));
+    o.push(img(`${P}s`, texURL('stone', '#8f8a82'), TEX.stone));
+  } else {
+  o.push(`<pattern id="${P}s" patternUnits="userSpaceOnUse" width="5" height="5"><rect width="5" height="5" fill="${f.plinth.color}"/></pattern>`);
   const u = k; // мм листа на метр
   if (w.tex === 'brick') {
     const bw = 0.25 * u, bh = 0.075 * u;
@@ -165,8 +338,14 @@ function defs(P, k, f) {
   } else {
     o.push(`<pattern id="${P}r" patternUnits="userSpaceOnUse" width="6" height="6"><rect width="6" height="6" fill="${rf.color}"/><circle cx="2" cy="2" r="0.15" fill="#000" opacity="0.08"/></pattern>`);
   }
-  o.push(`<linearGradient id="${P}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c9d8e4"/><stop offset="0.5" stop-color="#7f97aa"/><stop offset="1" stop-color="#3c4d5b"/></linearGradient>`);
-  o.push(`<linearGradient id="${P}sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0.28"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>`);
+  }
+  // освещение: стена светлее слева, тень под свесом, блик на стекле, затенение у земли
+  o.push(`<linearGradient id="${P}lt" x1="0" y1="0" x2="1" y2="0"><stop offset="0" stop-color="#fff" stop-opacity="0.1"/><stop offset="0.6" stop-color="#fff" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.08"/></linearGradient>`);
+  o.push(`<linearGradient id="${P}rs" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0.12"/><stop offset="0.55" stop-color="#000" stop-opacity="0"/><stop offset="1" stop-color="#000" stop-opacity="0.22"/></linearGradient>`);
+  o.push(`<linearGradient id="${P}ao" x1="0" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#000" stop-opacity="0.25"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>`);
+  o.push(`<linearGradient id="${P}gl" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff" stop-opacity="0"/><stop offset="0.42" stop-color="#fff" stop-opacity="0"/><stop offset="0.47" stop-color="#fff" stop-opacity="0.35"/><stop offset="0.58" stop-color="#fff" stop-opacity="0.12"/><stop offset="0.62" stop-color="#fff" stop-opacity="0"/></linearGradient>`);
+  o.push(`<linearGradient id="${P}g" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#b9cad8"/><stop offset="0.35" stop-color="#7d94a7"/><stop offset="0.7" stop-color="#3f5263"/><stop offset="1" stop-color="#2b3946"/></linearGradient>`);
+  o.push(`<linearGradient id="${P}sh" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#000" stop-opacity="0.38"/><stop offset="0.35" stop-color="#000" stop-opacity="0.16"/><stop offset="1" stop-color="#000" stop-opacity="0"/></linearGradient>`);
   return `<defs>${o.join('')}</defs>`;
 }
 
@@ -333,8 +512,8 @@ function watermark() {
   return `<g pointer-events="none">${o.join('')}</g>`;
 }
 
-function svgWrap(inner, P, k, f) {
-  return `<svg viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg" font-family="${FONT}" fill="${INK}">${defs(P, k, f)}${inner}${watermark()}</svg>`;
+function svgWrap(inner, P, k, f, tex = false) {
+  return `<svg viewBox="0 0 ${SW} ${SH}" xmlns="http://www.w3.org/2000/svg" font-family="${FONT}" fill="${INK}">${defs(P, k, f, tex)}${inner}${watermark()}</svg>`;
 }
 
 const SCALES = [50, 100, 150, 200, 250, 500, 1000];
@@ -412,14 +591,16 @@ function elevation(v, view, k, ox, oy, pf, f, opt = {}) {
   if (roof.type === 'shedSide') {
     const hiU = roof.highAt;
     const top = u => e + h * (1 - Math.abs(u - hiU) / Wv);
-    o2.push(P([[X(0), Y(0)], [X(Wv), Y(0)], [X(Wv), Y(top(Wv))], [X(0), Y(top(0))]], { fill: wallFill, stroke: INK, sw: 0.3 }));
+    const wp = [[X(0), Y(0)], [X(Wv), Y(0)], [X(Wv), Y(top(Wv))], [X(0), Y(top(0))]];
+    o2.push(P(wp, { fill: wallFill, stroke: INK, sw: 0.3 }), P(wp, { fill: `url(#${pf}lt)` }));
   } else {
     const top = roof.type === 'shedHigh' ? e + h : roof.type === 'parapet' ? e + 0.6 : e;
-    o2.push(R(X(0), Y(top), Wv * k, top * k, { fill: wallFill, stroke: INK, sw: 0.3 }));
+    o2.push(R(X(0), Y(top), Wv * k, top * k, { fill: wallFill, stroke: INK, sw: 0.3 }), R(X(0), Y(top), Wv * k, top * k, { fill: `url(#${pf}lt)` }));
     if (roof.type === 'parapet') o2.push(R(X(-0.05), Y(top + 0.06), (Wv + 0.1) * k, 0.06 * k, { fill: '#a6abb0', stroke: INK, sw: 0.15 }));
   }
-  o2.push(R(X(-0.05), Y(0), (Wv + 0.1) * k, -g0 * k, { fill: f.plinth.color, stroke: INK, sw: 0.25 }));
-  o2.push(L(X(-0.05), Y(-0.25), X(Wv + 0.05), Y(-0.25), 0.1, '#5f5c57'));
+  o2.push(R(X(-0.05), Y(0), (Wv + 0.1) * k, -g0 * k, { fill: `url(#${pf}s)`, stroke: INK, sw: 0.25 }));
+  o2.push(R(X(-0.05), Y(g0 + 0.3), (Wv + 0.1) * k, 0.3 * k, { fill: `url(#${pf}ao)` }));
+  o2.push(R(X(-0.08), Y(0.04), (Wv + 0.16) * k, 0.06 * k, { fill: '#d9d4ca', stroke: INK, sw: 0.1 }));
   if (v.floors >= 2 && ['classic', 'chalet', 'scandi'].includes(v.style)) {
     for (let i = 1; i < v.floors; i++) o2.push(R(X(-0.04), Y(i * C.FLOOR_H + 0.08), (Wv + 0.08) * k, 0.16 * k, { fill: '#f1ece2', stroke: INK, sw: 0.12 }));
   }
@@ -427,14 +608,16 @@ function elevation(v, view, k, ox, oy, pf, f, opt = {}) {
   // кровля
   const eL = s => e - o * s;
   if (roof.type === 'band') {
-    o2.push(shade(0, e - 0.5, Wv, 0.5));
-    o2.push(P([[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(Wv + o), Y(e + h)], [X(-o), Y(e + h)]], { fill: roofFill, stroke: INK, sw: 0.3 }));
+    o2.push(shade(0, e - 0.9, Wv, 0.9));
+    const rp = [[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(Wv + o), Y(e + h)], [X(-o), Y(e + h)]];
+    o2.push(P(rp, { fill: roofFill, stroke: INK, sw: 0.3 }), P(rp, { fill: `url(#${pf}rs)` }));
     o2.push(R(X(-o), Y(e + h + 0.12), (Wv + 2 * o) * k, 0.12 * k, { fill: '#2b2b2b' }));
     o2.push(R(X(-o - 0.05), Y(eL(roof.ks)), (Wv + 2 * o + 0.1) * k, 0.2 * k, { fill: '#3a3a3a' }));
   } else if (roof.type === 'hipBand') {
-    o2.push(shade(0, e - 0.5, Wv, 0.5));
+    o2.push(shade(0, e - 0.9, Wv, 0.9));
     const c = Wv / 2;
-    o2.push(P([[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(c + roof.r), Y(e + h)], [X(c - roof.r), Y(e + h)]], { fill: roofFill, stroke: INK, sw: 0.3 }));
+    const hp = [[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(c + roof.r), Y(e + h)], [X(c - roof.r), Y(e + h)]];
+    o2.push(P(hp, { fill: roofFill, stroke: INK, sw: 0.3 }), P(hp, { fill: `url(#${pf}rs)` }));
     o2.push(R(X(-o - 0.05), Y(eL(roof.ks)), (Wv + 2 * o + 0.1) * k, 0.2 * k, { fill: '#3a3a3a' }));
   } else if (roof.type === 'tri') {
     o2.push(P([[X(0), Y(e)], [X(Wv), Y(e)], [X(Wv / 2), Y(e + h)]], { fill: wallFill, stroke: INK, sw: 0.3 }));
@@ -442,13 +625,13 @@ function elevation(v, view, k, ox, oy, pf, f, opt = {}) {
     const t = 0.32;
     o2.push(P([[X(-o), Y(eL(roof.ks))], [X(Wv / 2), Y(e + h)], [X(Wv + o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks) + t)], [X(Wv / 2), Y(e + h + t)], [X(-o), Y(eL(roof.ks) + t)]], { fill: '#2f2f2f', stroke: INK, sw: 0.2 }));
   } else if (roof.type === 'hipTri') {
-    o2.push(shade(0, e - 0.5, Wv, 0.5));
+    o2.push(shade(0, e - 0.9, Wv, 0.9));
     o2.push(P([[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(Wv / 2), Y(e + h)]], { fill: roofFill, stroke: INK, sw: 0.3 }));
     o2.push(P([[X(-o), Y(eL(roof.ks))], [X(Wv + o), Y(eL(roof.ks))], [X(Wv / 2), Y(e + h)]], { fill: '#000', op: 0.12 }));
     o2.push(R(X(-o - 0.05), Y(eL(roof.ks)), (Wv + 2 * o + 0.1) * k, 0.2 * k, { fill: '#3a3a3a' }));
   } else if (roof.type === 'shedLow') {
     const s = h / v.L;
-    o2.push(shade(0, e - 0.5, Wv, 0.5));
+    o2.push(shade(0, e - 0.9, Wv, 0.9));
     o2.push(P([[X(-o), Y(e - o * s)], [X(Wv + o), Y(e - o * s)], [X(Wv + o), Y(e + h + o * s)], [X(-o), Y(e + h + o * s)]], { fill: roofFill, stroke: INK, sw: 0.3 }));
     o2.push(R(X(-o - 0.05), Y(e - o * s), (Wv + 2 * o + 0.1) * k, 0.25 * k, { fill: '#2f2f2f' }));
   } else if (roof.type === 'shedHigh') {
@@ -461,7 +644,7 @@ function elevation(v, view, k, ox, oy, pf, f, opt = {}) {
     const za = e + h + o * s, zb = e - o * s;
     o2.push(P([[X(a), Y(za)], [X(b), Y(zb)], [X(b), Y(zb + 0.3)], [X(a), Y(za + 0.3)]], { fill: '#2f2f2f', stroke: INK, sw: 0.2 }));
   } else if (roof.type === 'slab') {
-    o2.push(shade(0, e - 0.5, Wv, 0.5));
+    o2.push(shade(0, e - 0.9, Wv, 0.9));
     o2.push(R(X(-o), Y(e + 0.35), (Wv + 2 * o) * k, 0.35 * k, { fill: '#33373b', stroke: INK, sw: 0.25 }));
   }
 
@@ -496,12 +679,18 @@ function elevation(v, view, k, ox, oy, pf, f, opt = {}) {
         if (zt > lim) return;
       }
       if (!attic && zt > e - 0.15 && !['shedHigh', 'shedSide', 'parapet'].includes(roof.type)) return;
-      o2.push(R(X(u - op.w / 2 - 0.06), Y(zt + 0.06), (op.w + 0.12) * k, (wh + 0.12) * k, { fill: f.win.color, stroke: INK, sw: 0.2 }));
-      o2.push(R(X(u - op.w / 2 + 0.03), Y(zt - 0.03), (op.w - 0.06) * k, (wh - 0.06) * k, { fill: `url(#${pf}g)` }));
-      if (op.w > 0.9) o2.push(R(X(u - 0.03), Y(zt), 0.06 * k, wh * k, { fill: f.win.color }));
-      if (wh > 1.3 && v.style !== 'modern' && v.style !== 'hitech') o2.push(R(X(u - op.w / 2), Y(zb + wh * 0.68), op.w * k, 0.05 * k, { fill: f.win.color }));
-      o2.push(R(X(u - op.w / 2 - 0.12), Y(zb), (op.w + 0.24) * k, 0.06 * k, { fill: '#e6e2da', stroke: INK, sw: 0.1 }));
-      o2.push(R(X(u - op.w / 2 + 0.03), Y(zt - 0.03), (op.w - 0.06) * k, 0.12 * k, { fill: '#000', op: 0.2 }));
+      const x0 = u - op.w / 2, fw = 0.07; // fw — профиль рамы
+      // откос: тень в проёме вокруг рамы
+      o2.push(R(X(x0 - 0.05), Y(zt + 0.05), (op.w + 0.1) * k, (wh + 0.1) * k, { fill: '#000', op: 0.3 }));
+      o2.push(R(X(x0), Y(zt), op.w * k, wh * k, { fill: f.win.color, stroke: INK, sw: 0.2 }));
+      o2.push(R(X(x0 + fw), Y(zt - fw), (op.w - 2 * fw) * k, (wh - 2 * fw) * k, { fill: `url(#${pf}g)` }));
+      o2.push(R(X(x0 + fw), Y(zt - fw), (op.w - 2 * fw) * k, (wh - 2 * fw) * k, { fill: `url(#${pf}gl)` }));
+      if (op.w > 0.9) o2.push(R(X(u - fw / 2), Y(zt), fw * k, wh * k, { fill: f.win.color }));
+      if (wh > 1.3 && v.style !== 'modern' && v.style !== 'hitech') o2.push(R(X(x0), Y(zb + wh * 0.7 + fw / 2), op.w * k, fw * k, { fill: f.win.color }));
+      o2.push(R(X(x0 + fw), Y(zt - fw), (op.w - 2 * fw) * k, 0.1 * k, { fill: '#000', op: 0.25 }));
+      // отлив и тень под ним
+      o2.push(R(X(x0 - 0.08), Y(zb + 0.02), (op.w + 0.16) * k, 0.05 * k, { fill: '#ecebe7', stroke: INK, sw: 0.1 }));
+      o2.push(R(X(x0 - 0.04), Y(zb - 0.03), (op.w + 0.08) * k, 0.06 * k, { fill: '#000', op: 0.16 }));
     });
   }
 
@@ -569,7 +758,7 @@ export function facadeThumb(v) {
   const k = 10;
   const w = (ex.b - ex.a) * k, hh = (ex.top + C.PLINTH + 0.4) * k;
   const ox = -ex.a * k, oy = (ex.top + 0.2) * k;
-  return `<svg viewBox="0 0 ${r2(w)} ${r2(hh)}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">${defs(P, k, f)}<rect x="0" y="${r2(oy + C.PLINTH * k)}" width="${r2(w)}" height="${r2(hh)}" fill="#b9cf9f"/>${elevation(v, 'front', k, ox, oy, P, f, { thumb: true })}</svg>`;
+  return `<svg viewBox="0 0 ${r2(w)} ${r2(hh)}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">${defs(P, k, f, true)}<rect x="0" y="${r2(oy + C.PLINTH * k)}" width="${r2(w)}" height="${r2(hh)}" fill="#b9cf9f"/>${elevation(v, 'front', k, ox, oy, P, f, { thumb: true })}</svg>`;
 }
 
 function sheetTitle(v, n, total) {
@@ -863,7 +1052,7 @@ function planSheet(v, idx) {
   // экспликация
   const tx = 328, tw = 82;
   let ty = 14;
-  const rows = lv.rects.map(r => [String(r.no), C.roomName(r.k), num(r.net)]);
+  const rows = lv.rects.map(r => [String(r.no), C.roomName(r), num(r.net)]);
   if (gw) rows.push([String(lv.rects.length + 1), 'Гараж', num(C.GARAGE_W * v.gd * 0.9)]);
   const rh = Math.min(5.2, 190 / (rows.length + 3));
   o.push(R(tx, ty, tw, (rows.length + 2) * rh + 7, { fill: '#fff', stroke: INK, sw: 0.4 }));
@@ -925,8 +1114,9 @@ function facadesSheet(v, views, grid = false) {
     for (let j = 1; j < items.length; j++) o.push(dimH(ox + items[j - 1][0] * k, ox + items[j][0] * k, g0 + 5, mm(items[j][0] - items[j - 1][0])));
     o.push(dimH(ox + items[0][0] * k, ox + items[items.length - 1][0] * k, g0 + 10, mm(items[items.length - 1][0] - items[0][0])));
   });
-  return { svg: o.join(''), scale: sc, k };
+  return { svg: o.join(''), scale: sc, k, tex: true };
 }
+
 function sectionSheet(v) {
   const f = finish(v);
   const g = v.geo;
@@ -1089,7 +1279,7 @@ function roofSheet(v) {
   o.push(dimH(X(0), X(v.W), bottom - 8, mm(v.W)));
   o.push(dimV(Y(0), Y(v.L), left + 7, mm(v.L)));
   o.push(T(ox, oy + (y1 - y0) * k + 52, `Покрытие кровли: ${f.roof.name}, ${f.roof.ral}`, { size: 3 }));
-  return { svg: o.join(''), scale: sc, k };
+  return { svg: o.join(''), scale: sc, k, tex: true };
 }
 
 /* ------------------------------------------------------- сборка листов */
@@ -1130,6 +1320,6 @@ export function sheets(v) {
     if (i === 0) inner = sheetTitle(v, i, total);
     else if (i === 1) inner = frame(P, i, total, d.title, sheetGeneral(v, list));
     else inner = frame(P, i, total, d.title.replace(/; Ведомость.*/, ''), d.body.svg.replace(/%P%/g, P));
-    return { short: d.short, title: d.title, svg: svgWrap(inner, P, k, f) };
+    return { short: d.short, title: d.title, svg: svgWrap(inner, P, k, f, !!(d.body && d.body.tex)) };
   });
 }
