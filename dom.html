@@ -1,0 +1,510 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <!-- Google tag (gtag.js) -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18253486410"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'AW-18253486410');
+    </script>
+
+    <title>Спроектировать дом онлайн — СВОЙ ПРОЕКТ</title>
+    <meta
+      name="description"
+      content="Онлайн-конструктор частного дома: укажите участок, размеры, этажность и материал — получите варианты домов в 3D с планировкой. Полный рабочий проект — ТОО «СВОЙ ПРОЕКТ», Астана."
+    />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#2f7fd1" />
+    <link rel="canonical" href="https://svoyproect.kz/dom.html" />
+    <link rel="icon" type="image/svg+xml" href="./assets/favicon.svg" />
+    <meta property="og:type" content="website" />
+    <meta property="og:locale" content="ru_RU" />
+    <meta property="og:site_name" content="СВОЙ ПРОЕКТ" />
+    <meta property="og:title" content="Спроектируйте свой дом онлайн — СВОЙ ПРОЕКТ" />
+    <meta property="og:description" content="Подбор проекта частного дома по вашим параметрам с 3D-визуализацией и планировкой." />
+    <meta property="og:url" content="https://svoyproect.kz/dom.html" />
+    <meta property="og:image" content="https://svoyproect.kz/assets/projects/villa.jpg" />
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Lora:wght@500;600;700&family=JetBrains+Mono:wght@500;600&display=swap"
+      rel="stylesheet"
+    />
+
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js",
+          "three/addons/": "https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"
+        }
+      }
+    </script>
+
+    <style>
+      * { box-sizing: border-box; margin: 0; padding: 0; }
+      [hidden] { display: none !important; }
+      html { scroll-behavior: smooth; }
+      body {
+        font-family: "Manrope", system-ui, sans-serif;
+        color: #11161d;
+        background: #f6f8fa;
+        -webkit-font-smoothing: antialiased;
+      }
+      h1, h2, h3 { font-family: "Lora", Georgia, serif; font-weight: 600; letter-spacing: -0.01em; }
+      a { color: inherit; text-decoration: none; }
+      button, input, select { font: inherit; color: inherit; }
+      ::selection { background: #2f7fd1; color: #fff; }
+      .accent-grad {
+        background: linear-gradient(90deg, #2f7fd1, #5aa6e8 55%, #e0934a);
+        -webkit-background-clip: text; background-clip: text;
+        -webkit-text-fill-color: transparent; color: transparent;
+      }
+      .wrap { max-width: 1280px; margin: 0 auto; padding: 0 32px; }
+      .mono { font-family: "JetBrains Mono", monospace; }
+
+      /* ---------- header ---------- */
+      .top {
+        position: sticky; top: 0; z-index: 60;
+        background: rgba(255,255,255,.88); backdrop-filter: blur(14px);
+        border-bottom: 1px solid #e8ebf0;
+      }
+      .top .wrap { height: 74px; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+      .brand { display: flex; align-items: center; gap: 11px; }
+      .brand img { height: 54px; width: auto; display: block; }
+      .brand b { display: block; font-weight: 800; font-size: 18px; letter-spacing: .02em; color: #26303c; line-height: 1; }
+      .brand small { display: block; font-family: "JetBrains Mono", monospace; font-size: 9px; letter-spacing: .2em; color: #8c5e2a; margin-top: 4px; text-transform: uppercase; }
+      .top-actions { display: flex; align-items: center; gap: 12px; }
+      .back { font-size: 14.5px; font-weight: 600; color: #3a4453; padding: 10px 6px; transition: color .15s; }
+      .back:hover { color: #2f7fd1; }
+      .lang { display: flex; border: 1px solid #d9dee6; border-radius: 8px; overflow: hidden; }
+      .lang button {
+        background: #fff; color: #7c8694; border: none; padding: 7px 11px; cursor: pointer;
+        font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600;
+      }
+      .lang button.on { background: #16202c; color: #fff; }
+      .btn {
+        display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+        padding: 11px 18px; border-radius: 9px; font-size: 14px; font-weight: 600;
+        border: none; cursor: pointer; transition: background .18s, transform .15s, box-shadow .15s;
+        white-space: nowrap;
+      }
+      .btn-wa { background: #25d366; color: #fff; }
+      .btn-wa:hover { background: #1ebe5d; }
+      .btn-tel { background: #fff; color: #16202c; border: 1px solid #d9dee6; }
+      .btn-tel:hover { border-color: #16202c; }
+      .btn-main {
+        background: #2f7fd1; color: #fff; padding: 15px 24px; font-size: 16px; font-weight: 700; border-radius: 11px;
+        box-shadow: 0 12px 30px -10px rgba(47,127,209,.6);
+      }
+      .btn-main:hover { transform: translateY(-2px); box-shadow: 0 18px 38px -10px rgba(47,127,209,.7); }
+      .btn svg { flex: none; }
+
+      /* ---------- intro ---------- */
+      .intro { background: linear-gradient(180deg, #fbfcfd 0%, #eef2f7 100%); border-bottom: 1px solid #e8ebf0; }
+      .intro .wrap { padding-top: 54px; padding-bottom: 46px; }
+      .badge {
+        display: inline-flex; align-items: center; gap: 8px; padding: 7px 13px; border-radius: 99px;
+        background: #fff; border: 1px solid #e1e6ee; font-size: 12.5px; font-weight: 600; color: #3a4453;
+      }
+      .badge i { width: 7px; height: 7px; border-radius: 50%; background: #e0934a; }
+      .intro h1 { font-size: 50px; line-height: 1.08; margin-top: 18px; max-width: 860px; }
+      .intro p { font-size: 17.5px; line-height: 1.6; color: #56616f; margin-top: 16px; max-width: 760px; }
+      .steps3 { display: flex; flex-wrap: wrap; gap: 12px 28px; margin-top: 26px; }
+      .steps3 div { display: flex; align-items: center; gap: 10px; font-size: 14.5px; font-weight: 600; color: #26303c; }
+      .steps3 span {
+        width: 28px; height: 28px; border-radius: 8px; background: #16202c; color: #fff;
+        display: grid; place-items: center; font-family: "JetBrains Mono", monospace; font-size: 12px;
+      }
+
+      /* ---------- layout ---------- */
+      .layout { display: grid; grid-template-columns: 370px 1fr; gap: 28px; align-items: start; padding-top: 32px; padding-bottom: 56px; }
+      .layout > * { min-width: 0; }
+      .panel {
+        background: #fff; border: 1px solid #e3e8ef; border-radius: 16px; padding: 24px;
+        position: sticky; top: 92px; box-shadow: 0 20px 40px -30px rgba(17,22,29,.25);
+      }
+      .panel h2 { font-size: 22px; }
+      .group { margin-top: 20px; padding-top: 18px; border-top: 1px solid #eef1f5; }
+      .group:first-of-type { border-top: none; padding-top: 0; }
+      .glabel {
+        font-family: "JetBrains Mono", monospace; font-size: 11px; font-weight: 600; letter-spacing: .12em;
+        text-transform: uppercase; color: #8c5e2a; margin-bottom: 10px;
+      }
+      .row2 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+      .field { display: flex; flex-direction: column; gap: 5px; }
+      .field + .field { margin-top: 10px; }
+      .row2 .field + .field { margin-top: 0; }
+      .field label { font-size: 13px; font-weight: 600; color: #3a4453; }
+      .field input, .field select {
+        width: 100%; height: 44px; border: 1px solid #d9dee6; border-radius: 10px; padding: 0 12px;
+        background: #fbfcfd; font-size: 15px; font-weight: 600; outline: none; transition: border-color .15s, box-shadow .15s;
+      }
+      .field input:focus, .field select:focus { border-color: #2f7fd1; box-shadow: 0 0 0 3px rgba(47,127,209,.15); background: #fff; }
+      .unit { position: relative; }
+      .unit input { padding-right: 48px; }
+      .unit em { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); font-style: normal; font-size: 13px; color: #7c8694; pointer-events: none; }
+      .hint { font-size: 12px; color: #7c8694; margin-top: 6px; line-height: 1.45; }
+      .seg { display: grid; grid-auto-flow: column; grid-auto-columns: 1fr; gap: 4px; background: #eef1f5; padding: 4px; border-radius: 11px; }
+      .seg button {
+        border: none; background: transparent; padding: 9px 4px; border-radius: 8px; cursor: pointer;
+        font-size: 13px; font-weight: 600; color: #56616f; line-height: 1.2;
+      }
+      .seg button.on { background: #fff; color: #11161d; box-shadow: 0 1px 3px rgba(17,22,29,.14); }
+      .mats { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+      .mats button {
+        display: flex; align-items: center; gap: 9px; padding: 9px 10px; border-radius: 10px; cursor: pointer;
+        border: 1px solid #d9dee6; background: #fff; font-size: 13px; font-weight: 600; text-align: left; line-height: 1.2;
+      }
+      .mats button.on { border-color: #2f7fd1; box-shadow: 0 0 0 2px rgba(47,127,209,.2); }
+      .mats i { width: 22px; height: 22px; border-radius: 6px; flex: none; border: 1px solid rgba(0,0,0,.08); background-size: cover; }
+      .submit { width: 100%; margin-top: 22px; }
+
+      /* ---------- results ---------- */
+      .res-head { display: flex; align-items: flex-end; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+      .res-head h2 { font-size: 30px; }
+      .res-head p { color: #56616f; font-size: 14.5px; margin-top: 6px; line-height: 1.5; }
+      .alert {
+        margin-top: 16px; padding: 16px 18px; border-radius: 12px; background: #fff6ec; border: 1px solid #f1d2ae;
+        color: #6b4317; font-size: 14.5px; line-height: 1.55;
+      }
+      .cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 20px; }
+      .card {
+        background: #fff; border: 1px solid #e3e8ef; border-radius: 14px; overflow: hidden; cursor: pointer; text-align: left;
+        transition: transform .15s, box-shadow .15s, border-color .15s; display: flex; flex-direction: column;
+      }
+      .card:hover { transform: translateY(-3px); box-shadow: 0 18px 36px -22px rgba(17,22,29,.35); }
+      .card.on { border-color: #2f7fd1; box-shadow: 0 0 0 2px #2f7fd1; }
+      .card .thumb { background: linear-gradient(180deg, #e7eff8 0%, #f3f6f9 70%, #dfe8d4 70%, #d3e0c4 100%); aspect-ratio: 16 / 10; position: relative; }
+      .card .thumb svg { position: absolute; inset: 8px 0 0; width: 100%; height: calc(100% - 8px); display: block; }
+      .card .body { padding: 14px 16px 16px; }
+      .card .code { font-family: "JetBrains Mono", monospace; font-size: 11px; color: #2f7fd1; font-weight: 600; letter-spacing: .06em; }
+      .card h3 { font-size: 19px; margin-top: 4px; }
+      .card .meta { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+      .card .meta span { font-size: 12px; font-weight: 600; background: #f1f4f8; color: #3a4453; padding: 4px 8px; border-radius: 6px; }
+      .card .area { margin-top: 12px; font-size: 22px; font-weight: 800; }
+      .card .area small { font-size: 13px; font-weight: 600; color: #7c8694; }
+
+      /* ---------- viewer ---------- */
+      .viewer { margin-top: 28px; background: #fff; border: 1px solid #e3e8ef; border-radius: 16px; overflow: hidden; }
+      .vhead { display: flex; justify-content: space-between; align-items: center; gap: 14px; flex-wrap: wrap; padding: 18px 20px; border-bottom: 1px solid #eef1f5; }
+      .vhead h2 { font-size: 24px; }
+      .vhead .code { font-family: "JetBrains Mono", monospace; font-size: 12px; color: #2f7fd1; font-weight: 600; }
+      .tabs { display: flex; gap: 4px; background: #eef1f5; padding: 4px; border-radius: 11px; }
+      .tabs button { border: none; background: transparent; padding: 8px 14px; border-radius: 8px; cursor: pointer; font-size: 13.5px; font-weight: 600; color: #56616f; }
+      .tabs button.on { background: #fff; color: #11161d; box-shadow: 0 1px 3px rgba(17,22,29,.14); }
+      .stage { position: relative; height: 520px; background: #dfe9f3; }
+      .stage > div { position: absolute; inset: 0; }
+      #pane3d canvas { display: block; width: 100% !important; height: 100% !important; touch-action: none; }
+      .cams { position: absolute; left: 14px; bottom: 14px; display: flex; gap: 6px; flex-wrap: wrap; inset: auto auto 14px 14px !important; }
+      .cams button {
+        border: none; background: rgba(255,255,255,.92); padding: 8px 12px; border-radius: 8px; cursor: pointer;
+        font-size: 12.5px; font-weight: 700; box-shadow: 0 2px 8px rgba(17,22,29,.15);
+      }
+      .cams button:hover { background: #fff; color: #2f7fd1; }
+      .drag-hint { position: absolute; right: 14px; top: 14px; inset: 14px 14px auto auto !important; font-size: 12px; font-weight: 600; background: rgba(17,22,29,.65); color: #fff; padding: 6px 10px; border-radius: 8px; pointer-events: none; }
+      .plans { background: #fff; overflow: auto; padding: 18px; display: flex; flex-wrap: wrap; gap: 18px; align-content: flex-start; justify-content: center; }
+      .plans figure { flex: 1 1 300px; max-width: 520px; }
+      .plans figcaption { font-weight: 700; font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; gap: 8px; }
+      .plans figcaption span { color: #7c8694; font-weight: 600; }
+      .plans svg { width: 100%; height: auto; display: block; }
+      .fallback { display: grid; place-items: center; text-align: center; padding: 24px; color: #56616f; font-size: 14.5px; line-height: 1.5; }
+      .vbody { display: grid; grid-template-columns: 1.2fr 1fr; gap: 0; }
+      .specs { padding: 20px; border-right: 1px solid #eef1f5; }
+      .specs table { width: 100%; border-collapse: collapse; font-size: 14px; }
+      .specs td { padding: 9px 0; border-bottom: 1px solid #f0f2f5; vertical-align: top; }
+      .specs td:first-child { color: #56616f; padding-right: 12px; }
+      .specs td:last-child { font-weight: 700; text-align: right; }
+      .note { font-size: 12px; color: #7c8694; margin-top: 12px; line-height: 1.5; }
+      .order { padding: 22px 20px; background: linear-gradient(160deg, #2f7fd1, #1f5fa3); color: #fff; display: flex; flex-direction: column; gap: 12px; }
+      .order h3 { font-size: 23px; line-height: 1.2; }
+      .order p { font-size: 14.5px; line-height: 1.55; color: rgba(255,255,255,.88); }
+      .order ul { list-style: none; display: grid; gap: 6px; font-size: 13.5px; color: rgba(255,255,255,.92); }
+      .order li::before { content: "✓"; margin-right: 8px; color: #ffd29c; font-weight: 800; }
+      .order .btns { display: flex; flex-direction: column; gap: 10px; margin-top: 4px; }
+      .order .btn { padding: 14px; font-size: 15px; }
+      .order .btn-tel { border: none; }
+      .order .phone { font-family: "JetBrains Mono", monospace; font-size: 13px; color: rgba(255,255,255,.8); text-align: center; }
+
+      /* ---------- bottom cta ---------- */
+      .cta { background: #0e151d; color: #fff; }
+      .cta .wrap { padding-top: 48px; padding-bottom: 48px; display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+      .cta h2 { font-size: 32px; }
+      .cta p { color: #a9b3bf; margin-top: 8px; font-size: 15.5px; line-height: 1.55; max-width: 620px; }
+      .cta .btns { display: flex; gap: 12px; flex-wrap: wrap; }
+      .cta .btn { padding: 15px 22px; font-size: 15px; }
+      footer { background: #0b1117; color: #7c8694; font-size: 13px; }
+      footer .wrap { padding-top: 20px; padding-bottom: 20px; display: flex; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+
+      @media (max-width: 1080px) {
+        .layout { grid-template-columns: 330px 1fr; }
+        .cards { grid-template-columns: repeat(2, 1fr); }
+        .vbody { grid-template-columns: 1fr; }
+        .specs { border-right: none; border-bottom: 1px solid #eef1f5; }
+      }
+      @media (max-width: 860px) {
+        .layout { grid-template-columns: 1fr; }
+        .panel { position: static; }
+        .top-actions .btn-tel, .back-text { display: none; }
+        .intro h1 { font-size: 38px; }
+        .stage { height: 420px; }
+      }
+      @media (max-width: 600px) {
+        .wrap { padding: 0 16px; }
+        .brand img { height: 42px; }
+        .brand b { font-size: 15px; }
+        .brand small { display: none; }
+        .top-actions .btn-wa span, .top-actions .back { display: none; }
+        .top-actions .btn-wa { padding: 10px 12px; }
+        .top .wrap { gap: 10px; }
+        .top-actions { gap: 8px; }
+        .tabs button { padding: 8px 10px; font-size: 12.5px; }
+        .intro .wrap { padding-top: 34px; padding-bottom: 30px; }
+        .intro h1 { font-size: 31px; }
+        .intro p { font-size: 15.5px; }
+        .cards { grid-template-columns: 1fr; }
+        .stage { height: 360px; }
+        .res-head h2 { font-size: 25px; }
+        .cta h2 { font-size: 26px; }
+        .panel { padding: 18px; }
+      }
+    </style>
+  </head>
+  <body>
+    <header class="top">
+      <div class="wrap">
+        <a class="brand" href="./">
+          <img src="./assets/logo.png" alt="СВОЙ ПРОЕКТ — проектная компания" />
+          <span><b>ТОО СВОЙ ПРОЕКТ</b><small data-i18n="brandSub">Проектная компания</small></span>
+        </a>
+        <div class="top-actions">
+          <a class="back" href="./" id="backLink">← <span class="back-text" data-i18n="back">На главную</span></a>
+          <div class="lang">
+            <button type="button" data-lang="ru" class="on">RU</button>
+            <button type="button" data-lang="kz">ҚАЗ</button>
+          </div>
+          <a class="btn btn-tel" href="tel:+77755557475">+7 (775) 555-74-75</a>
+          <a class="btn btn-wa" href="https://wa.me/77755557475" target="_blank" rel="noopener" data-wa>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><use href="#wa-icon" /></svg>
+            <span>WhatsApp</span>
+          </a>
+        </div>
+      </div>
+    </header>
+
+    <section class="intro">
+      <div class="wrap">
+        <span class="badge"><i></i><span data-i18n="badge">Онлайн-конструктор частного дома</span></span>
+        <h1><span data-i18n="h1a">Спроектируйте</span> <span class="accent-grad" data-i18n="h1b">свой дом</span> <span data-i18n="h1c">за пару минут</span></h1>
+        <p data-i18n="lead">
+          Укажите участок, размеры, этажность и материал — программа подберёт подходящие проекты из каталога и покажет ваш будущий дом в 3D, с планировками и расположением на участке.
+        </p>
+        <div class="steps3">
+          <div><span>1</span><b data-i18n="s1">Введите параметры</b></div>
+          <div><span>2</span><b data-i18n="s2">Выберите вариант в 3D</b></div>
+          <div><span>3</span><b data-i18n="s3">Закажите рабочий проект</b></div>
+        </div>
+      </div>
+    </section>
+
+    <main class="wrap layout">
+      <form class="panel" id="cfg" novalidate>
+        <h2 data-i18n="formTitle">Параметры дома</h2>
+
+        <div class="group">
+          <div class="glabel" data-i18n="gPlot">Участок</div>
+          <div class="row2">
+            <div class="field">
+              <label for="plotSot" data-i18n="plotArea">Площадь участка</label>
+              <div class="unit"><input id="plotSot" type="number" min="2" max="200" step="0.5" value="8" inputmode="decimal" /><em data-i18n="sot">сот.</em></div>
+            </div>
+            <div class="field">
+              <label for="plotW" data-i18n="plotWidth">Ширина участка</label>
+              <div class="unit"><input id="plotW" type="number" min="8" max="200" step="0.5" placeholder="авто" data-i18n-ph="auto" inputmode="decimal" /><em>м</em></div>
+            </div>
+          </div>
+          <p class="hint" data-i18n="plotHint">1 сотка = 100 м². Ширина — сторона участка вдоль улицы; если не знаете, оставьте пустым.</p>
+        </div>
+
+        <div class="group">
+          <div class="glabel" data-i18n="gSize">Размеры дома</div>
+          <div class="seg" id="sizeMode">
+            <button type="button" data-v="dims" class="on" data-i18n="modeDims">Длина × ширина</button>
+            <button type="button" data-v="area" data-i18n="modeArea">Общая площадь</button>
+          </div>
+          <div class="row2" id="dimsBox" style="margin-top: 10px">
+            <div class="field">
+              <label for="houseW" data-i18n="houseW">Ширина (фасад)</label>
+              <div class="unit"><input id="houseW" type="number" min="4" max="30" step="0.5" value="10" inputmode="decimal" /><em>м</em></div>
+            </div>
+            <div class="field">
+              <label for="houseL" data-i18n="houseL">Длина (глубина)</label>
+              <div class="unit"><input id="houseL" type="number" min="4" max="30" step="0.5" value="12" inputmode="decimal" /><em>м</em></div>
+            </div>
+          </div>
+          <div class="field" id="areaBox" style="margin-top: 10px" hidden>
+            <label for="houseArea" data-i18n="houseArea">Желаемая общая площадь</label>
+            <div class="unit"><input id="houseArea" type="number" min="30" max="800" step="5" value="150" inputmode="decimal" /><em>м²</em></div>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="glabel" data-i18n="gFloors">Этажность</div>
+          <div class="seg" id="floors">
+            <button type="button" data-v="1" class="on" data-i18n="f1">1 этаж</button>
+            <button type="button" data-v="1.5" data-i18n="f15">С мансардой</button>
+            <button type="button" data-v="2" data-i18n="f2">2 этажа</button>
+            <button type="button" data-v="3" data-i18n="f3">3 этажа</button>
+          </div>
+        </div>
+
+        <div class="group">
+          <div class="glabel" data-i18n="gMat">Материал стен</div>
+          <div class="mats" id="mats"></div>
+        </div>
+
+        <div class="group">
+          <div class="glabel" data-i18n="gExtra">Пожелания</div>
+          <div class="field">
+            <label for="roof" data-i18n="roofLbl">Кровля</label>
+            <select id="roof">
+              <option value="" data-i18n="any">Не важно</option>
+              <option value="gable" data-i18n="r_gable">Двускатная</option>
+              <option value="hip" data-i18n="r_hip">Вальмовая (четырёхскатная)</option>
+              <option value="flat" data-i18n="r_flat">Плоская</option>
+              <option value="shed" data-i18n="r_shed">Односкатная</option>
+            </select>
+          </div>
+          <div class="row2" style="margin-top: 10px">
+            <div class="field">
+              <label for="beds" data-i18n="bedsLbl">Спален</label>
+              <select id="beds">
+                <option value="" data-i18n="any">Не важно</option>
+                <option value="1">1</option>
+                <option value="2">2</option>
+                <option value="3">3</option>
+                <option value="4">4</option>
+                <option value="5">5</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="garage" data-i18n="garageLbl">Гараж</label>
+              <select id="garage">
+                <option value="" data-i18n="any">Не важно</option>
+                <option value="yes" data-i18n="yes">Нужен</option>
+                <option value="no" data-i18n="no">Не нужен</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-main submit" data-i18n="submit">Подобрать варианты</button>
+      </form>
+
+      <div>
+        <div class="res-head">
+          <div>
+            <h2 data-i18n="resTitle">Подходящие варианты</h2>
+            <p id="summary"></p>
+          </div>
+        </div>
+        <div id="alert" class="alert" hidden></div>
+        <div id="cards" class="cards"></div>
+
+        <section class="viewer" id="viewer" hidden>
+          <div class="vhead">
+            <div>
+              <div class="code" id="vCode"></div>
+              <h2 id="vName"></h2>
+            </div>
+            <div class="tabs" id="tabs">
+              <button type="button" data-tab="3d" class="on" data-i18n="t3d">3D-модель</button>
+              <button type="button" data-tab="plan" data-i18n="tPlan">Планировка</button>
+              <button type="button" data-tab="site" data-i18n="tSite">На участке</button>
+            </div>
+          </div>
+          <div class="stage">
+            <div id="pane3d">
+              <div class="cams">
+                <button type="button" data-cam="front" data-i18n="cFront">Фасад</button>
+                <button type="button" data-cam="corner" data-i18n="cCorner">3/4</button>
+                <button type="button" data-cam="top" data-i18n="cTop">Сверху</button>
+                <button type="button" data-cam="plot" data-i18n="cPlot">Участок</button>
+              </div>
+              <div class="drag-hint" data-i18n="drag">Вращайте мышью или пальцем</div>
+            </div>
+            <div id="panePlan" class="plans" hidden></div>
+            <div id="paneSite" class="plans" hidden></div>
+          </div>
+          <div class="vbody">
+            <div class="specs">
+              <table id="specs"></table>
+              <p class="note" data-i18n="note">
+                Визуализация и планировка — эскизные и ориентировочные. Точные площади, конструктив, инженерные системы и смета определяются в рабочем проекте с учётом вашего участка и норм РК.
+              </p>
+            </div>
+            <div class="order">
+              <h3 data-i18n="orderTitle">Получите полный рабочий проект этого дома</h3>
+              <p data-i18n="orderText">Адаптируем выбранный вариант под ваш участок и пожелания и подготовим комплект документации для строительства.</p>
+              <ul>
+                <li data-i18n="o1">Архитектурные и конструктивные решения</li>
+                <li data-i18n="o2">Инженерные сети: отопление, водоснабжение, электрика</li>
+                <li data-i18n="o3">Генплан и помощь с согласованием</li>
+              </ul>
+              <div class="btns">
+                <a class="btn btn-wa" id="orderWa" href="https://wa.me/77755557475" target="_blank" rel="noopener">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><use href="#wa-icon" /></svg>
+                  <span data-i18n="orderWa">Написать в WhatsApp</span>
+                </a>
+                <a class="btn btn-tel" href="tel:+77755557475" id="orderTel">
+                  <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><use href="#tel-icon" /></svg>
+                  <span data-i18n="orderCall">Позвонить</span>
+                </a>
+              </div>
+              <div class="phone">+7 (775) 555-74-75</div>
+            </div>
+          </div>
+        </section>
+      </div>
+    </main>
+
+    <section class="cta">
+      <div class="wrap">
+        <div>
+          <h2 data-i18n="ctaTitle">Нужен индивидуальный проект?</h2>
+          <p data-i18n="ctaText">Не нашли подходящий вариант — спроектируем дом с нуля по вашему участку и пожеланиям. Позвоните или напишите в WhatsApp.</p>
+        </div>
+        <div class="btns">
+          <a class="btn btn-wa" href="https://wa.me/77755557475" target="_blank" rel="noopener" data-wa>
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><use href="#wa-icon" /></svg>
+            <span data-i18n="orderWa">Написать в WhatsApp</span>
+          </a>
+          <a class="btn btn-tel" href="tel:+77755557475">
+            <svg viewBox="0 0 24 24" width="17" height="17" fill="currentColor"><use href="#tel-icon" /></svg>
+            +7 (775) 555-74-75
+          </a>
+        </div>
+      </div>
+    </section>
+    <footer>
+      <div class="wrap">
+        <span data-i18n="copyright">© 2026 ТОО «СВОЙ ПРОЕКТ». Проектирование объектов под ключ.</span>
+        <span>svoyproect.kz</span>
+      </div>
+    </footer>
+
+    <svg width="0" height="0" style="position: absolute" aria-hidden="true">
+      <symbol id="wa-icon" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163c-1.041-1.804-1.588-3.849-1.587-5.946.003-6.556 5.338-11.891 11.893-11.891 3.181.001 6.167 1.24 8.413 3.488 2.245 2.248 3.481 5.236 3.48 8.414-.003 6.557-5.338 11.892-11.893 11.892-1.99-.001-3.951-.5-5.688-1.448l-6.305 1.654zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884-.001 2.225.651 3.891 1.746 5.634l-.999 3.648 3.742-.981zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z" /></symbol>
+      <symbol id="tel-icon" viewBox="0 0 24 24"><path d="M6.6 10.8a15.1 15.1 0 0 0 6.6 6.6l2.2-2.2c.3-.3.7-.4 1-.2 1.1.4 2.3.6 3.6.6.6 0 1 .4 1 1V20c0 .6-.4 1-1 1A17 17 0 0 1 3 4c0-.6.4-1 1-1h3.5c.6 0 1 .4 1 1 0 1.3.2 2.5.6 3.6.1.3 0 .7-.2 1L6.6 10.8z" /></symbol>
+    </svg>
+
+    <script src="./assets/houses/catalog.js"></script>
+    <script type="module" src="./assets/houses/configurator.js"></script>
+  </body>
+</html>
