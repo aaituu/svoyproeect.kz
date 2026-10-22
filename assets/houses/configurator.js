@@ -175,18 +175,7 @@ function t(key) {
   return key in d ? d[key] : T.ru[key];
 }
 
-/* --------------------------------------------------------- canvas textures */
-
-// Каждая текстура — плитка размером tw × th метров
-const TEX_SPEC = {
-  brick:    { tw: 1.0, th: 0.6 },
-  gas:      { tw: 1.2, th: 1.0 },
-  ceramic:  { tw: 1.0, th: 1.0 },
-  wood:     { tw: 2.0, th: 1.0 },
-  frame:    { tw: 1.0, th: 1.0 },
-  frameDark:{ tw: 1.0, th: 1.0 },
-  monolith: { tw: 2.4, th: 1.2 }
-};
+/* ------------------------------------------- образцы материалов (кнопки) */
 
 function rnd(seed) {
   let s = seed;
@@ -214,19 +203,19 @@ function wallCanvas(kind) {
   c.width = c.height = S;
   const g = c.getContext('2d');
   const r = rnd(kind.length * 977 + 13);
-  if (kind === 'brick') {
+  if (kind === 'brick' || kind === 'ceramic') {
     g.fillStyle = '#d3cabd'; g.fillRect(0, 0, S, S);
     const rows = 8, cols = 4, bh = S / rows, bw = S / cols;
     for (let y = 0; y < rows; y++) {
       const off = y % 2 ? bw / 2 : 0;
       for (let x = -1; x <= cols; x++) {
-        g.fillStyle = shade('#a4553a', 0.82 + r() * 0.3);
+        g.fillStyle = shade(kind === 'brick' ? '#a4553a' : '#cdab7c', 0.82 + r() * 0.3);
         g.fillRect(x * bw + off + 2, y * bh + 2, bw - 4, bh - 4);
       }
     }
     noise(g, S, r, 0.06);
-  } else if (kind === 'gas' || kind === 'ceramic') {
-    const base = kind === 'gas' ? '#ebe6dc' : '#d9a375';
+  } else if (kind === 'gas') {
+    const base = '#ebe6dc';
     g.fillStyle = base; g.fillRect(0, 0, S, S);
     noise(g, S, r, 0.05);
     const rows = kind === 'gas' ? 5 : 4, cols = kind === 'gas' ? 2 : 4;
@@ -490,7 +479,7 @@ function elevationSVG(v) {
   const yG = vbH - 0.4 * S;             // линия земли
   const Y = m => yG - m * S;              // высота → y
   const X = m => x0 + m * S;              // позиция по фасаду → x (0..W)
-  const wallFill = { gas: '#ebe6dc', brick: '#a4553a', ceramic: '#d9a375', wood: '#a8733f', frame: '#e3e6e8', monolith: '#b9bcbf' }[v.mat];
+  const wallFill = { gas: '#ebe6dc', brick: '#a4553a', ceramic: '#cdab7c', wood: '#a8733f', frame: '#e3e6e8', monolith: '#b9bcbf' }[v.mat];
   const wf = texKind(v.mat, v.style) === 'frameDark' ? '#363b40' : wallFill;
   let s = `<svg viewBox="0 0 ${vbW} ${vbH}" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMax meet">`;
   s += `<rect x="0" y="${yG}" width="${vbW}" height="${vbH - yG}" fill="#b9cf9f"/>`;
@@ -659,425 +648,50 @@ function siteSVG(v) {
 
 /* ---------------------------------------------------------------- 3D viewer */
 
-let THREE = null, Orbit = null;
-let view = null; // { renderer, scene, camera, controls, house, running }
+// Сам 3D-движок — в house3d.js, грузится по требованию; без WebGL остаются чертежи
+let H3 = null, h3failed = false;
 
-async function ensure3D() {
-  if (view) return view;
-  THREE = await import('three');
-  Orbit = (await import('three/addons/controls/OrbitControls.js')).OrbitControls;
-  const pane = $('#pane3d');
-  const renderer = new THREE.WebGLRenderer({ antialias: true });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
-  renderer.shadowMap.enabled = true;
-  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  renderer.outputColorSpace = THREE.SRGBColorSpace;
-  renderer.toneMapping = THREE.ACESFilmicToneMapping;
-  renderer.toneMappingExposure = 1.05;
-  pane.prepend(renderer.domElement);
-
-  const scene = new THREE.Scene();
-  scene.background = new THREE.Color('#dfe9f3');
-  scene.fog = new THREE.Fog('#dfe9f3', 90, 220);
-  const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 500);
-  const controls = new Orbit(camera, renderer.domElement);
-  controls.enableDamping = true;
-  controls.maxPolarAngle = Math.PI / 2 - 0.03;
-  controls.minDistance = 5;
-  controls.maxDistance = 140;
-
-  scene.add(new THREE.HemisphereLight('#ffffff', '#7d8f6a', 0.9));
-  const sun = new THREE.DirectionalLight('#fff4e0', 2.2);
-  sun.position.set(25, 40, 30);
-  sun.castShadow = true;
-  sun.shadow.mapSize.set(2048, 2048);
-  Object.assign(sun.shadow.camera, { left: -40, right: 40, top: 40, bottom: -40, near: 1, far: 140 });
-  sun.shadow.bias = -0.0004;
-  scene.add(sun);
-
-  const ground = new THREE.Mesh(new THREE.PlaneGeometry(400, 400), new THREE.MeshStandardMaterial({ color: '#94b06f', roughness: 1 }));
-  ground.rotation.x = -Math.PI / 2;
-  ground.receiveShadow = true;
-  scene.add(ground);
-
-  view = { renderer, scene, camera, controls, house: null, running: false, frameH: 8, size: 20 };
-  const resize = () => {
-    const w = pane.clientWidth, h = pane.clientHeight;
-    if (!w || !h) return;
-    renderer.setSize(w, h, false);
-    camera.aspect = w / h;
-    camera.updateProjectionMatrix();
-  };
-  new ResizeObserver(resize).observe(pane);
-  resize();
-  // Рисуем только по запросу: при вращении (пока идёт инерция) и смене сцены
-  let queued = false;
-  const frame = () => {
-    queued = false;
-    if (!view.running) return;
-    controls.update();
-    renderer.render(scene, camera);
-  };
-  view.request = () => { if (!queued) { queued = true; requestAnimationFrame(frame); } };
-  controls.addEventListener('change', view.request);
-  new ResizeObserver(() => view.request()).observe(pane);
-  view.start = () => { view.running = true; resize(); view.request(); };
-  view.stop = () => { view.running = false; };
-  return view;
-}
-
-const texCache = {};
-function wallMaterial(kind, w, h, world) {
-  const key = kind;
-  if (!texCache[key]) {
-    const tx = new THREE.CanvasTexture(wallCanvas(kind));
-    tx.wrapS = tx.wrapT = THREE.RepeatWrapping;
-    tx.colorSpace = THREE.SRGBColorSpace;
-    tx.anisotropy = 4;
-    texCache[key] = tx;
+async function load3D() {
+  if (H3 || h3failed) return H3;
+  try {
+    const mod = await import('./house3d.js');
+    mod.init({ pane: $('#pane3d'), PLINTH, FLOOR_H, GARAGE_W, TERRACE_D, placement, facadeSlots, doorU });
+    H3 = mod;
+  } catch (e) {
+    console.error(e);
+    h3failed = true;
   }
-  const spec = TEX_SPEC[kind];
-  const tx = texCache[key].clone();
-  tx.needsUpdate = true;
-  if (world) tx.repeat.set(1 / spec.tw, 1 / spec.th);
-  else tx.repeat.set(w / spec.tw, h / spec.th);
-  return new THREE.MeshStandardMaterial({ map: tx, roughness: 0.92, side: world ? THREE.DoubleSide : THREE.FrontSide });
-}
-
-function mesh(geo, mat, cast = true) {
-  const m = new THREE.Mesh(geo, mat);
-  m.castShadow = cast;
-  m.receiveShadow = true;
-  return m;
-}
-
-function box(w, h, d, color, x, y, z, opts = {}) {
-  const mat = color.isMaterial ? color : new THREE.MeshStandardMaterial({ color, roughness: opts.rough ?? 0.8, metalness: opts.metal ?? 0, transparent: !!opts.opacity, opacity: opts.opacity ?? 1 });
-  const m = mesh(new THREE.BoxGeometry(w, h, d), mat, opts.cast !== false);
-  m.position.set(x, y, z);
-  return m;
-}
-
-function wallBox(kind, w, h, d, x, y, z) {
-  const mats = [
-    wallMaterial(kind, d, h), wallMaterial(kind, d, h),
-    new THREE.MeshStandardMaterial({ color: '#8a8f94' }), new THREE.MeshStandardMaterial({ color: '#8a8f94' }),
-    wallMaterial(kind, w, h), wallMaterial(kind, w, h)
-  ];
-  const m = mesh(new THREE.BoxGeometry(w, h, d), mats);
-  m.position.set(x, y, z);
-  return m;
-}
-
-// Фронтон / треугольная стена в плоскости XY с мировыми UV
-function gableWall(kind, pts) {
-  const shape = new THREE.Shape(pts.map(([x, y]) => new THREE.Vector2(x, y)));
-  return mesh(new THREE.ShapeGeometry(shape), wallMaterial(kind, 0, 0, true));
-}
-
-function polyGeometry(quads) {
-  const pos = [];
-  quads.forEach(q => {
-    if (q.length === 3) pos.push(...q[0], ...q[1], ...q[2]);
-    else pos.push(...q[0], ...q[1], ...q[2], ...q[0], ...q[2], ...q[3]);
-  });
-  const g = new THREE.BufferGeometry();
-  g.setAttribute('position', new THREE.Float32BufferAttribute(pos, 3));
-  g.computeVertexNormals();
-  return g;
-}
-
-function windowMesh(ww, wh, frameColor) {
-  const g = new THREE.Group();
-  g.add(box(ww + 0.14, wh + 0.14, 0.08, frameColor, 0, 0, 0, { cast: false }));
-  g.add(box(ww, wh, 0.1, '#2f4558', 0, 0, 0.01, { rough: 0.08, metal: 0.55, cast: false }));
-  if (ww > 1.1) g.add(box(0.06, wh, 0.12, frameColor, 0, 0, 0.01, { cast: false }));
-  g.add(box(ww + 0.25, 0.05, 0.22, '#d9dcdf', 0, -wh / 2 - 0.05, 0.08, { cast: false }));
-  return g;
-}
-
-// Ставит объект на фасад: side = front | back | left | right, u — координата вдоль фасада
-function onFacade(obj, side, u, y, W, L) {
-  const e = 0.03;
-  if (side === 'front') { obj.position.set(u, y, L / 2 + e); }
-  if (side === 'back') { obj.position.set(u, y, -L / 2 - e); obj.rotation.y = Math.PI; }
-  if (side === 'right') { obj.position.set(W / 2 + e, y, -u); obj.rotation.y = Math.PI / 2; }
-  if (side === 'left') { obj.position.set(-W / 2 - e, y, u); obj.rotation.y = -Math.PI / 2; }
-  return obj;
-}
-
-function buildRoof(v, kind, look) {
-  const g = v.geo, grp = new THREE.Group();
-  const Y = g.wallTop, o = g.over;
-  const roofMat = new THREE.MeshStandardMaterial({ color: look.roof, roughness: 0.65, metalness: v.style === 'barn' ? 0.35 : 0.05, side: THREE.DoubleSide, flatShading: true });
-  if (v.roof === 'flat') {
-    grp.add(box(v.W + 2 * o, 0.3, v.L + 2 * o, look.roof, 0, Y + 0.15, 0));
-    if (v.style === 'hitech' || o === 0) {
-      const p = 0.45, th = 0.18;
-      grp.add(box(v.W, p, th, '#e9eaeb', 0, Y + 0.3 + p / 2, v.L / 2 - th / 2));
-      grp.add(box(v.W, p, th, '#e9eaeb', 0, Y + 0.3 + p / 2, -v.L / 2 + th / 2));
-      grp.add(box(th, p, v.L, '#e9eaeb', v.W / 2 - th / 2, Y + 0.3 + p / 2, 0));
-      grp.add(box(th, p, v.L, '#e9eaeb', -v.W / 2 + th / 2, Y + 0.3 + p / 2, 0));
-    }
-    return grp;
-  }
-  if (v.roof === 'shed') {
-    const s = g.h / v.L, hw = v.W / 2 + o, hl = v.L / 2 + o;
-    const yF = Y - o * s, yB = Y + g.h + o * s;
-    grp.add(mesh(polyGeometry([[[-hw, yF, hl], [hw, yF, hl], [hw, yB, -hl], [-hw, yB, -hl]]]), roofMat));
-    grp.add(mesh(polyGeometry([[[-hw, yF - 0.2, hl], [hw, yF - 0.2, hl], [hw, yF, hl], [-hw, yF, hl]]]), new THREE.MeshStandardMaterial({ color: '#2b3138', side: THREE.DoubleSide })));
-    [-1, 1].forEach(sgn => {
-      const w = gableWall(kind, [[v.L / 2, Y], [-v.L / 2, Y], [-v.L / 2, Y + g.h]]);
-      w.rotation.y = -Math.PI / 2;
-      w.position.x = sgn * v.W / 2;
-      grp.add(w);
-    });
-    const backWall = gableWall(kind, [[-v.W / 2, Y], [v.W / 2, Y], [v.W / 2, Y + g.h], [-v.W / 2, Y + g.h]]);
-    backWall.position.z = -v.L / 2;
-    grp.add(backWall);
-    return grp;
-  }
-  // Двускатная, мансардная и вальмовая: строим с коньком вдоль локальной X,
-  // затем поворачиваем, если конёк идёт вдоль глубины дома.
-  const alongZ = v.roof === 'hip' ? v.L > v.W : g.ridgeAlongZ;
-  const A = alongZ ? v.L : v.W;   // длина вдоль конька
-  const B = alongZ ? v.W : v.L;   // пролёт
-  const k = g.h / (B / 2);
-  const ye = Y - o * k, yr = Y + g.h;
-  const local = new THREE.Group();
-  if (v.roof === 'hip') {
-    const r = Math.max(0, (A - B) / 2);
-    const ax = A / 2 + o, bz = B / 2 + o;
-    const E1 = [-ax, ye, bz], E2 = [ax, ye, bz], E3 = [ax, ye, -bz], E4 = [-ax, ye, -bz];
-    const R1 = [-r, yr, 0], R2 = [r, yr, 0];
-    local.add(mesh(polyGeometry([[E1, E2, R2, R1], [E3, E4, R1, R2], [E2, E3, R2], [E4, E1, R1]]), roofMat));
-  } else {
-    const ax = A / 2 + o, bz = B / 2 + o;
-    local.add(mesh(polyGeometry([
-      [[-ax, ye, bz], [ax, ye, bz], [ax, yr, 0], [-ax, yr, 0]],
-      [[ax, ye, -bz], [-ax, ye, -bz], [-ax, yr, 0], [ax, yr, 0]]
-    ]), roofMat));
-    // Фронтоны и окна на них
-    [-1, 1].forEach(sgn => {
-      const w = gableWall(kind, [[B / 2, Y], [-B / 2, Y], [0, Y + g.h]]);
-      w.rotation.y = Math.PI / 2;
-      w.position.x = sgn * A / 2;
-      local.add(w);
-      const ww = clamp(B * 0.16, 0.9, 1.6), wh = clamp(g.h * 0.45, 0.9, 1.6);
-      const count = v.style === 'barn' && B >= 7 ? 2 : 1;
-      for (let i = 0; i < count; i++) {
-        const win = windowMesh(ww, wh, look.frame);
-        const zz = count === 1 ? 0 : (i ? 1 : -1) * B * 0.18;
-        win.position.set(sgn * (A / 2 + 0.03), Y + Math.min(g.h * 0.3, 1.0) + wh / 2, zz);
-        win.rotation.y = sgn > 0 ? Math.PI / 2 : -Math.PI / 2;
-        local.add(win);
-      }
-    });
-  }
-  if (alongZ) local.rotation.y = Math.PI / 2;
-  grp.add(local);
-  if (look.chimney && v.roof !== 'flat') {
-    grp.add(box(0.6, g.h + 1.2, 0.6, '#7a4a3a', v.W * 0.22, Y + (g.h + 1.2) / 2, -v.L * 0.12));
-  }
-  return grp;
-}
-
-function buildHouse(v) {
-  const look = LOOK[v.style];
-  const kind = texKind(v.mat, v.style);
-  const g = v.geo;
-  const W = v.W, L = v.L;
-  const house = new THREE.Group();
-
-  house.add(box(W + 0.12, PLINTH, L + 0.12, '#7d8186', 0, PLINTH / 2, 0));
-  const wallH = g.wallTop - PLINTH;
-  house.add(wallBox(kind, W, wallH, L, 0, PLINTH + wallH / 2, 0));
-
-  if (v.floors >= 2 && (v.style === 'classic' || v.style === 'chalet')) {
-    for (let f = 1; f < v.floors; f++) house.add(box(W + 0.1, 0.18, L + 0.1, '#e8e2d6', 0, PLINTH + f * FLOOR_H, 0, { cast: false }));
-  }
-
-  // окна и дверь
-  const big = v.style === 'modern' || v.style === 'hitech';
-  const full = v.floors === 1.5 ? 1 : v.floors;
-  ['front', 'back', 'left', 'right'].forEach(side => {
-    const len = side === 'front' || side === 'back' ? W : L;
-    const slots = facadeSlots(len), n = slots.n;
-    for (let f = 0; f < full; f++) {
-      if (side === 'right' && f === 0 && v.garage) continue;
-      for (let i = 0; i < n; i++) {
-        const u = slots.at(i);
-        const base = PLINTH + f * FLOOR_H;
-        if (side === 'front' && f === 0 && i === slots.door) {
-          const dw = big ? 1.2 : 1.0;
-          const door = new THREE.Group();
-          door.add(box(dw + 0.12, 2.3, 0.08, look.frame, 0, 0, 0, { cast: false }));
-          door.add(box(dw, 2.2, 0.1, big ? '#2e3338' : '#6b4a2f', 0, -0.03, 0.01, { cast: false }));
-          door.add(box(0.05, 0.3, 0.06, '#c9b27a', dw * 0.35, 0, 0.08, { cast: false }));
-          house.add(onFacade(door, 'front', u, base + 1.15, W, L));
-          if (!big && !v.terrace) house.add(box(dw + 1.0, 0.12, 1.1, look.roof, u, base + 2.55, L / 2 + 0.55));
-          continue;
-        }
-        const panoramic = big && (side === 'front' || side === 'back');
-        const ww = panoramic ? Math.min(2.4, len / n - 0.8) : v.style === 'barn' ? 1.0 : 1.2;
-        const wh = panoramic ? 2.3 : v.style === 'barn' ? 1.8 : 1.4;
-        const sill = panoramic ? 0.25 : 0.85;
-        house.add(onFacade(windowMesh(ww, wh, look.frame), side, u, base + sill + wh / 2, W, L));
-      }
-    }
-  });
-
-  house.add(buildRoof(v, kind, look));
-
-  // гараж
-  if (v.garage) {
-    const gd = v.gd, gh = 3.0;
-    const gx = W / 2 + GARAGE_W / 2, gz = L / 2 - gd / 2;
-    house.add(box(GARAGE_W, PLINTH, gd, '#7d8186', gx, PLINTH / 2, gz));
-    house.add(wallBox(kind, GARAGE_W, gh, gd, gx, PLINTH + gh / 2, gz));
-    house.add(box(GARAGE_W + 0.4, 0.25, gd + 0.4, look.roof, gx, PLINTH + gh + 0.12, gz));
-    const gate = new THREE.Group();
-    gate.add(box(2.7, 2.3, 0.08, '#cfd3d7', 0, 0, 0, { cast: false }));
-    for (let i = 1; i < 6; i++) gate.add(box(2.7, 0.03, 0.1, '#9aa1a8', 0, -1.15 + i * 2.3 / 6, 0.01, { cast: false }));
-    gate.position.set(gx, PLINTH + 1.15, L / 2 + 0.03);
-    house.add(gate);
-  }
-
-  // терраса
-  if (v.terrace) {
-    const tw = Math.min(W * 0.7, 7);
-    const deck = box(tw, PLINTH - 0.05, TERRACE_D, '#9a6b40', 0, (PLINTH - 0.05) / 2, L / 2 + TERRACE_D / 2);
-    house.add(deck);
-    house.add(box(1.4, 0.18, 0.4, '#8a8f94', doorU(W), 0.09, L / 2 + TERRACE_D + 0.2));
-    if (!big && v.floors !== 3) {
-      const ph = Math.min(2.8, FLOOR_H - 0.2);
-      [-1, 1].forEach(s => house.add(box(0.16, ph, 0.16, '#efe9df', s * (tw / 2 - 0.15), PLINTH + ph / 2, L / 2 + TERRACE_D - 0.15)));
-      house.add(box(tw + 0.3, 0.14, TERRACE_D + 0.2, look.roof, 0, PLINTH + ph + 0.07, L / 2 + TERRACE_D / 2));
-    }
-  }
-
-  house.traverse(o => { if (o.isMesh) { o.castShadow = o.castShadow !== false; o.receiveShadow = true; } });
-  return house;
-}
-
-function buildSite(v, pos) {
-  const site = new THREE.Group();
-  const pw = v.plot.w, pl = v.plot.l;
-  const lawn = new THREE.Mesh(new THREE.PlaneGeometry(pw, pl), new THREE.MeshStandardMaterial({ color: '#a5c37f', roughness: 1 }));
-  lawn.rotation.x = -Math.PI / 2;
-  lawn.position.y = 0.01;
-  lawn.receiveShadow = true;
-  site.add(lawn);
-  // дорога
-  const road = new THREE.Mesh(new THREE.PlaneGeometry(400, 7), new THREE.MeshStandardMaterial({ color: '#6f757c', roughness: 0.95 }));
-  road.rotation.x = -Math.PI / 2;
-  road.position.set(0, 0.012, pl / 2 + 5);
-  road.receiveShadow = true;
-  site.add(road);
-
-  // забор с проёмом под калитку
-  const fenceMat = new THREE.MeshStandardMaterial({ color: '#5b4636', roughness: 0.9 });
-  const fh = 1.6, ft = 0.06;
-  const seg = (x0, z0, x1, z1) => {
-    const len = Math.hypot(x1 - x0, z1 - z0);
-    if (len < 0.1) return;
-    const m = box(len, fh, ft, fenceMat, (x0 + x1) / 2, fh / 2, (z0 + z1) / 2);
-    m.rotation.y = -Math.atan2(z1 - z0, x1 - x0);
-    site.add(m);
-  };
-  seg(-pw / 2, -pl / 2, pw / 2, -pl / 2);
-  seg(-pw / 2, -pl / 2, -pw / 2, pl / 2);
-  seg(pw / 2, -pl / 2, pw / 2, pl / 2);
-  const gateX = pos.rot ? 0 : pos.toWorld(doorU(v.W), 0)[0];
-  const gate0 = clamp(gateX - 2.2, -pw / 2, pw / 2), gate1 = clamp(gateX + 2.2 + (v.garage && !pos.rot ? GARAGE_W + 1 : 0), -pw / 2, pw / 2);
-  seg(-pw / 2, pl / 2, gate0, pl / 2);
-  seg(gate1, pl / 2, pw / 2, pl / 2);
-
-  // дорожка и подъезд к гаражу
-  const pave = new THREE.MeshStandardMaterial({ color: '#b8b3aa', roughness: 0.95 });
-  if (!pos.rot) {
-    const frontZ = pos.rects.find(r => r.k === (v.terrace ? 'terrace' : 'house')).z1;
-    const len = pl / 2 - frontZ;
-    if (len > 0.2) {
-      const p = box(1.3, 0.04, len, pave, gateX, 0.02, frontZ + len / 2, { cast: false });
-      site.add(p);
-      if (v.garage) {
-        const gr = pos.rects.find(r => r.k === 'garage');
-        const glen = pl / 2 - gr.z1;
-        site.add(box(3.2, 0.04, glen, pave, (gr.x0 + gr.x1) / 2, 0.02, gr.z1 + glen / 2, { cast: false }));
-      }
-    }
-  }
-
-  // деревья в углах участка, если хватает места
-  const tree = (x, z, s) => {
-    const t = new THREE.Group();
-    t.add(box(0.25 * s, 1.6 * s, 0.25 * s, '#6b4a2f', 0, 0.8 * s, 0));
-    const crown = mesh(new THREE.ConeGeometry(1.4 * s, 3.6 * s, 9), new THREE.MeshStandardMaterial({ color: '#4f7a3a', roughness: 0.9, flatShading: true }));
-    crown.position.y = 3.2 * s;
-    t.add(crown);
-    t.position.set(x, 0, z);
-    site.add(t);
-  };
-  const hb = pos.rects.reduce((a, r) => ({ x0: Math.min(a.x0, r.x0), x1: Math.max(a.x1, r.x1), z0: Math.min(a.z0, r.z0), z1: Math.max(a.z1, r.z1) }), { x0: 1e9, x1: -1e9, z0: 1e9, z1: -1e9 });
-  [[-pw / 2 + 1.8, -pl / 2 + 1.8, 1], [pw / 2 - 1.8, -pl / 2 + 1.8, 0.85], [-pw / 2 + 1.8, pl / 2 - 2.2, 0.7]].forEach(([x, z, s]) => {
-    const clear = x < hb.x0 - 2 || x > hb.x1 + 2 || z < hb.z0 - 2 || z > hb.z1 + 2;
-    if (clear) tree(x, z, s);
-  });
-  return site;
+  return H3;
 }
 
 async function show3D(v) {
-  const pane = $('#pane3d');
-  try {
-    await ensure3D();
-  } catch (e) {
-    console.error(e);
-    pane.innerHTML = `<div class="fallback">${esc(t('no3d'))}</div>`;
+  const h = await load3D();
+  if (!h) {
+    $('#pane3d').innerHTML = `<div class="fallback">${esc(t('no3d'))}</div>`;
     return;
   }
-  const { scene } = view;
-  if (view.house) {
-    scene.remove(view.house);
-    view.house.traverse(o => { if (o.geometry) o.geometry.dispose(); if (o.material) [].concat(o.material).forEach(m => { if (m.map) m.map.dispose(); m.dispose(); }); });
+  try {
+    h.show(v);
+    if (state.tab === '3d') h.start();
+  } catch (e) {
+    console.error(e);
   }
-  const root = new THREE.Group();
-  const pos = placement(v);
-  const house = buildHouse(v);
-  house.position.set(pos.cx, 0, pos.cz);
-  if (pos.rot) house.rotation.y = Math.PI / 2;
-  root.add(house);
-  root.add(buildSite(v, pos));
-  scene.add(root);
-  view.house = root;
-  const hb = new THREE.Box3().setFromObject(house);
-  view.center = hb.getCenter(new THREE.Vector3());
-  view.hsize = hb.getSize(new THREE.Vector3());
-  view.rot = pos.rot;
-  setCam('corner');
-  if (state.tab === '3d') view.start();
 }
 
-function setCam(kind) {
-  if (!view || !view.center) return;
-  const c = view.center, s = view.hsize;
-  const d = Math.max(s.x, s.z, s.y * 1.6) * 1.9 + 6;
-  const cam = view.camera;
-  const target = new THREE.Vector3(c.x, Math.min(c.y, s.y * 0.45), c.z);
-  // направление «лицом к фасаду» зависит от поворота дома
-  const front = view.rot ? new THREE.Vector3(1, 0, 0) : new THREE.Vector3(0, 0, 1);
-  const sideV = view.rot ? new THREE.Vector3(0, 0, -1) : new THREE.Vector3(1, 0, 0);
-  let p;
-  if (kind === 'front') p = target.clone().addScaledVector(front, d).add(new THREE.Vector3(0, s.y * 0.35, 0));
-  else if (kind === 'top') p = new THREE.Vector3(c.x, d * 1.5, c.z + 0.01);
-  else if (kind === 'plot') {
-    const pd = Math.max(d * 1.7, 30);
-    p = new THREE.Vector3(0, pd * 0.7, 0).addScaledVector(front, pd * 0.8).addScaledVector(sideV, pd * 0.45);
-    target.set(0, 0, 0);
-  } else p = target.clone().addScaledVector(front, d * 0.78).addScaledVector(sideV, d * 0.62).add(new THREE.Vector3(0, d * 0.32, 0));
-  cam.position.copy(p);
-  view.controls.target.copy(target);
-  view.controls.update();
+function setCam(kind) { if (H3) H3.setCam(kind); }
+
+// Превью карточек рендерятся по очереди, пока список вариантов не сменился
+async function renderThumbs() {
+  const h = await load3D();
+  if (!h) return;
+  const list = state.variants;
+  for (let i = 0; i < list.length; i++) {
+    if (state.variants !== list) return;
+    let url = null;
+    try { url = await h.thumb(list[i]); } catch (e) { console.error(e); return; }
+    const card = $$('#cards .card')[i];
+    if (card && url && state.variants === list) card.querySelector('.thumb').innerHTML = `<img src="${url}" alt="">`;
+  }
 }
 
 /* -------------------------------------------------------------------- UI */
@@ -1141,6 +755,7 @@ function renderCards() {
     const [n, plot] = lastSummary;
     $('#summary').textContent = t('summary')(n, plot.sot, plot.w, plot.l);
   }
+  renderThumbs();
 }
 
 function renderSpecs(v) {
@@ -1197,7 +812,7 @@ function setTab(tab) {
   $('#pane3d').hidden = tab !== '3d';
   $('#panePlan').hidden = tab !== 'plan';
   $('#paneSite').hidden = tab !== 'site';
-  if (view) { if (tab === '3d') view.start(); else view.stop(); }
+  if (H3) { if (tab === '3d') H3.start(); else H3.stop(); }
 }
 
 function run(scroll) {
