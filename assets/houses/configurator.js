@@ -3,7 +3,7 @@
  * Подбирает проекты из HOUSE_CATALOG под параметры посетителя и строит
  * по выбранному варианту эскизный проект (листы в sketch.js).
  */
-import { setContext, sheets, facadeThumb, defaultFacade, FACADES, ROOF_COLORS } from './sketch.js';
+import { setContext, sheets, facadeThumb, defaultFacade, FACADES, ROOF_COLORS } from './sketch.js?v=4';
 
 const PHONE = '77755557475';
 const FLOOR_H = 3.0;   // высота этажа, м
@@ -656,7 +656,15 @@ function renderFacadePick(v) {
   $('#roofBox').hidden = v.roof === 'flat';
   $('#roofColor').innerHTML = ROOF_COLORS.map(([name, hex], i) =>
     `<button type="button" data-rc="${i}" class="${i === v.roofColor ? 'on' : ''}" title="${esc(name)}"><i style="background:${hex}"></i>${esc(name)}</button>`).join('');
-  const changed = () => { renderFacadePick(v); renderSheets(v); updateCardThumb(v); updateOrder(v); };
+  $('#facPrev').innerHTML = facadeThumb(v);
+  // после смены отделки показываем лист с фасадами — на остальных листах её не видно
+  const changed = () => {
+    renderFacadePick(v);
+    renderSheets(v);
+    showSheet(state.sheets.findIndex(s => s.short.startsWith('Фасады')));
+    updateCardThumb(v);
+    updateOrder(v);
+  };
   $$('#facType [data-fac]').forEach(b => b.onclick = () => { v.facade = { type: b.dataset.fac, color: 0 }; changed(); });
   $$('#facColor [data-col]').forEach(b => b.onclick = () => { v.facade = { ...v.facade, color: +b.dataset.col }; changed(); });
   $$('#roofColor [data-rc]').forEach(b => b.onclick = () => { v.roofColor = +b.dataset.rc; changed(); });

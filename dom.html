@@ -203,6 +203,11 @@
       .picks { display: grid; grid-template-columns: 1.4fr 1fr; gap: 0; border-bottom: 1px solid #eef1f5; }
       .pick { padding: 16px 20px 18px; }
       .pick + .pick { border-left: 1px solid #eef1f5; }
+      .facprev {
+        margin-top: 14px; border-radius: 12px; overflow: hidden; aspect-ratio: 16 / 7;
+        background: linear-gradient(180deg, #e7eff8 0%, #f3f6f9 70%, #dfe8d4 70%, #d3e0c4 100%);
+      }
+      .facprev svg { display: block; width: 100%; height: 100%; }
       .plabel { font-size: 12.5px; font-weight: 700; color: #3a4453; margin: 10px 0 7px; display: block; }
       .chips { display: flex; flex-wrap: wrap; gap: 6px; }
       .chips button {
@@ -503,6 +508,7 @@
                 <div class="plabel" data-i18n="roofColorLbl">Цвет кровли</div>
                 <div class="chips swatches" id="roofColor"></div>
               </div>
+              <div class="facprev" id="facPrev"></div>
             </div>
             <div class="pick">
               <div class="glabel" data-i18n="layoutTitle">Планировка</div>
@@ -603,7 +609,7 @@
       <div class="zoomarea"><div id="zoomSheet" class="zoomsheet"></div></div>
     </div>
 
-    <script src="./assets/houses/catalog.js"></script>
-    <script type="module" src="./assets/houses/configurator.js"></script>
+    <script src="./assets/houses/catalog.js?v=4"></script>
+    <script type="module" src="./assets/houses/configurator.js?v=4"></script>
   </body>
 </html>
